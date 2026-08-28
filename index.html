@@ -758,7 +758,10 @@ var state = {
     custos: { TF: 180, MAQ: 850, PIPA: 650, APOIO: 450 },
     unsubscribeLancamentos: null,
     unsubscribeEstoque: null,
-    rfSelecionada: null
+    unsubscribeProducao: null,
+    rfSelecionada: null,
+    todosRegistros: [],
+    insumosDia: {}
 };
 
 // ============================================================
@@ -829,10 +832,10 @@ function formatarRF(rf) {
 
 function listarRFsDisponiveis() {
     var rfs = new Set();
-    var hoje = new Date();
-    var rfAtual = getRFAtual();
-    rfs.add(rfAtual);
+    var atual = getRFAtual();
+    rfs.add(atual);
     
+    // Pega RFs dos lançamentos
     for (var key in state.lancamentosFirebase) {
         var lanc = state.lancamentosFirebase[key];
         if (lanc.dataReferencia) {
@@ -845,7 +848,7 @@ function listarRFsDisponiveis() {
         }
     }
     
-    // Adiciona RFs das operações
+    // Pega RFs das operações
     for (var opKey in state.operacoesDia) {
         var op = state.operacoesDia[opKey];
         if (op.registros) {
@@ -872,13 +875,6 @@ function getRFObj(rf) {
         inicio: new Date(ano, mes-1, 21),
         fim: new Date(ano, mes, 20)
     };
-}
-
-function estaNaRF(data, rf) {
-    if (!data || !rf) return false;
-    var rfObj = getRFObj(rf);
-    var d = new Date(data);
-    return d >= rfObj.inicio && d <= rfObj.fim;
 }
 
 function mudarRF(rf) {
@@ -1017,7 +1013,23 @@ function ouvirLancamentosFirebase(callback) {
             });
             if (callback) callback(dados);
         }, function(error) {
-            console.error('❌ Erro no listener:', error.message);
+            console.error('❌ Erro no listener de lançamentos:', error.message);
+        });
+}
+
+function ouvirProducaoFirebase(callback) {
+    return db.collection('producao_dia')
+        .orderBy('createdAt', 'desc')
+        .onSnapshot(function(snapshot) {
+            var dados = {};
+            snapshot.forEach(function(doc) {
+                var data = doc.data();
+                data.id = doc.id;
+                dados[data.operacao] = data;
+            });
+            if (callback) callback(dados);
+        }, function(error) {
+            console.error('❌ Erro no listener de produção:', error.message);
         });
 }
 
@@ -1046,7 +1058,7 @@ function ouvirEstoqueFirebase(callback) {
             });
             if (callback) callback(dados);
         }, function(error) {
-            console.error('❌ Erro no listener:', error.message);
+            console.error('❌ Erro no listener de estoque:', error.message);
         });
 }
 
@@ -1115,6 +1127,10 @@ function fazerLogout() {
             state.unsubscribeEstoque();
             state.unsubscribeEstoque = null;
         }
+        if (state.unsubscribeProducao) {
+            state.unsubscribeProducao();
+            state.unsubscribeProducao = null;
+        }
         state.usuario = null;
         document.getElementById('app').style.display = 'none';
         document.getElementById('loginScreen').style.display = 'flex';
@@ -1138,7 +1154,6 @@ function iniciarListenersFirebase() {
         renderizarDashboard();
         renderizarFaturamentoPorRF();
         renderizarResultado();
-        renderizarProducao();
     });
     
     if (state.unsubscribeEstoque) state.unsubscribeEstoque();
@@ -1146,6 +1161,15 @@ function iniciarListenersFirebase() {
         state.movimentacoes = dados;
         recalcularEstoque();
         renderizarEstoque();
+    });
+    
+    if (state.unsubscribeProducao) state.unsubscribeProducao();
+    state.unsubscribeProducao = ouvirProducaoFirebase(function(dados) {
+        state.operacoesDia = dados;
+        carregarSeletorRF();
+        renderizarDashboard();
+        renderizarFaturamentoPorRF();
+        renderizarProducao();
     });
     
     carregarConfigFirebase('custos').then(function(dados) {
@@ -1163,11 +1187,61 @@ function iniciarListenersFirebase() {
 }
 
 // ============================================================
-// IMPORTAÇÃO DE PLANILHA
+// PROCESSAR SAÍDAS DE INSUMOS
+// ============================================================
+function processarSaidasInsumos(registros) {
+    if (!registros || registros.length === 0) return;
+    
+    var saidas = [];
+    registros.forEach(function(row) {
+        if (row.insumos && row.insumos.length > 0) {
+            var municipio = normalizarMunicipio(row.municipio || row.fazenda || 'NÃO INFORMADO');
+            row.insumos.forEach(function(ins) {
+                var insumo = normalizarInsumo(ins.nome);
+                if (insumo && insumo !== 'INSUMO NÃO IDENTIFICADO' && ins.qtd > 0) {
+                    saidas.push({
+                        data: row.data || getHoje(),
+                        insumo: insumo,
+                        municipio: municipio,
+                        quantidade: ins.qtd,
+                        operacao: row.operacao,
+                        talhao: row.talhao,
+                        tipo: 'saida',
+                        nf: 'PRODUÇÃO',
+                        origem: 'Consumo Produção - ' + (row.operacao || 'OPERAÇÃO')
+                    });
+                }
+            });
+        }
+    });
+    
+    if (saidas.length > 0) {
+        saidas.forEach(function(s) {
+            salvarMovimentacaoFirebase({
+                tipo: 'saida',
+                insumo: s.insumo,
+                municipio: s.municipio,
+                quantidade: s.quantidade,
+                nf: 'PRODUÇÃO',
+                origem: s.origem,
+                data: s.data
+            }).catch(function(error) {
+                console.error('❌ Erro ao salvar saída de insumo:', error.message);
+            });
+        });
+        showToast('📤 ' + saidas.length + ' saídas de insumos registradas.', 'info');
+    }
+}
+
+// ============================================================
+// IMPORTAÇÃO DE PLANILHA (SALVANDO NO FIREBASE)
 // ============================================================
 function importarPlanilha() {
     var input = document.getElementById('fileInputProducao');
-    if (!input || !input.files[0]) { showToast('⚠️ Selecione um arquivo!', 'warning'); return; }
+    if (!input || !input.files[0]) { 
+        showToast('⚠️ Selecione um arquivo!', 'warning'); 
+        return; 
+    }
     
     var file = input.files[0];
     var reader = new FileReader();
@@ -1179,257 +1253,250 @@ function importarPlanilha() {
             var ws = workbook.Sheets[workbook.SheetNames[0]];
             var json = XLSX.utils.sheet_to_json(ws);
             
-            if (json.length === 0) { throw new Error('Planilha vazia!'); }
+            if (json.length === 0) { 
+                throw new Error('Planilha vazia!'); 
+            }
             
-            state.dadosProducao = json;
-            state.operacoesDia = {};
+            console.log('📋 Nomes das colunas encontradas:');
+            if (json.length > 0) {
+                var colunas = Object.keys(json[0]);
+                console.log('Colunas:', colunas);
+            }
             
-            json.forEach(function(row) {
-                var op = row['Operação'] || row['OPERACAO'] || row['operacao'] || 'OPERAÇÃO';
-                if (!state.operacoesDia[op]) {
-                    state.operacoesDia[op] = { nome: op, totalHa: 0, registros: [] };
+            function encontrarColuna(nomesPossiveis) {
+                if (json.length === 0) return null;
+                var colunas = Object.keys(json[0]);
+                for (var i = 0; i < nomesPossiveis.length; i++) {
+                    var nome = nomesPossiveis[i];
+                    for (var j = 0; j < colunas.length; j++) {
+                        var col = colunas[j].toLowerCase().trim();
+                        var busca = nome.toLowerCase().trim();
+                        if (col === busca || col.includes(busca) || busca.includes(col)) {
+                            return colunas[j];
+                        }
+                    }
                 }
-                var ha = parseFloat(row['Produção'] || row['PRODUCAO'] || row['producao'] || 0) || 0;
-                state.operacoesDia[op].totalHa += ha;
-                state.operacoesDia[op].registros.push({
-                    data: row['Data'] || row['DATA'] || getHoje(),
-                    ha: ha,
-                    fazenda: row['Fazenda'] || row['FAZENDA'] || '',
-                    talhao: row['Talhão'] || row['TALHAO'] || '',
-                    equipe: row['Equipe'] || row['EQUIPE'] || ''
+                return null;
+            }
+            
+            var colOp = encontrarColuna(['Operação/Atividade', 'Operação', 'OPERACAO', 'Atividade']);
+            var colProd = encontrarColuna(['Produção (ha)', 'Produção', 'PRODUCAO', 'producao', 'ha']);
+            var colData = encontrarColuna(['Data', 'DATA']);
+            var colFaz = encontrarColuna(['Fazenda', 'FAZENDA']);
+            var colTalhao = encontrarColuna(['Talhão', 'TALHAO', 'Talhão (3 DIGITOS', 'Talhao']);
+            var colMunicipio = encontrarColuna(['Município', 'MUNICIPIO', 'Cidade']);
+            var colEquipe = encontrarColuna(['Equipe', 'EQUIPE']);
+            var colObs = encontrarColuna(['Observações', 'OBSERVACAO', 'Observacao', 'Obs']);
+            var colAreaCad = encontrarColuna(['Área Cadastral', 'AREA CADASTRAL', 'Área Cadastro']);
+            
+            var colInsumos = [];
+            var colQuantidades = [];
+            var colunasObj = Object.keys(json[0]);
+            for (var i = 0; i < colunasObj.length; i++) {
+                var nome = colunasObj[i];
+                if (nome.toLowerCase().includes('insumo')) {
+                    colInsumos.push(nome);
+                }
+                if (nome.toLowerCase().includes('quantidade')) {
+                    colQuantidades.push(nome);
+                }
+            }
+            
+            console.log('📊 Colunas identificadas:');
+            console.log('  Operação:', colOp);
+            console.log('  Produção:', colProd);
+            console.log('  Data:', colData);
+            console.log('  Fazenda:', colFaz);
+            console.log('  Talhão:', colTalhao);
+            console.log('  Município:', colMunicipio);
+            console.log('  Equipe:', colEquipe);
+            console.log('  Observação:', colObs);
+            console.log('  Área Cadastral:', colAreaCad);
+            console.log('  Insumos:', colInsumos);
+            console.log('  Quantidades:', colQuantidades);
+            
+            var operacoesParaSalvar = {};
+            var todosRegistros = [];
+            var linhaProcessada = 0;
+            var totalArea = 0;
+            
+            json.forEach(function(row, index) {
+                if (!row || Object.keys(row).length === 0) return;
+                
+                var primeiraColuna = row[Object.keys(row)[0]] || '';
+                if (typeof primeiraColuna === 'string' && 
+                    (primeiraColuna.includes('EPS') || 
+                     primeiraColuna.includes('NILIZA') ||
+                     primeiraColuna.includes('ATIVIDADE REFERENTE') ||
+                     primeiraColuna.includes('Supervisor'))) {
+                    return;
+                }
+                
+                var op = colOp ? String(row[colOp] || '').trim() : '';
+                var prod = colProd ? parseFloat(String(row[colProd] || '0').replace(',', '.')) || 0 : 0;
+                var data = colData ? String(row[colData] || '').trim() : getHoje();
+                var fazenda = colFaz ? String(row[colFaz] || '').trim() : '';
+                var talhao = colTalhao ? String(row[colTalhao] || '').trim() : '';
+                var municipio = colMunicipio ? String(row[colMunicipio] || '').trim() : '';
+                var equipe = colEquipe ? String(row[colEquipe] || '').trim() : '';
+                var obs = colObs ? String(row[colObs] || '').trim() : '';
+                var areaCad = colAreaCad ? parseFloat(String(row[colAreaCad] || '0').replace(',', '.')) || 0 : 0;
+                
+                if (!op && prod === 0) return;
+                if (!op) op = 'OPERAÇÃO_' + (index + 1);
+                
+                linhaProcessada++;
+                totalArea += prod;
+                
+                var insumos = [];
+                for (var i = 0; i < Math.min(colInsumos.length, colQuantidades.length); i++) {
+                    var insNome = String(row[colInsumos[i]] || '').trim();
+                    var insQtd = parseFloat(String(row[colQuantidades[i]] || '0').replace(',', '.')) || 0;
+                    if (insNome && insQtd > 0) {
+                        insumos.push({ nome: insNome, qtd: insQtd });
+                    }
+                }
+                
+                var registro = {
+                    data: data,
+                    ha: prod,
+                    fazenda: fazenda,
+                    talhao: talhao,
+                    municipio: municipio,
+                    equipe: equipe,
+                    obs: obs,
+                    obsLimpa: obs,
+                    areaCadastro: areaCad,
+                    insumos: insumos,
+                    operacao: op
+                };
+                todosRegistros.push(registro);
+                
+                if (!operacoesParaSalvar[op]) {
+                    operacoesParaSalvar[op] = { 
+                        nome: op, 
+                        totalHa: 0, 
+                        registros: [],
+                        insumos: {}
+                    };
+                }
+                
+                operacoesParaSalvar[op].totalHa += prod;
+                operacoesParaSalvar[op].registros.push(registro);
+                
+                insumos.forEach(function(ins) {
+                    if (!operacoesParaSalvar[op].insumos[ins.nome]) {
+                        operacoesParaSalvar[op].insumos[ins.nome] = 0;
+                    }
+                    operacoesParaSalvar[op].insumos[ins.nome] += ins.qtd;
                 });
             });
             
-            document.getElementById('infoArquivo').textContent = '✅ ' + file.name + ' importado! (' + json.length + ' linhas)';
-            showToast('✅ Planilha importada com sucesso!', 'success');
-            carregarSeletorRF();
-            renderizarDashboard();
-            renderizarFaturamentoPorRF();
-            renderizarProducao();
+            console.log('📊 Linhas processadas: ' + linhaProcessada);
+            console.log('📊 Total de operações: ' + Object.keys(operacoesParaSalvar).length);
+            console.log('📊 Total de área: ' + totalArea);
+            
+            if (Object.keys(operacoesParaSalvar).length === 0) {
+                throw new Error('Nenhuma operação válida encontrada. Verifique os nomes das colunas.');
+            }
+            
+            showToast('🔄 Salvando ' + Object.keys(operacoesParaSalvar).length + ' operações no Firebase...', 'warning');
+            document.getElementById('loading').classList.add('show');
+            
+            var rfAtual = getRFAtual();
+            var dataHoje = getHoje();
+            var promises = [];
+            var salvos = 0;
+            var erros = 0;
+            
+            // SALVA OPERAÇÕES
+            for (var opKey in operacoesParaSalvar) {
+                var op = operacoesParaSalvar[opKey];
+                var promise = db.collection('producao_dia').add({
+                    rf: rfAtual,
+                    data: dataHoje,
+                    operacao: opKey,
+                    totalHa: op.totalHa,
+                    registros: op.registros,
+                    insumos: op.insumos,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                })
+                .then(function(docRef) {
+                    salvos++;
+                    console.log('✅ Operação salva no Firebase:', docRef.id);
+                })
+                .catch(function(error) {
+                    erros++;
+                    console.error('❌ Erro ao salvar operação:', error.message);
+                });
+                promises.push(promise);
+            }
+            
+            // SALVA REGISTROS INDIVIDUAIS
+            todosRegistros.forEach(function(reg) {
+                var promise = db.collection('registros_producao').add({
+                    rf: rfAtual,
+                    data: reg.data,
+                    operacao: reg.operacao,
+                    ha: reg.ha,
+                    fazenda: reg.fazenda,
+                    talhao: reg.talhao,
+                    municipio: reg.municipio,
+                    equipe: reg.equipe,
+                    obs: reg.obs,
+                    areaCadastro: reg.areaCadastro,
+                    insumos: reg.insumos,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                })
+                .catch(function(error) {
+                    console.error('❌ Erro ao salvar registro individual:', error.message);
+                });
+                promises.push(promise);
+            });
+            
+            state.operacoesDia = operacoesParaSalvar;
+            state.todosRegistros = todosRegistros;
+            state.dadosProducao = json;
+            
+            processarSaidasInsumos(todosRegistros);
+            
+            Promise.all(promises)
+                .then(function() {
+                    document.getElementById('loading').classList.remove('show');
+                    
+                    var msg = '✅ Planilha importada e salva no Firebase!\n\n';
+                    msg += '📊 ' + salvos + ' operações salvas\n';
+                    msg += '📋 ' + todosRegistros.length + ' registros individuais\n';
+                    if (erros > 0) {
+                        msg += '\n⚠️ ' + erros + ' erros ocorreram. Verifique o console.';
+                    }
+                    
+                    alert(msg);
+                    showToast('✅ ' + salvos + ' operações salvas no Firebase com sucesso!', 'success');
+                    
+                    document.getElementById('infoArquivo').textContent = '✅ ' + file.name + ' importado! (' + linhaProcessada + ' linhas, ' + Object.keys(operacoesParaSalvar).length + ' operações)';
+                    
+                    carregarSeletorRF();
+                    renderizarDashboard();
+                    renderizarFaturamentoPorRF();
+                    renderizarProducao();
+                    renderizarEstoque();
+                    
+                    console.log('✅ Importação completa! Dados salvos no Firebase.');
+                })
+                .catch(function(error) {
+                    document.getElementById('loading').classList.remove('show');
+                    console.error('❌ Erro durante o salvamento:', error);
+                    showToast('❌ Erro ao salvar dados: ' + error.message, 'error');
+                });
             
         } catch(error) {
+            console.error('❌ Erro completo:', error);
+            document.getElementById('loading').classList.remove('show');
             showToast('❌ Erro: ' + error.message, 'error');
         }
     };
     reader.readAsArrayBuffer(file);
-}
-
-// ============================================================
-// FATURAMENTO POR RF
-// ============================================================
-function renderizarFaturamentoPorRF() {
-    var container = document.getElementById('containerFaturamentoRF');
-    if (!container) return;
-    
-    var rfSelecionada = state.rfSelecionada || getRFAtual();
-    var lancs = state.lancamentosFirebase;
-    var ops = state.operacoesDia;
-    
-    if (!rfSelecionada) {
-        container.innerHTML = '<div class="empty"><div class="ico">📊</div><p>Selecione uma RF para visualizar.</p></div>';
-        return;
-    }
-    
-    var rfObj = getRFObj(rfSelecionada);
-    
-    // Filtra operações pela RF
-    var operacoesFiltradas = {};
-    for (var key in ops) {
-        var op = ops[key];
-        if (op.registros) {
-            var haNaRF = 0;
-            var registrosRF = [];
-            op.registros.forEach(function(reg) {
-                if (reg.data) {
-                    var dataObj = new Date(reg.data);
-                    if (!isNaN(dataObj) && dataObj >= rfObj.inicio && dataObj <= rfObj.fim) {
-                        haNaRF += reg.ha || 0;
-                        registrosRF.push(reg);
-                    }
-                }
-            });
-            if (haNaRF > 0) {
-                operacoesFiltradas[key] = {
-                    nome: key,
-                    ha: haNaRF,
-                    registros: registrosRF
-                };
-            }
-        }
-    }
-    
-    var html = '';
-    if (Object.keys(operacoesFiltradas).length === 0) {
-        // Tenta mostrar lançamentos mesmo sem operações
-        var temLancamentos = false;
-        var lancamentosRF = {};
-        for (var lKey in lancs) {
-            var lanc = lancs[lKey];
-            if (lanc.dataReferencia) {
-                var partes = lanc.dataReferencia.split('/');
-                if (partes.length === 3) {
-                    var dataItem = new Date(partes[2], partes[1]-1, partes[0]);
-                    if (dataItem >= rfObj.inicio && dataItem <= rfObj.fim) {
-                        temLancamentos = true;
-                        lancamentosRF[lKey] = lanc;
-                    }
-                }
-            }
-        }
-        if (!temLancamentos) {
-            container.innerHTML = '<div class="empty"><div class="ico">📭</div><p>Nenhuma operação ou lançamento encontrado para esta RF.</p></div>';
-            return;
-        }
-        
-        // Mostra apenas os lançamentos
-        var htmlLanc = '<div style="overflow-x:auto;margin-top:12px;">';
-        htmlLanc += '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
-        htmlLanc += '<thead><tr style="background:#f1f5f9;">';
-        htmlLanc += '<th style="padding:10px 12px;text-align:left;border-bottom:2px solid #d1d5db;">Operação</th>';
-        htmlLanc += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">HA</th>';
-        htmlLanc += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">Valor Faturado</th>';
-        htmlLanc += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">Custo</th>';
-        htmlLanc += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">Resultado</th>';
-        htmlLanc += '</tr></thead><tbody>';
-        
-        var totalHa = 0, totalReceita = 0, totalCusto = 0;
-        for (var lKey in lancamentosRF) {
-            var lanc = lancamentosRF[lKey];
-            totalHa += lanc.ha || 0;
-            totalReceita += lanc.valor || 0;
-            totalCusto += lanc.custo || 0;
-            var resultado = (lanc.valor || 0) - (lanc.custo || 0);
-            var cor = resultado >= 0 ? '#16a34a' : '#dc2626';
-            htmlLanc += '<tr style="border-bottom:1px solid #e5e7eb;">';
-            htmlLanc += '<td style="padding:8px 12px;font-weight:600;">' + lKey + '</td>';
-            htmlLanc += '<td style="padding:8px 12px;text-align:right;">' + safe(lanc.ha) + '</td>';
-            htmlLanc += '<td style="padding:8px 12px;text-align:right;font-weight:600;color:#2563eb;">R$ ' + formatMoney(lanc.valor || 0) + '</td>';
-            htmlLanc += '<td style="padding:8px 12px;text-align:right;color:#6b7280;">R$ ' + formatMoney(lanc.custo || 0) + '</td>';
-            htmlLanc += '<td style="padding:8px 12px;text-align:right;font-weight:700;color:' + cor + ';">' + (resultado >= 0 ? '+ ' : '- ') + 'R$ ' + formatMoney(Math.abs(resultado)) + '</td>';
-            htmlLanc += '</tr>';
-        }
-        
-        var resultadoTotal = totalReceita - totalCusto;
-        var corTotal = resultadoTotal >= 0 ? '#16a34a' : '#dc2626';
-        htmlLanc += '<tr style="background:#dcfce7;font-weight:700;border-top:2px solid #16a34a;">';
-        htmlLanc += '<td style="padding:10px 12px;">TOTAL</td>';
-        htmlLanc += '<td style="padding:10px 12px;text-align:right;">' + safe(totalHa) + '</td>';
-        htmlLanc += '<td style="padding:10px 12px;text-align:right;color:#2563eb;">R$ ' + formatMoney(totalReceita) + '</td>';
-        htmlLanc += '<td style="padding:10px 12px;text-align:right;color:#6b7280;">R$ ' + formatMoney(totalCusto) + '</td>';
-        htmlLanc += '<td style="padding:10px 12px;text-align:right;font-weight:700;color:' + corTotal + ';">' + (resultadoTotal >= 0 ? '+ ' : '- ') + 'R$ ' + formatMoney(Math.abs(resultadoTotal)) + '</td>';
-        htmlLanc += '</tr>';
-        htmlLanc += '</tbody></table></div>';
-        container.innerHTML = htmlLanc;
-        atualizarResumoFaturamentoRF(rfSelecionada);
-        return;
-    }
-    
-    // Monta tabela com operações
-    var totalHa = 0, totalReceita = 0, totalCusto = 0;
-    html += '<div style="overflow-x:auto;margin-top:12px;">';
-    html += '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
-    html += '<thead><tr style="background:#f1f5f9;">';
-    html += '<th style="padding:10px 12px;text-align:left;border-bottom:2px solid #d1d5db;">Operação</th>';
-    html += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">HA Realizado</th>';
-    html += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">R$/HA</th>';
-    html += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">Valor Faturado</th>';
-    html += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">Custo</th>';
-    html += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">Resultado</th>';
-    html += '<th style="padding:10px 12px;text-align:center;border-bottom:2px solid #d1d5db;">Status</th>';
-    html += '</tr></thead><tbody>';
-    
-    var sortedKeys = Object.keys(operacoesFiltradas).sort();
-    sortedKeys.forEach(function(key) {
-        var op = operacoesFiltradas[key];
-        var ha = op.ha;
-        var rha = state.valoresAtividades[key] || 0;
-        var receita = ha * rha;
-        
-        var lanc = state.lancamentosFirebase[key];
-        if (lanc) {
-            receita = lanc.valor || receita;
-            rha = ha > 0 ? receita / ha : 0;
-        }
-        
-        // Calcula custo
-        var custo = 0;
-        if (lanc) {
-            custo = lanc.custo || 0;
-        } else {
-            // Estima custo baseado nos registros
-            var tfTotal = 0, maqTotal = 0, pipaTotal = 0, apoioTotal = 0;
-            op.registros.forEach(function(reg) {
-                tfTotal += reg.tf || 0;
-                maqTotal += reg.maq || 0;
-                pipaTotal += reg.pipa || 0;
-                apoioTotal += reg.apoio || 0;
-            });
-            custo = (tfTotal * state.custos.TF) + (maqTotal * state.custos.MAQ) + 
-                    (pipaTotal * state.custos.PIPA) + (apoioTotal * state.custos.APOIO);
-        }
-        
-        var resultado = receita - custo;
-        totalHa += ha;
-        totalReceita += receita;
-        totalCusto += custo;
-        
-        var resultadoStr = (resultado >= 0 ? '+ ' : '- ') + 'R$ ' + formatMoney(Math.abs(resultado));
-        var resultadoCor = resultado >= 0 ? '#16a34a' : '#dc2626';
-        var status = lanc ? '✅ Lançado' : '⏳ Aguardando';
-        var statusCls = lanc ? 'completo' : 'aguardando';
-        
-        html += '<tr style="border-bottom:1px solid #e5e7eb;">';
-        html += '<td style="padding:8px 12px;font-weight:600;">' + key + '</td>';
-        html += '<td style="padding:8px 12px;text-align:right;font-weight:600;">' + safe(ha) + '</td>';
-        html += '<td style="padding:8px 12px;text-align:right;">R$ ' + formatMoney(rha) + '</td>';
-        html += '<td style="padding:8px 12px;text-align:right;font-weight:600;color:#2563eb;">R$ ' + formatMoney(receita) + '</td>';
-        html += '<td style="padding:8px 12px;text-align:right;color:#6b7280;">R$ ' + formatMoney(custo) + '</td>';
-        html += '<td style="padding:8px 12px;text-align:right;font-weight:700;color:' + resultadoCor + ';">' + resultadoStr + '</td>';
-        html += '<td style="padding:8px 12px;text-align:center;"><span class="badge-status ' + statusCls + '">' + status + '</span></td>';
-        html += '</tr>';
-    });
-    
-    var resultadoTotal = totalReceita - totalCusto;
-    var corTotal = resultadoTotal >= 0 ? '#16a34a' : '#dc2626';
-    html += '<tr style="background:#dcfce7;font-weight:700;border-top:2px solid #16a34a;">';
-    html += '<td style="padding:10px 12px;">TOTAL</td>';
-    html += '<td style="padding:10px 12px;text-align:right;">' + safe(totalHa) + '</td>';
-    html += '<td style="padding:10px 12px;text-align:right;"></td>';
-    html += '<td style="padding:10px 12px;text-align:right;color:#2563eb;">R$ ' + formatMoney(totalReceita) + '</td>';
-    html += '<td style="padding:10px 12px;text-align:right;color:#6b7280;">R$ ' + formatMoney(totalCusto) + '</td>';
-    html += '<td style="padding:10px 12px;text-align:right;font-weight:700;color:' + corTotal + ';">' + (resultadoTotal >= 0 ? '+ ' : '- ') + 'R$ ' + formatMoney(Math.abs(resultadoTotal)) + '</td>';
-    html += '<td style="padding:10px 12px;text-align:center;"></td>';
-    html += '</tr>';
-    html += '</tbody></table></div>';
-    
-    container.innerHTML = html;
-    atualizarResumoFaturamentoRF(rfSelecionada);
-}
-
-function atualizarResumoFaturamentoRF(rf) {
-    var lancs = state.lancamentosFirebase;
-    var rfObj = getRFObj(rf);
-    var totalReceita = 0, totalCusto = 0;
-    
-    for (var key in lancs) {
-        var lanc = lancs[key];
-        if (lanc.dataReferencia) {
-            var partes = lanc.dataReferencia.split('/');
-            if (partes.length === 3) {
-                var dataItem = new Date(partes[2], partes[1]-1, partes[0]);
-                if (dataItem >= rfObj.inicio && dataItem <= rfObj.fim) {
-                    totalReceita += lanc.valor || 0;
-                    totalCusto += lanc.custo || 0;
-                }
-            }
-        }
-    }
-    
-    document.getElementById('fatReceitaTotal').textContent = formatMoney(totalReceita);
-    document.getElementById('fatCustoTotal').textContent = formatMoney(totalCusto);
-    var resultado = totalReceita - totalCusto;
-    var cor = resultado >= 0 ? '#16a34a' : '#dc3545';
-    document.getElementById('fatResultado').innerHTML = 'R$ <span style="color:' + cor + ';">' + formatMoney(resultado) + '</span>';
 }
 
 // ============================================================
@@ -1660,9 +1727,8 @@ function limparTudoEstoque() {
               'Serão removidos:\n' +
               '  📊 Lançamentos (Firebase)\n' +
               '  📦 Movimentações de Estoque (Firebase)\n' +
-              '  📋 Operações Manuais (Firebase)\n' +
-              '  🌱 Replantios (Firebase)\n' +
-              '  📋 SOPs (Firebase)\n' +
+              '  📋 Produção (Firebase)\n' +
+              '  📋 Registros de Produção (Firebase)\n' +
               '  📊 Configurações (Firebase)\n\n' +
               '🔥 Esta ação NÃO pode ser desfeita!\n' +
               'Todos os usuários perderão os dados.';
@@ -1679,7 +1745,8 @@ function limparTudoEstoque() {
         { nome: 'Lançamentos', colecao: 'lancamentos' },
         { nome: 'Movimentações de Estoque', colecao: 'estoque_movimentacoes' },
         { nome: 'Configurações', colecao: 'config' },
-        { nome: 'Produção do Dia', colecao: 'producao_dia' }
+        { nome: 'Produção do Dia', colecao: 'producao_dia' },
+        { nome: 'Registros de Produção', colecao: 'registros_producao' }
     ];
     
     var totalRemovidos = 0;
@@ -1716,7 +1783,6 @@ function limparTudoEstoque() {
     
     Promise.all(promises)
         .then(function() {
-            // Limpa localStorage
             var chavesLocal = [
                 'estoqueMovimentacoes',
                 'operacoesManuais',
@@ -1730,7 +1796,6 @@ function limparTudoEstoque() {
                 console.log('🗑️ Removido localStorage: ' + chave);
             });
             
-            // Reseta estado global
             state.movimentacoes = [];
             state.estoque = {};
             state.lancamentosFirebase = {};
@@ -1740,8 +1805,8 @@ function limparTudoEstoque() {
             state.replantiosConcluidos = [];
             state.sopConcluidas = {};
             state.valoresAtividades = {};
+            state.todosRegistros = [];
             
-            // Limpa interface
             document.getElementById('estoqueConsolidado').innerHTML = 
                 '<div class="empty"><div class="ico">📦</div><p>Nenhum insumo registrado.</p></div>';
             document.getElementById('movimentacoesContainer').innerHTML = 
@@ -1767,6 +1832,9 @@ function limparTudoEstoque() {
             document.getElementById('dashCusto').textContent = 'R$ 0';
             document.getElementById('dashResultado').textContent = 'R$ 0';
             document.getElementById('dashMargem').textContent = '0%';
+            document.getElementById('prodOps').textContent = '0';
+            document.getElementById('prodArea').innerHTML = '0 <span class="unit">ha</span>';
+            document.getElementById('prodInsumos').textContent = '0';
             
             var rfSelect = document.getElementById('rfSelect');
             if (rfSelect) {
@@ -1796,58 +1864,148 @@ function limparTudoEstoque() {
 }
 
 // ============================================================
-// NOVA OPERAÇÃO MANUAL
+// FATURAMENTO POR RF
 // ============================================================
-function abrirModalNovaOperacao() {
-    document.getElementById('modalNovaOperacao').classList.add('active');
-    var hoje = new Date();
-    document.getElementById('novaOpData').value = hoje.getFullYear() + '-' + 
-        String(hoje.getMonth() + 1).padStart(2, '0') + '-' + 
-        String(hoje.getDate()).padStart(2, '0');
-}
-
-function fecharModalNovaOperacao() {
-    document.getElementById('modalNovaOperacao').classList.remove('active');
-}
-
-function salvarNovaOperacao() {
-    var nome = document.getElementById('novaOpNome').value.trim();
-    var data = document.getElementById('novaOpData').value;
-    var ha = parseFloat(document.getElementById('novaOpHa').value) || 0;
-    var fazenda = document.getElementById('novaOpFazenda').value.trim() || 'Manual';
-    var municipio = document.getElementById('novaOpMunicipio').value.trim() || 'Não informado';
-    var equipe = document.getElementById('novaOpEquipe').value.trim() || 'Manual';
-    var obs = document.getElementById('novaOpObs').value.trim() || '';
+function renderizarFaturamentoPorRF() {
+    var container = document.getElementById('containerFaturamentoRF');
+    if (!container) return;
     
-    if (!nome) { showToast('⚠️ Informe o nome da operação!', 'warning'); return; }
-    if (ha <= 0) { showToast('⚠️ Informe uma área válida!', 'warning'); return; }
-    if (!data) { showToast('⚠️ Selecione uma data!', 'warning'); return; }
+    var rfSelecionada = state.rfSelecionada || getRFAtual();
+    var lancs = state.lancamentosFirebase;
+    var ops = state.operacoesDia;
     
-    var dataFormatada = new Date(data).toLocaleDateString('pt-BR');
-    
-    if (!state.operacoesDia[nome]) {
-        state.operacoesDia[nome] = { nome: nome, totalHa: 0, registros: [] };
+    if (!rfSelecionada) {
+        container.innerHTML = '<div class="empty"><div class="ico">📊</div><p>Selecione uma RF para visualizar.</p></div>';
+        return;
     }
-    state.operacoesDia[nome].totalHa += ha;
-    state.operacoesDia[nome].registros.push({
-        data: data,
-        dataStr: dataFormatada,
-        ha: ha,
-        equipe: equipe,
-        obs: obs,
-        obsLimpa: obs,
-        fazenda: fazenda,
-        municipio: municipio,
-        talhao: 'Manual',
-        isManual: true
+    
+    var rfObj = getRFObj(rfSelecionada);
+    
+    // Filtra operações pela RF
+    var operacoesFiltradas = {};
+    for (var key in ops) {
+        var op = ops[key];
+        if (op.registros) {
+            var haNaRF = 0;
+            var registrosRF = [];
+            op.registros.forEach(function(reg) {
+                if (reg.data) {
+                    var dataObj = new Date(reg.data);
+                    if (!isNaN(dataObj) && dataObj >= rfObj.inicio && dataObj <= rfObj.fim) {
+                        haNaRF += reg.ha || 0;
+                        registrosRF.push(reg);
+                    }
+                }
+            });
+            if (haNaRF > 0) {
+                operacoesFiltradas[key] = {
+                    nome: key,
+                    ha: haNaRF,
+                    registros: registrosRF
+                };
+            }
+        }
+    }
+    
+    var html = '';
+    if (Object.keys(operacoesFiltradas).length === 0) {
+        container.innerHTML = '<div class="empty"><div class="ico">📭</div><p>Nenhuma operação encontrada para esta RF.</p></div>';
+        return;
+    }
+    
+    var totalHa = 0, totalReceita = 0, totalCusto = 0;
+    html += '<div style="overflow-x:auto;margin-top:12px;">';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+    html += '<thead><tr style="background:#f1f5f9;">';
+    html += '<th style="padding:10px 12px;text-align:left;border-bottom:2px solid #d1d5db;">Operação</th>';
+    html += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">HA Realizado</th>';
+    html += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">R$/HA</th>';
+    html += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">Valor Faturado</th>';
+    html += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">Custo</th>';
+    html += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">Resultado</th>';
+    html += '<th style="padding:10px 12px;text-align:center;border-bottom:2px solid #d1d5db;">Status</th>';
+    html += '</tr></thead><tbody>';
+    
+    var sortedKeys = Object.keys(operacoesFiltradas).sort();
+    sortedKeys.forEach(function(key) {
+        var op = operacoesFiltradas[key];
+        var ha = op.ha;
+        var rha = state.valoresAtividades[key] || 0;
+        var receita = ha * rha;
+        
+        var lanc = state.lancamentosFirebase[key];
+        if (lanc) {
+            receita = lanc.valor || receita;
+            rha = ha > 0 ? receita / ha : 0;
+        }
+        
+        var custo = 0;
+        if (lanc) {
+            custo = lanc.custo || 0;
+        }
+        
+        var resultado = receita - custo;
+        totalHa += ha;
+        totalReceita += receita;
+        totalCusto += custo;
+        
+        var resultadoStr = (resultado >= 0 ? '+ ' : '- ') + 'R$ ' + formatMoney(Math.abs(resultado));
+        var resultadoCor = resultado >= 0 ? '#16a34a' : '#dc2626';
+        var status = lanc ? '✅ Lançado' : '⏳ Aguardando';
+        var statusCls = lanc ? 'completo' : 'aguardando';
+        
+        html += '<tr style="border-bottom:1px solid #e5e7eb;">';
+        html += '<td style="padding:8px 12px;font-weight:600;">' + key + '</td>';
+        html += '<td style="padding:8px 12px;text-align:right;font-weight:600;">' + safe(ha) + '</td>';
+        html += '<td style="padding:8px 12px;text-align:right;">R$ ' + formatMoney(rha) + '</td>';
+        html += '<td style="padding:8px 12px;text-align:right;font-weight:600;color:#2563eb;">R$ ' + formatMoney(receita) + '</td>';
+        html += '<td style="padding:8px 12px;text-align:right;color:#6b7280;">R$ ' + formatMoney(custo) + '</td>';
+        html += '<td style="padding:8px 12px;text-align:right;font-weight:700;color:' + resultadoCor + ';">' + resultadoStr + '</td>';
+        html += '<td style="padding:8px 12px;text-align:center;"><span class="badge-status ' + statusCls + '">' + status + '</span></td>';
+        html += '</tr>';
     });
     
-    fecharModalNovaOperacao();
-    showToast('✅ Operação manual "' + nome + '" criada!', 'success');
-    carregarSeletorRF();
-    renderizarDashboard();
-    renderizarFaturamentoPorRF();
-    renderizarProducao();
+    var resultadoTotal = totalReceita - totalCusto;
+    var corTotal = resultadoTotal >= 0 ? '#16a34a' : '#dc2626';
+    html += '<tr style="background:#dcfce7;font-weight:700;border-top:2px solid #16a34a;">';
+    html += '<td style="padding:10px 12px;">TOTAL</td>';
+    html += '<td style="padding:10px 12px;text-align:right;">' + safe(totalHa) + '</td>';
+    html += '<td style="padding:10px 12px;text-align:right;"></td>';
+    html += '<td style="padding:10px 12px;text-align:right;color:#2563eb;">R$ ' + formatMoney(totalReceita) + '</td>';
+    html += '<td style="padding:10px 12px;text-align:right;color:#6b7280;">R$ ' + formatMoney(totalCusto) + '</td>';
+    html += '<td style="padding:10px 12px;text-align:right;font-weight:700;color:' + corTotal + ';">' + (resultadoTotal >= 0 ? '+ ' : '- ') + 'R$ ' + formatMoney(Math.abs(resultadoTotal)) + '</td>';
+    html += '<td style="padding:10px 12px;text-align:center;"></td>';
+    html += '</tr>';
+    html += '</tbody></table></div>';
+    
+    container.innerHTML = html;
+    atualizarResumoFaturamentoRF(rfSelecionada);
+}
+
+function atualizarResumoFaturamentoRF(rf) {
+    var lancs = state.lancamentosFirebase;
+    var rfObj = getRFObj(rf);
+    var totalReceita = 0, totalCusto = 0;
+    
+    for (var key in lancs) {
+        var lanc = lancs[key];
+        if (lanc.dataReferencia) {
+            var partes = lanc.dataReferencia.split('/');
+            if (partes.length === 3) {
+                var dataItem = new Date(partes[2], partes[1]-1, partes[0]);
+                if (dataItem >= rfObj.inicio && dataItem <= rfObj.fim) {
+                    totalReceita += lanc.valor || 0;
+                    totalCusto += lanc.custo || 0;
+                }
+            }
+        }
+    }
+    
+    document.getElementById('fatReceitaTotal').textContent = formatMoney(totalReceita);
+    document.getElementById('fatCustoTotal').textContent = formatMoney(totalCusto);
+    var resultado = totalReceita - totalCusto;
+    var cor = resultado >= 0 ? '#16a34a' : '#dc3545';
+    document.getElementById('fatResultado').innerHTML = 'R$ <span style="color:' + cor + ';">' + formatMoney(resultado) + '</span>';
 }
 
 // ============================================================
@@ -1858,11 +2016,24 @@ function renderizarProducao() {
     var totalArea = 0;
     var totalOps = Object.keys(ops).length;
     
-    for (var key in ops) { totalArea += ops[key].totalHa; }
+    for (var key in ops) { 
+        totalArea += ops[key].totalHa || 0; 
+    }
     
     document.getElementById('prodData').textContent = getHoje();
     document.getElementById('prodOps').textContent = totalOps;
-    document.getElementById('prodArea').innerHTML = totalArea.toFixed(2) + ' <span class="unit">ha</span>';
+    document.getElementById('prodArea').innerHTML = safe(totalArea) + ' <span class="unit">ha</span>';
+    
+    var insumos = {};
+    for (var key in ops) {
+        if (ops[key].insumos) {
+            for (var ins in ops[key].insumos) {
+                if (!insumos[ins]) insumos[ins] = 0;
+                insumos[ins] += ops[key].insumos[ins];
+            }
+        }
+    }
+    document.getElementById('prodInsumos').textContent = Object.keys(insumos).length;
     
     document.querySelectorAll('.sub-prod-aba').forEach(function(el) {
         if (el.id !== 'subProducaoIrrigacao') {
@@ -1883,7 +2054,6 @@ function renderizarDashboard() {
     var totalArea = 0, totalOps = 0;
     var totalReceita = 0, totalCusto = 0;
     
-    // Filtra operações pela RF
     for (var key in ops) {
         var op = ops[key];
         if (op.registros) {
@@ -1903,7 +2073,6 @@ function renderizarDashboard() {
         }
     }
     
-    // Filtra lançamentos pela RF
     for (var lKey in lancs) {
         var lanc = lancs[lKey];
         if (lanc.dataReferencia) {
@@ -1948,7 +2117,9 @@ function renderizarDashboard() {
                 }
             });
             if (haNaRF > 0) {
-                html += '<tr><td>' + key + '</td><td class="num">' + safe(haNaRF) + '</td><td><span class="badge-status parcial">PARCIAL</span></td></tr>';
+                var status = op.totalHa >= 100 ? 'COMPLETO' : 'PARCIAL';
+                var statusCls = op.totalHa >= 100 ? 'completo' : 'parcial';
+                html += '<tr><td>' + key + '</td><td class="num">' + safe(haNaRF) + '</td><td><span class="badge-status ' + statusCls + '">' + status + '</span></td></tr>';
                 count++;
             }
         }
@@ -1989,6 +2160,76 @@ function renderizarResultado() {
     var resultado = totalReceita - totalCusto;
     var cor = resultado >= 0 ? '#16a34a' : '#dc3545';
     document.getElementById('resResultado').innerHTML = 'R$ <span style="color:' + cor + ';">' + formatMoney(resultado) + '</span>';
+}
+
+// ============================================================
+// NOVA OPERAÇÃO MANUAL
+// ============================================================
+function abrirModalNovaOperacao() {
+    document.getElementById('modalNovaOperacao').classList.add('active');
+    var hoje = new Date();
+    document.getElementById('novaOpData').value = hoje.getFullYear() + '-' + 
+        String(hoje.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(hoje.getDate()).padStart(2, '0');
+}
+
+function fecharModalNovaOperacao() {
+    document.getElementById('modalNovaOperacao').classList.remove('active');
+}
+
+function salvarNovaOperacao() {
+    var nome = document.getElementById('novaOpNome').value.trim();
+    var data = document.getElementById('novaOpData').value;
+    var ha = parseFloat(document.getElementById('novaOpHa').value) || 0;
+    var fazenda = document.getElementById('novaOpFazenda').value.trim() || 'Manual';
+    var municipio = document.getElementById('novaOpMunicipio').value.trim() || 'Não informado';
+    var equipe = document.getElementById('novaOpEquipe').value.trim() || 'Manual';
+    var obs = document.getElementById('novaOpObs').value.trim() || '';
+    
+    if (!nome) { showToast('⚠️ Informe o nome da operação!', 'warning'); return; }
+    if (ha <= 0) { showToast('⚠️ Informe uma área válida!', 'warning'); return; }
+    if (!data) { showToast('⚠️ Selecione uma data!', 'warning'); return; }
+    
+    var dataFormatada = new Date(data).toLocaleDateString('pt-BR');
+    var rfAtual = getRFAtual();
+    
+    if (!state.operacoesDia[nome]) {
+        state.operacoesDia[nome] = { nome: nome, totalHa: 0, registros: [], insumos: {} };
+    }
+    state.operacoesDia[nome].totalHa += ha;
+    state.operacoesDia[nome].registros.push({
+        data: data,
+        ha: ha,
+        equipe: equipe,
+        obs: obs,
+        obsLimpa: obs,
+        fazenda: fazenda,
+        municipio: municipio,
+        talhao: 'Manual',
+        isManual: true
+    });
+    
+    // Salva no Firebase
+    db.collection('producao_dia').add({
+        rf: rfAtual,
+        data: dataFormatada,
+        operacao: nome,
+        totalHa: state.operacoesDia[nome].totalHa,
+        registros: state.operacoesDia[nome].registros,
+        insumos: state.operacoesDia[nome].insumos || {},
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(function() {
+        showToast('✅ Operação manual "' + nome + '" criada e salva!', 'success');
+        fecharModalNovaOperacao();
+        carregarSeletorRF();
+        renderizarDashboard();
+        renderizarFaturamentoPorRF();
+        renderizarProducao();
+    })
+    .catch(function(error) {
+        showToast('❌ Erro ao salvar operação: ' + error.message, 'error');
+    });
 }
 
 // ============================================================
