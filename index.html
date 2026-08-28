@@ -806,8 +806,12 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
 
 <script>
 // ============================================================
-// FIREBASE CONFIG
+// FIREBASE CONFIG - COM LOGS DE DIAGNÓSTICO
 // ============================================================
+
+console.log('🔥 Iniciando configuração do Firebase...');
+console.log('📋 Verificando credenciais...');
+
 var firebaseConfig = {
     apiKey: "AIzaSyCp50cm-LM557728tct3lwmwT3xpPpI4FA",
     authDomain: "lb-florestal-sistema.firebaseapp.com",
@@ -817,10 +821,118 @@ var firebaseConfig = {
     appId: "1:559764824181:web:c74cf676a0e5e867dcd83c"
 };
 
-firebase.initializeApp(firebaseConfig);
-var db = firebase.firestore();
-db.settings({ timestampsInSnapshots: true });
+console.log('✅ Credenciais carregadas:');
+console.log('  - apiKey:', firebaseConfig.apiKey ? '✅ Presente' : '❌ FALTANDO');
+console.log('  - authDomain:', firebaseConfig.authDomain ? '✅ Presente' : '❌ FALTANDO');
+console.log('  - projectId:', firebaseConfig.projectId ? '✅ Presente' : '❌ FALTANDO');
+console.log('  - storageBucket:', firebaseConfig.storageBucket ? '✅ Presente' : '❌ FALTANDO');
+console.log('  - messagingSenderId:', firebaseConfig.messagingSenderId ? '✅ Presente' : '❌ FALTANDO');
+console.log('  - appId:', firebaseConfig.appId ? '✅ Presente' : '❌ FALTANDO');
 
+try {
+    console.log('🔄 Inicializando Firebase...');
+    firebase.initializeApp(firebaseConfig);
+    console.log('✅ Firebase inicializado com sucesso!');
+    
+    console.log('🔄 Conectando ao Firestore...');
+    var db = firebase.firestore();
+    
+    db.settings({ 
+        timestampsInSnapshots: true 
+    });
+    console.log('✅ Firestore configurado!');
+    
+    // TESTE DE CONEXÃO
+    console.log('🧪 Testando conexão com Firestore...');
+    db.collection('teste_conexao').doc('status').set({
+        online: true,
+        timestamp: new Date(),
+        testId: Date.now().toString()
+    })
+    .then(function() {
+        console.log('✅ ✅ ✅ CONEXÃO COM FIREBASE ESTABELECIDA COM SUCESSO!');
+        console.log('📊 Firestore está respondendo normalmente.');
+        
+        // Remove documento de teste
+        db.collection('teste_conexao').doc('status').delete()
+            .catch(function(err) {
+                console.warn('⚠️ Não foi possível remover documento de teste:', err.message);
+            });
+        
+        // Sinaliza que está conectado
+        state.firebaseConectado = true;
+        
+        // Atualiza indicador visual
+        var dot = document.getElementById('statusDot');
+        var texto = document.getElementById('statusTexto');
+        var container = document.getElementById('statusConexao');
+        if (dot && texto && container) {
+            dot.style.background = '#16a34a';
+            texto.textContent = '✅ Firebase · Sincronizado';
+            texto.style.color = '#166534';
+            container.style.background = '#dcfce7';
+            container.style.borderColor = '#86efac';
+        }
+        
+        if (typeof showToast === 'function') {
+            showToast('🔥 Firebase conectado com sucesso!', 'success');
+        }
+    })
+    .catch(function(error) {
+        console.error('❌ ❌ ❌ ERRO NA CONEXÃO COM FIREBASE:');
+        console.error('📌 Mensagem de erro:', error.message);
+        console.error('📌 Código do erro:', error.code);
+        console.error('📌 Detalhes completos:', error);
+        
+        console.log('');
+        console.log('🔍 DIAGNÓSTICO DO ERRO:');
+        
+        if (error.code === 'permission-denied') {
+            console.error('🚨 ERRO: PERMISSÃO NEGADA!');
+            console.error('   Solução: Configure as regras do Firestore.');
+            console.error('   Firebase Console → Firestore Database → Regras');
+            console.error('   Cole: allow read, write: if true;');
+        } else if (error.code === 'invalid-api-key') {
+            console.error('🚨 ERRO: CHAVE API INVÁLIDA!');
+            console.error('   Solução: Verifique se a apiKey está correta.');
+        } else if (error.code === 'app-not-authorized') {
+            console.error('🚨 ERRO: APP NÃO AUTORIZADO!');
+            console.error('   Solução: Adicione o domínio no Firebase.');
+            console.error('   Authentication → Configurações → Domínios autorizados');
+        } else {
+            console.error('🚨 ERRO DESCONHECIDO:');
+            console.error('   Código:', error.code);
+            console.error('   Mensagem:', error.message);
+        }
+        
+        state.firebaseConectado = false;
+        
+        var dot = document.getElementById('statusDot');
+        var texto = document.getElementById('statusTexto');
+        var container = document.getElementById('statusConexao');
+        if (dot && texto && container) {
+            dot.style.background = '#dc2626';
+            texto.textContent = '❌ Firebase · Desconectado';
+            texto.style.color = '#991b1b';
+            container.style.background = '#fee2e2';
+            container.style.borderColor = '#fca5a5';
+        }
+        
+        if (typeof showToast === 'function') {
+            showToast('❌ Erro: ' + error.message, 'error');
+        }
+    });
+    
+} catch (error) {
+    console.error('❌ ERRO CRÍTICO AO INICIALIZAR FIREBASE:');
+    console.error('📌 Mensagem:', error.message);
+    console.error('📌 Stack:', error.stack);
+    if (typeof showToast === 'function') {
+        showToast('❌ Erro crítico: ' + error.message, 'error');
+    }
+}
+
+console.log('🔥 Configuração do Firebase concluída.');
 // ============================================================
 // CREDENCIAIS
 // ============================================================
