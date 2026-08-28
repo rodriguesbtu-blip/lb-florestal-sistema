@@ -44,7 +44,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f9;color:#1e293
 .stat-card.highlight{background:#0a1628;border-color:#0a1628}
 .stat-card.highlight .label{color:#94a3b8}
 .stat-card.highlight .value{color:#fff}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
 .text-gray{color:#6b7280}
 .text-sm{font-size:12px}
 .text-xs{font-size:11px}
@@ -209,6 +208,13 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
                 <div class="icon">LB</div>
                 <span>LB Florestal <small>Integrado</small></span>
             </div>
+            
+            <!-- 🔥 INDICADOR DE CONEXÃO FIREBASE -->
+            <div id="statusConexao" style="display:flex;align-items:center;gap:8px;padding:6px 14px;background:#fef3c7;border-radius:20px;border:1px solid #fcd34d;font-size:12px;font-weight:500;margin:0 10px;transition:all .3s;">
+                <span id="statusDot" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;transition:all .3s;"></span>
+                <span id="statusTexto" style="color:#92400e;">🔥 Conectando ao Firebase...</span>
+            </div>
+            
             <button class="btn-tab dash ativo" onclick="mudarAba('dashboard',this)">🏠 Dashboard</button>
             <button class="btn-tab prod" onclick="mudarAba('producao',this)">🚜 Produção</button>
             <button class="btn-tab fat" id="btnFaturamento" onclick="mudarAba('faturamento',this)">💰 Faturamento</button>
@@ -391,7 +397,8 @@ var state = {
     estoque: {},
     configSenhaValida: false,
     valoresAtividades: {},
-    custos: { TF: 180, MAQ: 850, PIPA: 650, APOIO: 450 }
+    custos: { TF: 180, MAQ: 850, PIPA: 650, APOIO: 450 },
+    firebaseConectado: false
 };
 
 // ============================================================
@@ -422,6 +429,62 @@ function normalizarInsumo(ins) {
 }
 
 // ============================================================
+// 🔥 STATUS DE CONEXÃO FIREBASE
+// ============================================================
+function verificarConexaoFirebase() {
+    var dot = document.getElementById('statusDot');
+    var texto = document.getElementById('statusTexto');
+    var container = document.getElementById('statusConexao');
+    
+    if (!dot || !texto || !container) {
+        console.warn('⚠️ Elementos de status não encontrados');
+        return;
+    }
+    
+    console.log('🔄 Verificando conexão com Firebase...');
+    
+    // Tenta uma operação simples no Firestore
+    db.collection('teste').doc('status').set({ online: true, timestamp: new Date() })
+        .then(function() {
+            // ✅ CONEXÃO ESTABELECIDA COM SUCESSO!
+            state.firebaseConectado = true;
+            dot.style.background = '#16a34a'; // Verde
+            texto.textContent = '✅ Firebase · Sincronizado';
+            texto.style.color = '#166534';
+            container.style.background = '#dcfce7';
+            container.style.borderColor = '#86efac';
+            
+            // Remove o documento de teste
+            db.collection('teste').doc('status').delete().catch(function() {});
+            
+            console.log('✅ Firebase conectado com sucesso!');
+            console.log('📊 Firestore disponível e respondendo.');
+        })
+        .catch(function(error) {
+            // ❌ ERRO NA CONEXÃO
+            state.firebaseConectado = false;
+            dot.style.background = '#dc2626'; // Vermelho
+            texto.textContent = '❌ Firebase · Desconectado';
+            texto.style.color = '#991b1b';
+            container.style.background = '#fee2e2';
+            container.style.borderColor = '#fca5a5';
+            
+            console.error('❌ Erro ao conectar com Firebase:', error.message);
+            console.warn('⚠️ Possíveis causas:');
+            console.warn('  1. Credenciais do Firebase incorretas');
+            console.warn('  2. Firestore não ativado no projeto');
+            console.warn('  3. Regras de segurança bloqueando acesso');
+            console.warn('  4. Chave API inválida ou restrita');
+            
+            // Exibe erro detalhado no toast
+            showToast('❌ Firebase desconectado: ' + error.message, 'error');
+        });
+}
+
+// Verifica a cada 30 segundos
+setInterval(verificarConexaoFirebase, 30000);
+
+// ============================================================
 // FUNÇÕES DE LOGIN
 // ============================================================
 function fazerLogin() {
@@ -439,6 +502,10 @@ function fazerLogin() {
         document.getElementById('userBadge').textContent = '👤 ' + CREDENCIAIS[user].label;
         if (user === 'producao') { document.getElementById('btnFaturamento').classList.add('oculto'); } 
         else { document.getElementById('btnFaturamento').classList.remove('oculto'); }
+        
+        // Verifica conexão após login
+        setTimeout(verificarConexaoFirebase, 1500);
+        
         carregarDadosFirebase();
         carregarEstoqueFirebase();
         showToast('✅ Bem-vindo, ' + CREDENCIAIS[user].label + '!', 'success');
@@ -1099,8 +1166,16 @@ function atualizarInterface() {
 // INICIALIZAÇÃO
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Sistema LB Florestal inicializando...');
+    
+    // Data atual no campo de entrada
     document.getElementById('entradaData').value = new Date().toISOString().split('T')[0];
+    
+    // Carrega estoque do Firebase
     carregarEstoqueFirebase();
+    
+    // 🔥 VERIFICA CONEXÃO COM FIREBASE (AGUARDA INICIALIZAÇÃO)
+    setTimeout(verificarConexaoFirebase, 2000);
 });
 </script>
 </body>
