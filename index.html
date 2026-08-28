@@ -1361,6 +1361,7 @@ function processarArquivoExcel(file) {
     var loadingEl = document.getElementById('loading');
     if (loadingEl) loadingEl.classList.add('show');
     var reader = new FileReader();
+    
     reader.onload = function(e) {
         try {
             var data = new Uint8Array(e.target.result);
@@ -1374,6 +1375,8 @@ function processarArquivoExcel(file) {
             var ws = workbook.Sheets[wsName];
             if (!ws) { throw new Error('Aba "' + wsName + '" não encontrada!'); }
             var range = XLSX.utils.decode_range(ws['!ref']);
+            
+            // ENCONTRA O CABEÇALHO
             var hRow = -1;
             for (var r = 0; r <= 10; r++) {
                 for (var c = 0; c <= range.e.c; c++) {
@@ -1383,6 +1386,8 @@ function processarArquivoExcel(file) {
                 if (hRow >= 0) break;
             }
             if (hRow < 0) { throw new Error('Não encontrei coluna "Talhão" no cabeçalho.'); }
+            
+            // MAPEIA COLUNAS
             var cols = {};
             for (var c = 0; c <= range.e.c; c++) {
                 var cell = ws[XLSX.utils.encode_cell({ r: hRow, c: c })];
@@ -1401,11 +1406,19 @@ function processarArquivoExcel(file) {
                 if (h==='ID'||h.includes('ID FAZENDA')) cols.id = c;
                 if (h.includes('MUNICÍPIO') || h.includes('MUNICIPIO') || h.includes('CIDADE')) cols.municipio = c;
             }
+            
+            // VERIFICA SE ENCONTROU AS COLUNAS ESSENCIAIS
+            if (cols.talhao === undefined || cols.op === undefined) {
+                throw new Error('Colunas essenciais (Talhão e Operação) não encontradas. Verifique o cabeçalho da planilha.');
+            }
+            
             var resultados = [];
             var insumosAcum = {};
             var opsDia = {};
             var todosRegistros = [];
             var count = 0;
+            
+            // PERCORRE AS LINHAS
             for (var r = hRow + 1; r <= range.e.r; r++) {
                 var tCell = ws[XLSX.utils.encode_cell({ r: r, c: cols.talhao })];
                 var oCell = ws[XLSX.utils.encode_cell({ r: r, c: cols.op })];
@@ -1414,9 +1427,12 @@ function processarArquivoExcel(file) {
                 var op = String(oCell.v).trim();
                 if (!tal || !op) continue;
                 count++;
+                
+                // FUNÇÕES AUXILIARES
                 var gv = function(c, def) { if (c === undefined || c === null) return def || ''; var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; return cell && cell.v !== undefined ? String(cell.v).trim() : (def || ''); };
                 var gn = function(c) { if (c === undefined || c === null) return 0; var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; if (!cell) return 0; var v = parseFloat(String(cell.v).replace(',', '.')); return isNaN(v) ? 0 : v; };
                 var gd = function(c) { if (c === undefined || c === null) return null; var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; return cell ? cell.v : null; };
+                
                 var dataRaw = gd(cols.data);
                 var dataStr = dataRaw ? fmtData(dataRaw) : getHoje();
                 var fazenda = gv(cols.faz, '');
@@ -1426,6 +1442,7 @@ function processarArquivoExcel(file) {
                 var obs = gv(cols.obs, '');
                 var areaCadastro = gn(cols.area);
                 var idRegistro = gv(cols.id, '');
+                
                 var insumos = [];
                 if (cols.insumos && cols.quantidades) {
                     for (var i = 0; i < Math.min(cols.insumos.length, cols.quantidades.length); i++) {
@@ -1438,10 +1455,12 @@ function processarArquivoExcel(file) {
                         }
                     }
                 }
+                
                 var idOp = extrairIdOperacao(op);
                 var nomeOperacao = op;
                 var obsLimpa = limparObservacao(obs);
-                todosRegistros.push({
+                
+                var registro = {
                     id: idRegistro || idOp,
                     idOp: idOp,
                     operacao: nomeOperacao,
@@ -1458,7 +1477,9 @@ function processarArquivoExcel(file) {
                     dataStr: dataStr,
                     insumos: insumos,
                     insumosStr: insumos.map(i => extrairInsumoLimpo(i.nome) + ' ' + safe(i.qtd)).join(', ')
-                });
+                };
+                todosRegistros.push(registro);
+                
                 if (!opsDia[nomeOperacao]) {
                     opsDia[nomeOperacao] = {
                         nome: nomeOperacao,
@@ -1487,6 +1508,7 @@ function processarArquivoExcel(file) {
                     opsDia[nomeOperacao].observacoes.push(obsLimpa);
                 }
                 opsDia[nomeOperacao].insumos = insumosAcum;
+                
                 resultados.push({
                     talhao: tal,
                     operacao: op,
@@ -1501,33 +1523,58 @@ function processarArquivoExcel(file) {
                     id: idRegistro || idOp
                 });
             }
+            
             if (count === 0) { throw new Error('Nenhuma linha de dados encontrada.'); }
+            
+            // ATUALIZA ESTADO LOCAL
             state.dadosProducao = resultados;
             state.operacoesDia = opsDia;
             state.insumosDia = insumosAcum;
             state.todosRegistros = todosRegistros;
             
             // ============================================================
-            // 🔥 SALVA DIRETO NO FIREBASE FIRESTORE
+            // 🔥 SALVA DIRETO NO FIREBASE FIRESTORE - CORRIGIDO
             // ============================================================
             showToast('🔄 Salvando ' + Object.keys(opsDia).length + ' operações no Firebase...', 'warning');
             
             var dia = getDiaNumero();
             var dataHoje = getHoje();
-            var rfAtual = getRFAtual();
+            var rfAtual = getRFAtual ? getRFAtual() : 'RF_' + String(new Date().getMonth() + 1).padStart(2,'0') + '_' + new Date().getFullYear();
             
-            // REMOVE DADOS ANTIGOS DO DIA
+            // ============================================================
+            // PASSO 1: REMOVE DADOS ANTIGOS DO DIA (COM TRATATIVA DE ERRO)
+            // ============================================================
             db.collection('producao_dia').where('dia', '==', dia).get()
                 .then(function(snapshot) {
+                    // VERIFICA SE O SNAPSHOT EXISTE E TEM DOCUMENTOS
                     var batch = db.batch();
-                    snapshot.forEach(function(doc) { batch.delete(doc.ref); });
-                    return batch.commit();
+                    var count = 0;
+                    
+                    // TRATATIVA SEGURA PARA forEach
+                    if (snapshot && typeof snapshot.forEach === 'function') {
+                        snapshot.forEach(function(doc) {
+                            batch.delete(doc.ref);
+                            count++;
+                        });
+                    }
+                    
+                    if (count > 0) {
+                        console.log('🗑️ Removendo ' + count + ' documentos antigos do dia ' + dia);
+                        return batch.commit();
+                    } else {
+                        console.log('ℹ️ Nenhum documento antigo encontrado para o dia ' + dia);
+                        return Promise.resolve();
+                    }
                 })
                 .then(function() {
+                    // ============================================================
+                    // PASSO 2: SALVA AS NOVAS OPERAÇÕES
+                    // ============================================================
                     var promises = [];
                     var salvos = 0;
                     var erros = 0;
                     
+                    // SALVA CADA OPERAÇÃO
                     for (var opKey in opsDia) {
                         var op = opsDia[opKey];
                         var ref = db.collection('producao_dia').doc();
@@ -1543,11 +1590,18 @@ function processarArquivoExcel(file) {
                             todosRegistros: todosRegistros,
                             createdAt: firebase.firestore.FieldValue.serverTimestamp()
                         })
-                        .then(function() { salvos++; })
-                        .catch(function(error) { erros++; console.error('❌ Erro ao salvar operação:', error.message); });
+                        .then(function() {
+                            salvos++;
+                            console.log('✅ Operação salva no Firebase:', opKey);
+                        })
+                        .catch(function(error) {
+                            erros++;
+                            console.error('❌ Erro ao salvar operação:', error.message);
+                        });
                         promises.push(promise);
                     }
                     
+                    // SALVA REGISTROS INDIVIDUAIS
                     todosRegistros.forEach(function(reg) {
                         var promise = db.collection('registros_producao').add({
                             rf: rfAtual,
@@ -1563,21 +1617,31 @@ function processarArquivoExcel(file) {
                             insumos: reg.insumos || [],
                             createdAt: firebase.firestore.FieldValue.serverTimestamp()
                         })
-                        .catch(function(error) { console.error('❌ Erro ao salvar registro:', error.message); });
+                        .catch(function(error) {
+                            console.error('❌ Erro ao salvar registro individual:', error.message);
+                        });
                         promises.push(promise);
                     });
                     
+                    // PROCESSA SAÍDAS DE INSUMOS
                     processarSaidasInsumos(resultados);
                     
+                    // ============================================================
+                    // PASSO 3: EXECUTA TODAS AS PROMESSAS
+                    // ============================================================
                     return Promise.all(promises);
                 })
                 .then(function() {
                     if (loadingEl) loadingEl.classList.remove('show');
                     var infoEl = document.getElementById('infoArquivo');
                     if (infoEl) infoEl.textContent = '✅ ' + file.name + ' importado! (' + count + ' linhas, ' + Object.keys(opsDia).length + ' operações)';
+                    
                     showToast('✅ Planilha importada! ' + Object.keys(opsDia).length + ' operações salvas no Firebase.', 'success');
+                    
+                    // ATUALIZA INTERFACE
                     atualizarInterface();
-                    carregarSeletorRF();
+                    if (typeof carregarSeletorRF === 'function') carregarSeletorRF();
+                    
                     console.log('✅ Importação concluída! Dados salvos no Firebase.');
                 })
                 .catch(function(error) {
@@ -1592,6 +1656,7 @@ function processarArquivoExcel(file) {
             showToast('❌ Erro: ' + error.message, 'error');
         }
     };
+    
     reader.onerror = function(error) {
         console.error('❌ Erro ao ler arquivo:', error);
         var loadingEl = document.getElementById('loading');
