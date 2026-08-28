@@ -1652,11 +1652,147 @@ function toggleAccordion(accordionId) {
     }
 }
 
+// ============================================================
+// LIMPAR TODOS OS DADOS - FIREBASE E LOCAL
+// ============================================================
 function limparTudoEstoque() {
-    if (!confirm('⚠️ ATENÇÃO: Isso irá apagar TODAS as movimentações de estoque. Esta ação não pode ser desfeita!')) return;
-    if (!confirm('🔄 Confirme novamente:')) return;
-    state.movimentacoes = [];
-    showToast('⚠️ Os dados no Firebase precisam ser removidos manualmente.', 'warning');
+    var msg = '⚠️ ATENÇÃO: Isso irá apagar TODOS os dados do sistema!\n\n' +
+              'Serão removidos:\n' +
+              '  📊 Lançamentos (Firebase)\n' +
+              '  📦 Movimentações de Estoque (Firebase)\n' +
+              '  📋 Operações Manuais (Firebase)\n' +
+              '  🌱 Replantios (Firebase)\n' +
+              '  📋 SOPs (Firebase)\n' +
+              '  📊 Configurações (Firebase)\n\n' +
+              '🔥 Esta ação NÃO pode ser desfeita!\n' +
+              'Todos os usuários perderão os dados.';
+    
+    if (!confirm(msg)) return;
+    if (!confirm('🔄 Confirme NOVAMENTE: deseja realmente apagar TODOS os dados?')) return;
+    
+    var loading = document.getElementById('loading');
+    if (loading) loading.classList.add('show');
+    
+    showToast('🗑️ Removendo todos os dados... Aguarde!', 'warning');
+    
+    var colecoes = [
+        { nome: 'Lançamentos', colecao: 'lancamentos' },
+        { nome: 'Movimentações de Estoque', colecao: 'estoque_movimentacoes' },
+        { nome: 'Configurações', colecao: 'config' },
+        { nome: 'Produção do Dia', colecao: 'producao_dia' }
+    ];
+    
+    var totalRemovidos = 0;
+    var erros = 0;
+    var promises = [];
+    
+    colecoes.forEach(function(item) {
+        var promise = db.collection(item.colecao).get()
+            .then(function(snapshot) {
+                var batch = db.batch();
+                var count = 0;
+                snapshot.forEach(function(doc) {
+                    batch.delete(doc.ref);
+                    count++;
+                });
+                
+                if (count > 0) {
+                    return batch.commit().then(function() {
+                        totalRemovidos += count;
+                        console.log('✅ Removidos ' + count + ' documentos de ' + item.nome);
+                    });
+                } else {
+                    console.log('ℹ️ Nenhum documento em ' + item.nome);
+                    return Promise.resolve();
+                }
+            })
+            .catch(function(error) {
+                erros++;
+                console.error('❌ Erro ao remover ' + item.nome + ':', error.message);
+                return Promise.resolve();
+            });
+        promises.push(promise);
+    });
+    
+    Promise.all(promises)
+        .then(function() {
+            // Limpa localStorage
+            var chavesLocal = [
+                'estoqueMovimentacoes',
+                'operacoesManuais',
+                'repConc',
+                'sopConc',
+                'lancamentosFirebase'
+            ];
+            
+            chavesLocal.forEach(function(chave) {
+                localStorage.removeItem(chave);
+                console.log('🗑️ Removido localStorage: ' + chave);
+            });
+            
+            // Reseta estado global
+            state.movimentacoes = [];
+            state.estoque = {};
+            state.lancamentosFirebase = {};
+            state.operacoesDia = {};
+            state.dadosProducao = [];
+            state.operacoesManuais = [];
+            state.replantiosConcluidos = [];
+            state.sopConcluidas = {};
+            state.valoresAtividades = {};
+            
+            // Limpa interface
+            document.getElementById('estoqueConsolidado').innerHTML = 
+                '<div class="empty"><div class="ico">📦</div><p>Nenhum insumo registrado.</p></div>';
+            document.getElementById('movimentacoesContainer').innerHTML = 
+                '<div class="empty"><div class="ico">📋</div><p>Nenhuma movimentação registrada.</p></div>';
+            document.getElementById('containerFaturamentoRF').innerHTML = 
+                '<div class="empty"><div class="ico">📊</div><p>Nenhuma operação encontrada.</p></div>';
+            document.getElementById('dashUltimasOps').innerHTML = 
+                '<div class="empty"><div class="ico">📭</div><p>Nenhuma operação registrada.</p></div>';
+            document.getElementById('totalInsumos').textContent = '0';
+            document.getElementById('totalEstoque').innerHTML = '0 <span class="unit">kg</span>';
+            document.getElementById('totalMunicipios').textContent = '0';
+            document.getElementById('totalMovimentacoes').textContent = '0';
+            document.getElementById('fatReceitaTotal').textContent = '0';
+            document.getElementById('fatCustoTotal').textContent = '0';
+            document.getElementById('fatResultado').innerHTML = 'R$ 0';
+            document.getElementById('resTotalHa').textContent = '0';
+            document.getElementById('resFaturamento').textContent = 'R$ 0';
+            document.getElementById('resCusto').textContent = 'R$ 0';
+            document.getElementById('resResultado').innerHTML = 'R$ 0';
+            document.getElementById('dashAreaTotal').innerHTML = '0 <span style="font-size:14px;">ha</span>';
+            document.getElementById('dashOperacoes').textContent = '0';
+            document.getElementById('dashReceita').textContent = 'R$ 0';
+            document.getElementById('dashCusto').textContent = 'R$ 0';
+            document.getElementById('dashResultado').textContent = 'R$ 0';
+            document.getElementById('dashMargem').textContent = '0%';
+            
+            var rfSelect = document.getElementById('rfSelect');
+            if (rfSelect) {
+                rfSelect.innerHTML = '<option value="">Nenhuma RF disponível</option>';
+            }
+            
+            if (loading) loading.classList.remove('show');
+            
+            var msgFinal = '✅ TODOS OS DADOS FORAM REMOVIDOS!\n\n' +
+                           '📊 ' + totalRemovidos + ' documentos removidos do Firebase\n' +
+                           '🗑️ Dados locais removidos\n' +
+                           '🔄 Estado do sistema resetado';
+            
+            if (erros > 0) {
+                msgFinal += '\n\n⚠️ ' + erros + ' erros ocorreram. Verifique o console.';
+            }
+            
+            alert(msgFinal);
+            showToast('🗑️ Todos os dados foram removidos! ' + totalRemovidos + ' documentos excluídos.', 'success');
+            console.log('✅ Limpeza completa finalizada. Documentos removidos:', totalRemovidos);
+        })
+        .catch(function(error) {
+            if (loading) loading.classList.remove('show');
+            console.error('❌ Erro durante a limpeza:', error);
+            showToast('❌ Erro durante a limpeza: ' + error.message, 'error');
+        });
 }
 
 // ============================================================
