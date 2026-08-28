@@ -835,7 +835,6 @@ function listarRFsDisponiveis() {
     var atual = getRFAtual();
     rfs.add(atual);
     
-    // Pega RFs dos lançamentos
     for (var key in state.lancamentosFirebase) {
         var lanc = state.lancamentosFirebase[key];
         if (lanc.dataReferencia) {
@@ -848,7 +847,6 @@ function listarRFsDisponiveis() {
         }
     }
     
-    // Pega RFs das operações
     for (var opKey in state.operacoesDia) {
         var op = state.operacoesDia[opKey];
         if (op.registros) {
@@ -1234,7 +1232,7 @@ function processarSaidasInsumos(registros) {
 }
 
 // ============================================================
-// IMPORTAÇÃO DE PLANILHA (SALVANDO NO FIREBASE)
+// IMPORTAÇÃO DE PLANILHA - BUSCA INTELIGENTE
 // ============================================================
 function importarPlanilha() {
     var input = document.getElementById('fileInputProducao');
@@ -1261,17 +1259,21 @@ function importarPlanilha() {
             if (json.length > 0) {
                 var colunas = Object.keys(json[0]);
                 console.log('Colunas:', colunas);
+                console.log('Total de colunas:', colunas.length);
             }
             
-            function encontrarColuna(nomesPossiveis) {
+            // ============================================================
+            // BUSCA INTELIGENTE POR PALAVRAS-CHAVE
+            // ============================================================
+            
+            function buscarColuna(palavrasChave) {
                 if (json.length === 0) return null;
                 var colunas = Object.keys(json[0]);
-                for (var i = 0; i < nomesPossiveis.length; i++) {
-                    var nome = nomesPossiveis[i];
+                for (var i = 0; i < palavrasChave.length; i++) {
+                    var chave = palavrasChave[i].toLowerCase();
                     for (var j = 0; j < colunas.length; j++) {
                         var col = colunas[j].toLowerCase().trim();
-                        var busca = nome.toLowerCase().trim();
-                        if (col === busca || col.includes(busca) || busca.includes(col)) {
+                        if (col.includes(chave)) {
                             return colunas[j];
                         }
                     }
@@ -1279,42 +1281,71 @@ function importarPlanilha() {
                 return null;
             }
             
-            var colOp = encontrarColuna(['Operação/Atividade', 'Operação', 'OPERACAO', 'Atividade']);
-            var colProd = encontrarColuna(['Produção (ha)', 'Produção', 'PRODUCAO', 'producao', 'ha']);
-            var colData = encontrarColuna(['Data', 'DATA']);
-            var colFaz = encontrarColuna(['Fazenda', 'FAZENDA']);
-            var colTalhao = encontrarColuna(['Talhão', 'TALHAO', 'Talhão (3 DIGITOS', 'Talhao']);
-            var colMunicipio = encontrarColuna(['Município', 'MUNICIPIO', 'Cidade']);
-            var colEquipe = encontrarColuna(['Equipe', 'EQUIPE']);
-            var colObs = encontrarColuna(['Observações', 'OBSERVACAO', 'Observacao', 'Obs']);
-            var colAreaCad = encontrarColuna(['Área Cadastral', 'AREA CADASTRAL', 'Área Cadastro']);
-            
-            var colInsumos = [];
-            var colQuantidades = [];
-            var colunasObj = Object.keys(json[0]);
-            for (var i = 0; i < colunasObj.length; i++) {
-                var nome = colunasObj[i];
-                if (nome.toLowerCase().includes('insumo')) {
-                    colInsumos.push(nome);
+            function buscarColunasInsumos() {
+                var colunas = Object.keys(json[0]);
+                var resultado = [];
+                for (var j = 0; j < colunas.length; j++) {
+                    var col = colunas[j].toLowerCase().trim();
+                    if (col.includes('insumo') || col.includes('qtd') || col.includes('quantidade')) {
+                        resultado.push(colunas[j]);
+                    }
                 }
-                if (nome.toLowerCase().includes('quantidade')) {
-                    colQuantidades.push(nome);
-                }
+                return resultado;
             }
             
-            console.log('📊 Colunas identificadas:');
+            function agruparInsumos(colunasInsumos) {
+                var insumos = [];
+                var quantidades = [];
+                for (var i = 0; i < colunasInsumos.length; i++) {
+                    var nome = colunasInsumos[i].toLowerCase();
+                    if (nome.includes('insumo')) {
+                        insumos.push(colunasInsumos[i]);
+                    } else if (nome.includes('qtd') || nome.includes('quantidade')) {
+                        quantidades.push(colunasInsumos[i]);
+                    }
+                }
+                insumos.sort();
+                quantidades.sort();
+                
+                var pares = [];
+                var minLen = Math.min(insumos.length, quantidades.length);
+                for (var i = 0; i < minLen; i++) {
+                    pares.push({ insumo: insumos[i], quantidade: quantidades[i] });
+                }
+                return pares;
+            }
+            
+            // ============================================================
+            // MAPEIA COLUNAS
+            // ============================================================
+            var colData = buscarColuna(['data']);
+            var colOp = buscarColuna(['oper', 'ativ']);
+            var colEquipe = buscarColuna(['equipe']);
+            var colFaz = buscarColuna(['fazend']);
+            var colTalhao = buscarColuna(['talh']);
+            var colMunicipio = buscarColuna(['municip', 'cidad']);
+            var colAreaCad = buscarColuna(['area cadastro', 'area cadastral', 'cadastro']);
+            var colProd = buscarColuna(['produc', 'ha']);
+            var colObs = buscarColuna(['observ', 'obs']);
+            
+            var todasColunasInsumos = buscarColunasInsumos();
+            var paresInsumos = agruparInsumos(todasColunasInsumos);
+            
+            console.log('📊 Colunas identificadas (busca inteligente):');
+            console.log('  Data:', colData);
             console.log('  Operação:', colOp);
             console.log('  Produção:', colProd);
-            console.log('  Data:', colData);
             console.log('  Fazenda:', colFaz);
             console.log('  Talhão:', colTalhao);
             console.log('  Município:', colMunicipio);
             console.log('  Equipe:', colEquipe);
             console.log('  Observação:', colObs);
-            console.log('  Área Cadastral:', colAreaCad);
-            console.log('  Insumos:', colInsumos);
-            console.log('  Quantidades:', colQuantidades);
+            console.log('  Área Cadastro:', colAreaCad);
+            console.log('  Pares Insumo/Quantidade encontrados:', paresInsumos.length);
             
+            // ============================================================
+            // PROCESSA OS DADOS
+            // ============================================================
             var operacoesParaSalvar = {};
             var todosRegistros = [];
             var linhaProcessada = 0;
@@ -1324,16 +1355,23 @@ function importarPlanilha() {
                 if (!row || Object.keys(row).length === 0) return;
                 
                 var primeiraColuna = row[Object.keys(row)[0]] || '';
-                if (typeof primeiraColuna === 'string' && 
-                    (primeiraColuna.includes('EPS') || 
-                     primeiraColuna.includes('NILIZA') ||
-                     primeiraColuna.includes('ATIVIDADE REFERENTE') ||
-                     primeiraColuna.includes('Supervisor'))) {
-                    return;
+                if (typeof primeiraColuna === 'string') {
+                    var texto = primeiraColuna.toUpperCase();
+                    if (texto.includes('EPS') || 
+                        texto.includes('NILIZA') ||
+                        texto.includes('ATIVIDADE REFERENTE') ||
+                        texto.includes('SUPERVISOR') ||
+                        texto.includes('REPORTE DIÁRIO')) {
+                        return;
+                    }
                 }
                 
                 var op = colOp ? String(row[colOp] || '').trim() : '';
                 var prod = colProd ? parseFloat(String(row[colProd] || '0').replace(',', '.')) || 0 : 0;
+                
+                if (!op && prod === 0) return;
+                if (!op) op = 'OPERAÇÃO_' + (index + 1);
+                
                 var data = colData ? String(row[colData] || '').trim() : getHoje();
                 var fazenda = colFaz ? String(row[colFaz] || '').trim() : '';
                 var talhao = colTalhao ? String(row[colTalhao] || '').trim() : '';
@@ -1342,20 +1380,17 @@ function importarPlanilha() {
                 var obs = colObs ? String(row[colObs] || '').trim() : '';
                 var areaCad = colAreaCad ? parseFloat(String(row[colAreaCad] || '0').replace(',', '.')) || 0 : 0;
                 
-                if (!op && prod === 0) return;
-                if (!op) op = 'OPERAÇÃO_' + (index + 1);
-                
                 linhaProcessada++;
                 totalArea += prod;
                 
                 var insumos = [];
-                for (var i = 0; i < Math.min(colInsumos.length, colQuantidades.length); i++) {
-                    var insNome = String(row[colInsumos[i]] || '').trim();
-                    var insQtd = parseFloat(String(row[colQuantidades[i]] || '0').replace(',', '.')) || 0;
+                paresInsumos.forEach(function(par) {
+                    var insNome = String(row[par.insumo] || '').trim();
+                    var insQtd = parseFloat(String(row[par.quantidade] || '0').replace(',', '.')) || 0;
                     if (insNome && insQtd > 0) {
                         insumos.push({ nome: insNome, qtd: insQtd });
                     }
-                }
+                });
                 
                 var registro = {
                     data: data,
@@ -1392,15 +1427,18 @@ function importarPlanilha() {
                 });
             });
             
-            console.log('📊 Linhas processadas: ' + linhaProcessada);
-            console.log('📊 Total de operações: ' + Object.keys(operacoesParaSalvar).length);
-            console.log('📊 Total de área: ' + totalArea);
+            console.log('📊 Linhas processadas:', linhaProcessada);
+            console.log('📊 Total de operações:', Object.keys(operacoesParaSalvar).length);
+            console.log('📊 Total de área:', totalArea);
             
             if (Object.keys(operacoesParaSalvar).length === 0) {
-                throw new Error('Nenhuma operação válida encontrada. Verifique os nomes das colunas.');
+                throw new Error('Nenhuma operação válida encontrada.');
             }
             
-            showToast('🔄 Salvando ' + Object.keys(operacoesParaSalvar).length + ' operações no Firebase...', 'warning');
+            // ============================================================
+            // SALVA NO FIREBASE
+            // ============================================================
+            showToast('🔄 Salvando ' + Object.keys(operacoesParaSalvar).length + ' operações...', 'warning');
             document.getElementById('loading').classList.add('show');
             
             var rfAtual = getRFAtual();
@@ -1409,7 +1447,6 @@ function importarPlanilha() {
             var salvos = 0;
             var erros = 0;
             
-            // SALVA OPERAÇÕES
             for (var opKey in operacoesParaSalvar) {
                 var op = operacoesParaSalvar[opKey];
                 var promise = db.collection('producao_dia').add({
@@ -1421,18 +1458,11 @@ function importarPlanilha() {
                     insumos: op.insumos,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 })
-                .then(function(docRef) {
-                    salvos++;
-                    console.log('✅ Operação salva no Firebase:', docRef.id);
-                })
-                .catch(function(error) {
-                    erros++;
-                    console.error('❌ Erro ao salvar operação:', error.message);
-                });
+                .then(function() { salvos++; })
+                .catch(function(error) { erros++; console.error('❌ Erro:', error.message); });
                 promises.push(promise);
             }
             
-            // SALVA REGISTROS INDIVIDUAIS
             todosRegistros.forEach(function(reg) {
                 var promise = db.collection('registros_producao').add({
                     rf: rfAtual,
@@ -1448,9 +1478,7 @@ function importarPlanilha() {
                     insumos: reg.insumos,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 })
-                .catch(function(error) {
-                    console.error('❌ Erro ao salvar registro individual:', error.message);
-                });
+                .catch(function(error) { console.error('❌ Erro ao salvar registro:', error.message); });
                 promises.push(promise);
             });
             
@@ -1472,7 +1500,7 @@ function importarPlanilha() {
                     }
                     
                     alert(msg);
-                    showToast('✅ ' + salvos + ' operações salvas no Firebase com sucesso!', 'success');
+                    showToast('✅ ' + salvos + ' operações salvas no Firebase!', 'success');
                     
                     document.getElementById('infoArquivo').textContent = '✅ ' + file.name + ' importado! (' + linhaProcessada + ' linhas, ' + Object.keys(operacoesParaSalvar).length + ' operações)';
                     
@@ -1481,8 +1509,6 @@ function importarPlanilha() {
                     renderizarFaturamentoPorRF();
                     renderizarProducao();
                     renderizarEstoque();
-                    
-                    console.log('✅ Importação completa! Dados salvos no Firebase.');
                 })
                 .catch(function(error) {
                     document.getElementById('loading').classList.remove('show');
@@ -1730,8 +1756,7 @@ function limparTudoEstoque() {
               '  📋 Produção (Firebase)\n' +
               '  📋 Registros de Produção (Firebase)\n' +
               '  📊 Configurações (Firebase)\n\n' +
-              '🔥 Esta ação NÃO pode ser desfeita!\n' +
-              'Todos os usuários perderão os dados.';
+              '🔥 Esta ação NÃO pode ser desfeita!';
     
     if (!confirm(msg)) return;
     if (!confirm('🔄 Confirme NOVAMENTE: deseja realmente apagar TODOS os dados?')) return;
@@ -1801,9 +1826,6 @@ function limparTudoEstoque() {
             state.lancamentosFirebase = {};
             state.operacoesDia = {};
             state.dadosProducao = [];
-            state.operacoesManuais = [];
-            state.replantiosConcluidos = [];
-            state.sopConcluidas = {};
             state.valoresAtividades = {};
             state.todosRegistros = [];
             
@@ -1881,7 +1903,6 @@ function renderizarFaturamentoPorRF() {
     
     var rfObj = getRFObj(rfSelecionada);
     
-    // Filtra operações pela RF
     var operacoesFiltradas = {};
     for (var key in ops) {
         var op = ops[key];
@@ -2209,7 +2230,6 @@ function salvarNovaOperacao() {
         isManual: true
     });
     
-    // Salva no Firebase
     db.collection('producao_dia').add({
         rf: rfAtual,
         data: dataFormatada,
