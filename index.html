@@ -12,7 +12,6 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f9;color:#1e293b;padding:20px}
 .container{max-width:1400px;margin:0 auto}
-
 .nav-principal{background:#fff;border-radius:12px;padding:10px 20px;margin-bottom:16px;border:1px solid #e9eef3;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .nav-principal .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:#0a1628;margin-right:20px}
 .nav-principal .logo .icon{width:36px;height:36px;background:#2e7d32;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px}
@@ -29,103 +28,70 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f9;color:#1e293
 .btn-tab.estoque.ativo{background:#7c3aed}
 .btn-tab.fat.oculto{display:none}
 .btn-upload-excel{background:#2e7d32;color:#fff;border:none;padding:8px 20px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer}
-.btn-print{background:#2563eb;color:#fff;border:none;padding:6px 16px;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer}
-.btn{display:inline-block;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:bold;font-size:13px;transition:opacity .2s}
-.btn:hover{opacity:.85}
-.btn-verde{background:#16a34a;color:#fff}
-.btn-vermelho{background:#dc2626;color:#fff}
-.btn-azul{background:#2563eb;color:#fff}
-.btn-roxo{background:#7c3aed;color:#fff}
-.btn-cinza{background:#6b7280;color:#fff}
-.btn-sm{padding:4px 12px;font-size:12px}
-.btn-primary-custom{background:#0a1628;color:#fff;border:none;padding:5px 16px;border-radius:6px;font-weight:600;font-size:12px;cursor:pointer}
-.btn-primary-custom:hover{background:#1a3a5c}
-.btn-danger-custom{background:#dc3545;color:#fff;border:none;padding:3px 12px;border-radius:6px;font-weight:600;font-size:11px;cursor:pointer}
-.btn-danger-custom:hover{background:#b91c1c}
-.btn-edit-custom{background:#dbeafe;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;color:#1e40af;font-weight:600;font-size:12px;transition:all .2s}
-.btn-edit-custom:hover{background:#bfdbfe;transform:scale(1.02)}
-.btn-excluir-custom{background:#fee2e2;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;color:#dc2626;font-weight:600;font-size:12px;transition:all .2s}
-.btn-excluir-custom:hover{background:#fecaca;transform:scale(1.02)}
-.btn-transferir-custom{background:#7c3aed;color:#fff;border:none;padding:5px 12px;border-radius:6px;font-weight:600;font-size:11px;cursor:pointer;transition:background .2s;display:inline-flex;align-items:center;gap:4px}
-.btn-transferir-custom:hover{background:#6d28d9}
-
 .page{display:none;padding:0;animation:fadeIn .3s}
 .page.ativo{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-
 .card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08);padding:20px 24px;margin-bottom:16px}
 .card .titulo{font-size:18px;font-weight:700;margin-bottom:4px}
 .card .subtitulo{font-size:13px;color:#64748b}
-
 .upload-area{background:#f8fafc;padding:16px;border-radius:10px;border:2px dashed #d1d9e6;margin-top:12px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
 .upload-area input[type=file]{padding:8px;border:1px solid #d1d9e6;border-radius:6px;background:#fff;flex:1;min-width:200px}
-
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
 .stat-card{background:#fff;border-radius:12px;padding:14px 16px;border:1px solid #e9eef3}
 .stat-card .label{font-size:11px;color:#64748b;font-weight:500;text-transform:uppercase}
 .stat-card .value{font-size:22px;font-weight:700;color:#0f172a;margin-top:2px}
 .stat-card .value .unit{font-size:14px;font-weight:400;color:#475569}
-.stat-card .value .currency{font-size:14px;font-weight:500;color:#475569}
 .stat-card.highlight{background:#0a1628;border-color:#0a1628}
 .stat-card.highlight .label{color:#94a3b8}
 .stat-card.highlight .value{color:#fff}
-
-.estoque-accordion{border:2px solid #e9eef3;border-radius:12px;margin-bottom:12px;overflow:hidden;background:#fff;transition:all .3s ease}
-.estoque-accordion .accordion-header{padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#f8fafc;transition:background .2s;user-select:none}
-.estoque-accordion .accordion-header:hover{background:#f1f5f9}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.text-gray{color:#6b7280}
+.text-sm{font-size:12px}
+.text-xs{font-size:11px}
+.text-green{color:#16a34a}
+.text-blue{color:#2563eb}
+.text-red{color:#dc2626}
+.bold{font-weight:700}
+.btn{display:inline-block;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:bold;font-size:13px;transition:opacity .2s}
+.btn:hover{opacity:.85}
+.btn-verde{background:#16a34a;color:#fff}
+.btn-azul{background:#2563eb;color:#fff}
+.btn-roxo{background:#7c3aed;color:#fff}
+.btn-vermelho{background:#dc2626;color:#fff}
+.btn-sm{padding:4px 12px;font-size:12px}
+.btn-primary-custom{background:#0a1628;color:#fff;border:none;padding:5px 16px;border-radius:6px;font-weight:600;font-size:12px;cursor:pointer}
+.btn-primary-custom:hover{background:#1a3a5c}
+.btn-danger-custom{background:#dc3545;color:#fff;border:none;padding:3px 12px;border-radius:6px;font-weight:600;font-size:11px;cursor:pointer}
+.btn-edit-custom{background:#dbeafe;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;color:#1e40af;font-weight:600;font-size:12px}
+.btn-excluir-custom{background:#fee2e2;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;color:#dc2626;font-weight:600;font-size:12px}
+.btn-transferir-custom{background:#7c3aed;color:#fff;border:none;padding:5px 12px;border-radius:6px;font-weight:600;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.btn-transferir-custom:hover{background:#6d28d9}
+.btn-submit{padding:8px 20px;background:#7c3aed;color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer}
+.btn-submit:hover{background:#6d28d9}
+.badge-status{display:inline-block;padding:2px 12px;border-radius:9999px;font-size:11px;font-weight:600}
+.badge-status.completo{background:#dcfce7;color:#166534}
+.badge-status.parcial{background:#fef9c3;color:#854d0e}
+.badge-status.aguardando{background:#dbeafe;color:#1e40af}
+.badge-status.transferencia{background:#faf5ff;color:#7c3aed}
+.estoque-accordion{border:2px solid #e9eef3;border-radius:12px;margin-bottom:12px;overflow:hidden;background:#fff}
+.estoque-accordion .accordion-header{padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#f8fafc}
 .estoque-accordion .accordion-header .header-left{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .estoque-accordion .accordion-header .header-left .insumo-nome{font-size:16px;font-weight:700;color:#0a1628}
 .estoque-accordion .accordion-header .header-left .saldo-total{font-size:20px;font-weight:700;padding:4px 14px;border-radius:8px}
 .estoque-accordion .accordion-header .header-left .saldo-total.positivo{color:#16a34a;background:#dcfce7}
 .estoque-accordion .accordion-header .header-left .saldo-total.negativo{color:#dc2626;background:#fee2e2}
-.estoque-accordion .accordion-header .header-left .badge-insumo{font-size:11px;color:#64748b;background:#f1f5f9;padding:2px 10px;border-radius:12px}
 .estoque-accordion .accordion-header .accordion-arrow{font-size:20px;transition:transform .3s;color:#94a3b8}
 .estoque-accordion .accordion-header .accordion-arrow.open{transform:rotate(180deg)}
-.estoque-accordion .accordion-body{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s ease;padding:0 20px}
+.estoque-accordion .accordion-body{max-height:0;overflow:hidden;transition:max-height .4s ease;padding:0 20px}
 .estoque-accordion .accordion-body.open{max-height:5000px;padding:16px 20px 20px 20px}
 .estoque-accordion .accordion-body .nf-item{background:#f8fafc;border-radius:8px;padding:12px 16px;margin-bottom:8px;border-left:4px solid #16a34a;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
 .estoque-accordion .accordion-body .nf-item .nf-info{flex:1;min-width:150px}
 .estoque-accordion .accordion-body .nf-item .nf-info .nf-tag{font-weight:600;font-size:13px}
 .estoque-accordion .accordion-body .nf-item .nf-info .nf-municipio{font-size:12px;color:#475569}
-.estoque-accordion .accordion-body .nf-item .nf-info .nf-detalhes{font-size:11px;color:#64748b;margin-top:2px}
 .estoque-accordion .accordion-body .nf-item .nf-saldo{font-weight:700;font-size:16px;min-width:80px;text-align:right}
 .estoque-accordion .accordion-body .nf-item .nf-saldo.positivo{color:#16a34a}
 .estoque-accordion .accordion-body .nf-item .nf-saldo.negativo{color:#dc2626}
-.estoque-accordion .accordion-body .nf-item .nf-acoes{display:flex;gap:6px}
 .estoque-accordion .accordion-body .total-geral{background:#f1f5f9;padding:8px 16px;border-radius:8px;display:flex;justify-content:space-between;font-weight:700;margin-top:8px}
-
-.modal-transferencia .modal-content{max-width:480px}
-.modal-transferencia .form-transferencia{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
-.modal-transferencia .form-transferencia .full-width{grid-column:1/-1}
-.modal-transferencia .form-transferencia label{font-weight:600;font-size:12px;display:block;margin-bottom:4px;color:#475569}
-.modal-transferencia .form-transferencia input,.modal-transferencia .form-transferencia select{width:100%;padding:8px 12px;border-radius:6px;border:1px solid #d1d9e6;font-size:13px;background:#fff}
-.modal-transferencia .form-transferencia input:focus,.modal-transferencia .form-transferencia select:focus{outline:none;border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.1)}
-.modal-transferencia .resumo-transferencia{background:#f8fafc;border-radius:8px;padding:12px 16px;margin-top:12px;font-size:13px;border:1px solid #e9eef3}
-.modal-transferencia .resumo-transferencia .resumo-item{display:flex;justify-content:space-between;padding:4px 0}
-.modal-transferencia .resumo-transferencia .resumo-item .label{color:#64748b}
-.modal-transferencia .resumo-transferencia .resumo-item .value{font-weight:600}
-.modal-transferencia .resumo-transferencia .resumo-item .value.positivo{color:#16a34a}
-.modal-transferencia .resumo-transferencia .resumo-item .value.negativo{color:#dc2626}
-
-.estoque-card{background:#fff;border-radius:12px;padding:16px 18px;border:2px solid #e9eef3;border-top:4px solid #7c3aed}
-.estoque-card .insumo-nome{font-size:16px;font-weight:700;color:#0a1628}
-.estoque-card .insumo-total{font-size:28px;font-weight:700;color:#7c3aed;margin:6px 0}
-.estoque-card .insumo-detalhes{font-size:11px;color:#64748b}
-.estoque-card .municipio-item{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f1f5f9;font-size:12px}
-.estoque-card .municipio-item .mun-nome{font-weight:500}
-.estoque-card .municipio-item .mun-qtd{font-weight:700;color:#7c3aed}
-
-.tabela-estoque{width:100%;border-collapse:collapse;font-size:12px}
-.tabela-estoque th{background:#f3f4f6;padding:8px 10px;text-align:left;font-weight:bold;border-bottom:2px solid #d1d5db;font-size:10px;text-transform:uppercase}
-.tabela-estoque td{padding:6px 10px;border-bottom:1px solid #e5e7eb}
-.tabela-estoque .total-row td{background:#faf5ff;font-weight:bold;border-top:2px solid #7c3aed}
-
-.form-estoque{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e9eef3}
-.form-estoque label{font-weight:600;font-size:11px;display:block;margin-bottom:3px;color:#475569}
-.form-estoque input,.form-estoque select{width:100%;padding:6px 10px;border-radius:6px;border:1px solid #d1d9e6;font-size:13px;background:#fff}
-.form-estoque .btn-submit{padding:8px 20px;background:#7c3aed;color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;align-self:flex-end}
-.form-estoque .btn-submit:hover{background:#6d28d9}
-
 .movimentacao-item{background:#f8fafc;border-radius:8px;padding:10px 14px;margin-bottom:8px;border-left:4px solid #7c3aed;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
 .movimentacao-item .tipo-entrada{border-left-color:#16a34a}
 .movimentacao-item .tipo-saida{border-left-color:#dc2626}
@@ -135,18 +101,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f9;color:#1e293
 .movimentacao-item .mov-qtd.entrada{color:#16a34a}
 .movimentacao-item .mov-qtd.saida{color:#dc2626}
 .movimentacao-item .mov-acoes{display:flex;gap:4px}
-
-.op-card{background:#f8fafc;border-radius:10px;padding:14px 18px;margin-bottom:12px;border:1px solid #e9eef3;border-left:4px solid #16a34a}
-.op-card .op-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:4px}
-.op-card .op-header .op-nome{font-weight:700;font-size:15px;color:#0a1628;word-break:break-word}
-.op-card .op-header .op-total{font-weight:700;font-size:15px;color:#16a34a}
-.op-card .op-info{font-size:12px;color:#64748b;margin-bottom:8px}
-.op-card .op-registros{display:flex;flex-wrap:wrap;gap:4px}
-.op-card .op-registros .reg-tag{background:#fff;border:1px solid #d1d9e6;border-radius:6px;padding:3px 10px;font-size:11px;display:inline-flex;align-items:center;gap:4px}
-.op-card .op-registros .reg-tag .area{font-weight:700;color:#2563eb}
-.op-card .op-registros .reg-tag .equipe{color:#475569}
-.op-card .op-registros .reg-tag .obs{color:#6b7280;font-style:italic;font-size:10px}
-
+.form-estoque{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e9eef3}
+.form-estoque label{font-weight:600;font-size:11px;display:block;margin-bottom:3px;color:#475569}
+.form-estoque input,.form-estoque select{width:100%;padding:6px 10px;border-radius:6px;border:1px solid #d1d9e6;font-size:13px;background:#fff}
+.empty{text-align:center;padding:40px 20px}
+.empty .ico{font-size:48px;margin-bottom:12px}
+.empty p{font-size:16px;color:#64748b}
 .table-wrap{max-height:600px;overflow-y:auto}
 .table-wrap::-webkit-scrollbar{width:5px}
 .table-wrap::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
@@ -155,86 +115,6 @@ th{background:#f3f4f6;padding:8px 10px;text-align:left;font-weight:bold;border-b
 td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
 .total-row td{background:#dcfce7;font-weight:bold;border-top:2px solid #16a34a}
 .num{text-align:right}
-.text-gray{color:#6b7280}
-.text-sm{font-size:12px}
-.text-xs{font-size:11px}
-.text-green{color:#16a34a}
-.text-blue{color:#2563eb}
-.text-red{color:#dc2626}
-.text-purple{color:#7c3aed}
-.bold{font-weight:700}
-
-.badge-status{display:inline-block;padding:2px 12px;border-radius:9999px;font-size:11px;font-weight:600}
-.badge-status.completo{background:#dcfce7;color:#166534}
-.badge-status.parcial{background:#fef9c3;color:#854d0e}
-.badge-status.aguardando{background:#dbeafe;color:#1e40af}
-.badge-status.transferencia{background:#faf5ff;color:#7c3aed}
-
-.operacao-pronta{background:#f8fafc;border-radius:8px;padding:12px 16px;border-left:4px solid #2563eb;margin-bottom:10px}
-.operacao-pronta .info{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-.operacao-pronta .info .nome{font-weight:700;font-size:13px;word-wrap:break-word;max-width:350px}
-.operacao-pronta .info .qtd{font-weight:700;color:#2563eb;font-size:14px}
-.operacao-pronta .campos{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
-.operacao-pronta .campos label{font-size:10px;font-weight:600;color:#475569}
-.operacao-pronta .campos input{padding:3px 6px;border-radius:6px;border:1px solid #d1d9e6;font-size:12px;width:65px}
-
-.filtros-area{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid #e5e7eb}
-.filtros-area label{font-weight:600;font-size:11px;display:block;margin-bottom:3px;color:#475569}
-.filtros-area select,.filtros-area input{width:100%;padding:6px 10px;border-radius:6px;border:1px solid #d1d9e6;font-size:13px;background:#fff}
-
-.faz-header{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;padding:14px 20px;border-radius:12px 12px 0 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
-.faz-header:hover{background:linear-gradient(135deg,#15803d,#166534)}
-.faz-block{border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:12px;overflow:hidden}
-.faz-body{background:#f9fafb;padding:12px;display:none;flex-direction:column;gap:10px}
-.faz-body.open{display:flex}
-.tal-card{background:#fff;border-radius:8px;border-left:4px solid #16a34a;padding:12px 14px}
-.tal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;cursor:pointer}
-.tal-detail{display:none;margin-top:8px;border-top:1px solid #e5e7eb;padding-top:8px}
-.tal-detail.open{display:block}
-.arrow{font-size:18px;transition:transform .2s}
-.arrow.open{transform:rotate(180deg)}
-.irr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;margin-top:6px}
-.irr-card{border-radius:8px;border:2px solid;padding:8px;text-align:center;font-size:12px}
-.irr-card .num{font-size:20px;font-weight:bold}
-.irr-verde{background:#dcfce7;border-color:#16a34a;color:#166534}
-.irr-amarelo{background:#fef9c3;border-color:#ca8a04;color:#854d0e}
-.irr-azul{background:#dbeafe;border-color:#2563eb;color:#1e40af}
-.irr-vermelho{background:#fee2e2;border-color:#dc2626;color:#991b1b}
-.aviso-obs{background:#fef9c3;color:#854d0e;font-size:11px;padding:4px 8px;border-radius:6px;margin-top:4px}
-
-.dia-header{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:14px 20px;border-radius:12px 12px 0 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
-.dia-block{border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:12px;overflow:hidden}
-.dia-body{background:#fff;padding:16px;display:none}
-.dia-body.open{display:block}
-
-.rep-card{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:10px;overflow:hidden}
-.rep-body{padding:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.rep-info{flex:1;min-width:200px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
-.rep-info .field label{font-size:11px;color:#6b7280;font-weight:bold;display:block;margin-bottom:2px}
-.rep-info .field .val{font-size:15px;font-weight:bold}
-.sop-card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:14px;overflow:hidden;border-left:6px solid #9333ea}
-.sop-header{background:linear-gradient(135deg,#faf5ff,#f3e8ff);padding:14px 18px;border-bottom:2px solid #e9d5ff}
-.sop-ops{padding:14px 18px;display:flex;flex-direction:column;gap:10px}
-.sop-op{border-radius:8px;border:2px solid;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-
-.fin-card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:14px;overflow:hidden;border-left:6px solid #059669}
-.fin-header{background:linear-gradient(135deg,#f0fdf4,#dcfce7);padding:14px 18px;border-bottom:2px solid #bbf7d0;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.fin-header .field label{font-size:11px;color:#6b7280;font-weight:bold;display:block;margin-bottom:2px}
-.fin-body{padding:14px 18px}
-
-.insumos-box{background:#faf5ff;border:2px solid #c4b5fd;border-radius:8px;padding:12px;margin-bottom:14px}
-.insumos-box h4{color:#6d28d9;font-size:13px;font-weight:bold;margin-bottom:10px}
-.insumos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
-.ins-item{background:#fff;border:1px solid #c4b5fd;border-radius:6px;padding:6px 10px}
-.ins-item .nome{font-size:11px;color:#6b7280}
-.ins-item .qtd{font-size:15px;font-weight:700;color:#6d28d9}
-
-.hist-row{background:#eff6ff;padding:10px 14px;border-left:3px solid #2563eb;margin-top:6px;border-radius:0 6px 6px 0}
-.hist-expand{font-size:11px;font-weight:bold;padding:3px 8px;background:#dbeafe;color:#1e40af;border:none;border-radius:4px;cursor:pointer}
-
-.check-list{border:1px solid #d1d5db;border-radius:6px;padding:8px;max-height:130px;overflow-y:auto;background:#fff}
-.check-list label{display:flex;align-items:center;gap:6px;padding:3px 0;cursor:pointer;font-size:12px}
-
 .modal-custom{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:999;justify-content:center;align-items:center;backdrop-filter:blur(4px)}
 .modal-custom.active{display:flex}
 .modal-custom .modal-content{background:#fff;border-radius:16px;padding:24px;max-width:520px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.2)}
@@ -251,65 +131,28 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
 .modal-custom .modal-content .btn-group .btn-secondary:hover{background:#e2e8f0}
 .modal-custom .modal-content .btn-group .btn-danger{background:#dc3545;color:#fff;margin-left:auto}
 .modal-custom .modal-content .btn-group .btn-danger:hover{background:#b91c1c}
-.modal-custom .modal-content .dados-adicionais{font-size:12px;color:#64748b;margin-top:8px;padding:8px 12px;background:#f8fafc;border-radius:6px}
-.modal-custom .modal-content .info-text{font-size:13px;color:#475569;margin:4px 0 8px}
-.modal-custom .modal-content .config-item{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #f1f5f9}
-.modal-custom .modal-content .config-item .config-label{flex:1;font-weight:500;font-size:14px}
-.modal-custom .modal-content .config-item input{width:120px;text-align:right;font-weight:600}
-.modal-custom .modal-content .config-item .config-symbol{font-weight:600;color:#475569;font-size:14px}
-.modal-custom .modal-content .resultado-preview{background:#f0f4f9;padding:10px 14px;border-radius:8px;margin-top:10px;font-size:13px}
-.modal-custom .modal-content .resultado-preview .rec{color:#1a56db}
-.modal-custom .modal-content .resultado-preview .cus{color:#dc3545}
-.modal-custom .modal-content .resultado-preview .res{font-weight:700}
-
+.modal-transferencia .modal-content{max-width:480px}
+.modal-transferencia .form-transferencia{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.modal-transferencia .form-transferencia .full-width{grid-column:1/-1}
+.modal-transferencia .form-transferencia label{font-weight:600;font-size:12px;display:block;margin-bottom:4px;color:#475569}
+.modal-transferencia .form-transferencia input,.modal-transferencia .form-transferencia select{width:100%;padding:8px 12px;border-radius:6px;border:1px solid #d1d9e6;font-size:13px;background:#fff}
+.modal-transferencia .form-transferencia input:focus,.modal-transferencia .form-transferencia select:focus{outline:none;border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.1)}
+.modal-transferencia .resumo-transferencia{background:#f8fafc;border-radius:8px;padding:12px 16px;margin-top:12px;font-size:13px;border:1px solid #e9eef3}
+.modal-transferencia .resumo-transferencia .resumo-item{display:flex;justify-content:space-between;padding:4px 0}
+.modal-transferencia .resumo-transferencia .resumo-item .label{color:#64748b}
+.modal-transferencia .resumo-transferencia .resumo-item .value{font-weight:600}
+.modal-transferencia .resumo-transferencia .resumo-item .value.positivo{color:#16a34a}
+.modal-transferencia .resumo-transferencia .resumo-item .value.negativo{color:#dc2626}
 .toast-container{position:fixed;bottom:24px;right:24px;z-index:1000}
 .toast{background:#0f172a;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;box-shadow:0 8px 32px rgba(0,0,0,.15);display:flex;align-items:center;gap:10px;animation:toastIn .3s;margin-top:8px}
 .toast.success{background:#2e7d32}
 .toast.error{background:#dc3545}
 .toast.warning{background:#f59e0b}
 @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
-
 #loading{display:none;position:fixed;inset:0;background:rgba(255,255,255,.8);align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:16px;font-size:20px;font-weight:bold;color:#374151}
 #loading.show{display:flex}
 .spinner{width:50px;height:50px;border:4px solid #e5e7eb;border-top-color:#2e7d32;border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-.empty{text-align:center;padding:40px 20px}
-.empty .ico{font-size:48px;margin-bottom:12px}
-.empty p{font-size:16px;color:#64748b}
-
-.prazo-badge{display:inline-block;padding:4px 12px;border-radius:6px;font-size:13px;font-weight:bold;border:2px solid}
-.p-vencido{background:#111827;color:#fff;border-color:#111827}
-.p-urgente{background:#fee2e2;color:#991b1b;border-color:#dc2626}
-.p-atencao{background:#fef9c3;color:#854d0e;border-color:#ca8a04}
-.p-ok{background:#dcfce7;color:#166534;border-color:#16a34a}
-
-.stat-grid{display:grid;gap:12px;margin-bottom:16px}
-.stat-box{border-radius:10px;border:2px solid;padding:14px;text-align:center}
-.stat-box .n{font-size:28px;font-weight:bold}
-.stat-box .l{font-size:12px;margin-top:4px}
-.sb-verde{background:#dcfce7;border-color:#16a34a;color:#166534}
-.sb-vermelho{background:#fee2e2;border-color:#dc2626;color:#991b1b}
-.sb-amarelo{background:#fef9c3;border-color:#ca8a04;color:#854d0e}
-.sb-azul{background:#dbeafe;border-color:#2563eb;color:#1e40af}
-.sb-cinza{background:#f3f4f6;border-color:#6b7280;color:#374151}
-.sb-preto{background:#111827;border-color:#111827;color:#fff}
-.sb-roxo{background:#faf5ff;border-color:#7c3aed;color:#7c3aed}
-
-.dash-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:16px}
-.dash-card{background:#fff;border-radius:12px;padding:18px 20px;border:1px solid #e9eef3;text-align:center}
-.dash-card .icon{font-size:32px;margin-bottom:8px}
-.dash-card .valor{font-size:28px;font-weight:700}
-.dash-card .label{font-size:12px;color:#64748b;margin-top:4px}
-.dash-card.verde .valor{color:#16a34a}
-.dash-card.azul .valor{color:#2563eb}
-.dash-card.laranja .valor{color:#ea580c}
-.dash-card.roxo .valor{color:#7c3aed}
-.dash-card.vermelho .valor{color:#dc3545}
-.dash-card.preto{background:#0a1628;border-color:#0a1628}
-.dash-card.preto .label{color:#94a3b8}
-.dash-card.preto .valor{color:#fff}
-
 #loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,#0a1628,#1a3a5c);display:flex;align-items:center;justify-content:center;z-index:9999}
 #loginScreen .login-box{background:#fff;border-radius:20px;padding:48px 40px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.4)}
 #loginScreen .login-box .logo{text-align:center;margin-bottom:28px}
@@ -325,9 +168,7 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
 #loginScreen .login-box .erro-login{color:#dc3545;font-size:13px;text-align:center;margin-top:12px;display:none}
 #loginScreen .login-box .info-acesso{margin-top:16px;padding:12px;background:#f1f4f8;border-radius:8px;font-size:12px;color:#64748b;text-align:center}
 #loginScreen .login-box .info-acesso strong{color:#0a1628}
-
-@media(max-width:768px){body{padding:12px}.nav-principal{flex-direction:column;align-items:stretch}.nav-principal .logo{justify-content:center;margin-right:0}.nav-principal .user-info{justify-content:center;flex-wrap:wrap}.stats-grid{grid-template-columns:repeat(2,1fr)}.dash-cards{grid-template-columns:repeat(2,1fr)}.op-card .op-registros .reg-tag{font-size:10px;padding:2px 6px}.operacao-pronta .campos{flex-direction:column;align-items:stretch}.operacao-pronta .campos input{width:100%}.filtros-area{grid-template-columns:1fr}.dia-header{flex-direction:column;align-items:stretch;gap:8px}.dia-header .dia-info{flex-direction:column;align-items:flex-start}.dia-header .dia-actions{justify-content:flex-start}.estoque-grid{grid-template-columns:1fr}.form-estoque{grid-template-columns:1fr}.estoque-accordion .accordion-header{flex-direction:column;align-items:stretch;gap:8px}.estoque-accordion .accordion-header .header-left{flex-wrap:wrap}.estoque-accordion .accordion-body .nf-item{flex-direction:column;align-items:stretch}.estoque-accordion .accordion-body .nf-item .nf-saldo{text-align:left}.modal-transferencia .form-transferencia{grid-template-columns:1fr}.modal-transferencia .form-transferencia .full-width{grid-column:1}}
-@media(max-width:480px){.stats-grid{grid-template-columns:1fr 1fr}.dash-cards{grid-template-columns:1fr 1fr}.stat-card .value{font-size:18px}.op-card .op-header .op-nome{font-size:13px}.op-card .op-header .op-total{font-size:13px}}
+@media(max-width:768px){body{padding:12px}.nav-principal{flex-direction:column;align-items:stretch}.nav-principal .logo{justify-content:center;margin-right:0}.nav-principal .user-info{justify-content:center;flex-wrap:wrap}.stats-grid{grid-template-columns:repeat(2,1fr)}.form-estoque{grid-template-columns:1fr}.modal-transferencia .form-transferencia{grid-template-columns:1fr}.modal-transferencia .form-transferencia .full-width{grid-column:1}}
 </style>
 </head>
 <body>
@@ -353,7 +194,7 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
             <label for="loginPassword">🔑 Senha</label>
             <input type="password" id="loginPassword" placeholder="Digite sua senha" />
         </div>
-        <button class="btn-login" onclick="fazerLogin()"><i class="fas fa-sign-in-alt"></i> Entrar</button>
+        <button class="btn-login" onclick="fazerLogin()"> Entrar</button>
         <div class="erro-login" id="erroLogin">❌ Usuário ou senha incorretos!</div>
         <div class="info-acesso">
             <strong>Produção:</strong> campo123 &nbsp;|&nbsp; <strong>Faturamento:</strong> financa456 &nbsp;|&nbsp; <strong>Gerente:</strong> gerente789
@@ -363,7 +204,6 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
 
 <div id="app" style="display:none;">
     <div class="container">
-
         <div class="nav-principal">
             <div class="logo">
                 <div class="icon">LB</div>
@@ -381,283 +221,118 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
             </div>
         </div>
 
-        <!-- ============================================================ -->
-        <!-- PÁGINA: DASHBOARD                                            -->
-        <!-- ============================================================ -->
+        <!-- Dashboard -->
         <div class="page ativo" id="pageDashboard">
             <div class="card">
-                <div class="titulo"><i class="fas fa-chart-pie"></i> Dashboard Integrado</div>
+                <div class="titulo">📊 Dashboard Integrado</div>
                 <div class="subtitulo">Resumo geral da produção e faturamento</div>
             </div>
-            <div class="dash-cards">
-                <div class="dash-card verde"><div class="icon">🌾</div><div class="valor" id="dashAreaTotal">0 <span style="font-size:14px;">ha</span></div><div class="label">Área Total Produzida</div></div>
-                <div class="dash-card azul"><div class="icon">📋</div><div class="valor" id="dashOperacoes">0</div><div class="label">Operações Realizadas</div></div>
-                <div class="dash-card preto"><div class="icon">💰</div><div class="valor" id="dashReceita">R$ 0</div><div class="label">Receita Total</div></div>
-                <div class="dash-card laranja"><div class="icon">📉</div><div class="valor" id="dashCusto">R$ 0</div><div class="label">Custo Total</div></div>
-                <div class="dash-card roxo"><div class="icon">📊</div><div class="valor" id="dashResultado">R$ 0</div><div class="label">Resultado</div></div>
-                <div class="dash-card vermelho"><div class="icon">📈</div><div class="valor" id="dashMargem">0%</div><div class="label">Margem</div></div>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="label">🌾 Área Total</div><div class="value" id="dashAreaTotal">0 <span class="unit">ha</span></div></div>
+                <div class="stat-card"><div class="label">📋 Operações</div><div class="value" id="dashOperacoes">0</div></div>
+                <div class="stat-card highlight"><div class="label">💰 Receita</div><div class="value" id="dashReceita">R$ 0</div></div>
+                <div class="stat-card"><div class="label">📉 Custo</div><div class="value" id="dashCusto">R$ 0</div></div>
+                <div class="stat-card"><div class="label">📊 Resultado</div><div class="value" id="dashResultado">R$ 0</div></div>
+                <div class="stat-card"><div class="label">📈 Margem</div><div class="value" id="dashMargem">0%</div></div>
             </div>
             <div class="card">
-                <div class="titulo"><i class="fas fa-list"></i> Últimas Operações</div>
+                <div class="titulo">📋 Últimas Operações</div>
                 <div class="table-wrap" id="dashUltimasOps"><div class="empty"><div class="ico">📭</div><p>Nenhuma operação registrada.</p></div></div>
             </div>
         </div>
 
-        <!-- ============================================================ -->
-        <!-- PÁGINA: PRODUÇÃO                                             -->
-        <!-- ============================================================ -->
+        <!-- Produção -->
         <div class="page" id="pageProducao">
-            <div id="tela-inicial-producao" style="display:block;">
-                <div class="card">
-                    <div class="titulo"><i class="fas fa-tractor"></i> Dashboard de Produção</div>
-                    <div class="subtitulo">Importe a planilha Excel e visualize as operações do dia</div>
-                    <div class="upload-area">
-                        <input type="file" id="fileInputProducao" accept=".xlsx,.xls" />
-                        <button class="btn-upload-excel" onclick="importarPlanilha()"><i class="fas fa-file-excel"></i> Importar Planilha</button>
-                        <span class="text-sm text-gray" id="infoArquivo">Nenhum arquivo selecionado</span>
-                    </div>
+            <div class="card">
+                <div class="titulo">🚜 Dashboard de Produção</div>
+                <div class="subtitulo">Importe a planilha Excel e visualize as operações do dia</div>
+                <div class="upload-area">
+                    <input type="file" id="fileInputProducao" accept=".xlsx,.xls" />
+                    <button class="btn-upload-excel" onclick="importarPlanilha()">📤 Importar Planilha</button>
+                    <span class="text-sm text-gray" id="infoArquivo">Nenhum arquivo selecionado</span>
                 </div>
-                <div class="stats-grid">
-                    <div class="stat-card"><div class="label">📅 Data</div><div class="value" id="prodData">-</div></div>
-                    <div class="stat-card"><div class="label">🌾 Operações</div><div class="value" id="prodOps">0</div></div>
-                    <div class="stat-card"><div class="label">📊 Área Total</div><div class="value" id="prodArea">0 <span class="unit">ha</span></div></div>
-                    <div class="stat-card"><div class="label">🧪 Insumos</div><div class="value" id="prodInsumos">0</div></div>
-                </div>
-                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
-                    <button class="btn btn-verde btn-sm" onclick="mudarSubAbaProd('irrigacao',this)">💧 Irrigação</button>
-                    <button class="btn btn-azul btn-sm" onclick="mudarSubAbaProd('data',this)">📅 Por Data</button>
-                    <button class="btn btn-verde btn-sm" onclick="mudarSubAbaProd('replantio',this)">⏰ Replantio</button>
-                    <button class="btn btn-verde btn-sm" onclick="mudarSubAbaProd('sop',this)">📋 SOP</button>
-                    <button class="btn btn-verde btn-sm" onclick="mudarSubAbaProd('finalizadas',this)">✅ Finalizadas</button>
-                </div>
-                <div id="subProducaoIrrigacao" class="sub-prod-aba ativo"></div>
-                <div id="subProducaoData" class="sub-prod-aba" style="display:none;"></div>
-                <div id="subProducaoReplantio" class="sub-prod-aba" style="display:none;"></div>
-                <div id="subProducaoSop" class="sub-prod-aba" style="display:none;"></div>
-                <div id="subProducaoFinalizadas" class="sub-prod-aba" style="display:none;"></div>
             </div>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="label">📅 Data</div><div class="value" id="prodData">-</div></div>
+                <div class="stat-card"><div class="label">🌾 Operações</div><div class="value" id="prodOps">0</div></div>
+                <div class="stat-card"><div class="label">📊 Área Total</div><div class="value" id="prodArea">0 <span class="unit">ha</span></div></div>
+                <div class="stat-card"><div class="label">🧪 Insumos</div><div class="value" id="prodInsumos">0</div></div>
+            </div>
+            <div id="conteudoProducao"></div>
         </div>
 
-        <!-- ============================================================ -->
-        <!-- PÁGINA: FATURAMENTO                                          -->
-        <!-- ============================================================ -->
+        <!-- Faturamento -->
         <div class="page" id="pageFaturamento">
             <div class="card">
-                <div class="titulo"><i class="fas fa-coins"></i> Faturamento</div>
+                <div class="titulo">💰 Faturamento</div>
                 <div class="subtitulo">Gerencie os lançamentos financeiros das operações</div>
             </div>
             <div class="stats-grid">
                 <div class="stat-card"><div class="label">📅 Dia</div><div class="value" id="fatData">-</div></div>
-                <div class="stat-card highlight"><div class="label">💰 Receita Total</div><div class="value"><span class="currency">R$</span> <span id="fatReceitaTotal">0</span></div></div>
-                <div class="stat-card"><div class="label">📉 Custo Total</div><div class="value"><span class="currency">R$</span> <span id="fatCustoTotal">0</span></div></div>
-                <div class="stat-card"><div class="label">📊 Resultado</div><div class="value" id="fatResultado"><span class="currency">R$</span> 0</div></div>
+                <div class="stat-card highlight"><div class="label">💰 Receita Total</div><div class="value">R$ <span id="fatReceitaTotal">0</span></div></div>
+                <div class="stat-card"><div class="label">📉 Custo Total</div><div class="value">R$ <span id="fatCustoTotal">0</span></div></div>
+                <div class="stat-card"><div class="label">📊 Resultado</div><div class="value" id="fatResultado">R$ 0</div></div>
             </div>
-            <div class="dias-navegacao" id="diasContainer"></div>
-            <div class="lancamento-area">
-                <label for="opSelect">Operação:</label>
-                <select id="opSelect"></select>
-                <label for="valorHa">ha:</label>
-                <input type="number" id="valorHa" step="0.01" placeholder="0,00">
-                <label for="valorRha">R$/ha:</label>
-                <input type="number" id="valorRha" step="0.01" placeholder="0,00">
-                <span class="total-display" id="totalDisplay">R$ 0,00</span>
-                <label style="font-size:11px;color:#64748b;">Recursos:</label>
-                <input type="number" id="tfQtd" step="1" placeholder="TF" style="width:55px;">
-                <input type="number" id="maqQtd" step="1" placeholder="Máq" style="width:55px;">
-                <input type="number" id="pipaQtd" step="1" placeholder="Pipa" style="width:55px;">
-                <input type="number" id="apoioQtd" step="1" placeholder="Apoio" style="width:55px;">
-                <button class="btn-primary" id="btnLancar"><i class="fas fa-check"></i> Lançar</button>
-                <button class="btn-reset" id="btnResetDia"><i class="fas fa-undo"></i> Resetar</button>
-                <span class="info-dia" id="infoLancamentoDia"></span>
-                <button class="btn btn-verde btn-sm" onclick="abrirModalNovaOperacao()" style="margin-left:10px;"><i class="fas fa-plus"></i> Nova Operação</button>
-            </div>
-            <div class="obs-area" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:6px 12px;background:#fefce8;border-radius:8px;border:1px solid #fde68a;margin-top:4px;">
-                <label style="font-weight:600;font-size:11px;color:#92400e;"><i class="fas fa-pencil"></i> Obs.:</label>
-                <input type="text" id="obsInput" placeholder="Observação..." style="flex:1;min-width:120px;padding:4px 10px;border-radius:6px;border:1px solid #fde68a;font-size:11px;background:#fff;">
-                <button id="btnSalvarObs" style="background:#f59e0b;border:none;color:#fff;font-weight:600;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px;">Salvar</button>
-                <span class="obs-exibir" id="obsExibir" style="font-size:11px;color:#92400e;font-style:italic;flex:1;"></span>
-            </div>
-            <div class="card">
-                <div class="titulo"><i class="fas fa-clipboard-list"></i> Operações Prontas para Lançar</div>
-                <div class="text-sm text-gray" style="margin-bottom:8px;"><i class="fas fa-info-circle"></i> As operações abaixo vieram da planilha de produção.</div>
-                <div id="containerOperacoesFaturamento"><div class="empty"><div class="ico">📭</div><p>Nenhuma operação pronta para faturar.<br />Importe uma planilha na aba Produção primeiro.</p></div></div>
-            </div>
-            <div class="card">
-                <div class="titulo"><i class="fas fa-chart-bar"></i> Relatório de Faturamento</div>
-                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
-                    <button class="btn btn-azul btn-sm" id="btnVisaoDia" onclick="alternarVisaoFaturamento('dia')">📅 Por Dia</button>
-                    <button class="btn btn-verde btn-sm" id="btnVisaoOperacao" onclick="alternarVisaoFaturamento('operacao')">📊 Por Operação</button>
-                    <span style="margin-left:auto;font-size:12px;color:#64748b;" id="visaoFaturamentoLabel">Visualizando: Por Dia</span>
-                </div>
-                <div id="visaoFaturamentoDia" style="display:block;">
-                    <div class="table-wrap" id="containerVisaoDia"><div class="empty"><div class="ico">📅</div><p>Nenhum dado disponível.</p></div></div>
-                </div>
-                <div id="visaoFaturamentoOperacao" style="display:none;">
-                    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
-                        <div><label style="font-weight:600;font-size:11px;display:block;">Período</label>
-                            <select id="fatPeriodo" onchange="renderizarVisaoOperacao()" style="padding:4px 8px;border-radius:6px;border:1px solid #d1d9e6;font-size:12px;">
-                                <option value="hoje">Hoje</option>
-                                <option value="semana">Esta Semana</option>
-                                <option value="mes">Este Mês</option>
-                                <option value="todo" selected>Todo Período</option>
-                            </select>
-                        </div>
-                        <div><label style="font-weight:600;font-size:11px;display:block;">Fazenda</label>
-                            <select id="fatFazendaOp" onchange="renderizarVisaoOperacao()" style="padding:4px 8px;border-radius:6px;border:1px solid #d1d9e6;font-size:12px;">
-                                <option value="">Todas</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="table-wrap" id="containerVisaoOperacao"><div class="empty"><div class="ico">📊</div><p>Nenhum lançamento encontrado.</p></div></div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="titulo"><i class="fas fa-history"></i> Lançamentos Realizados Hoje</div>
-                <div class="table-wrap" id="containerLancamentosHoje"><div class="empty"><div class="ico">📋</div><p>Nenhum lançamento financeiro realizado hoje.</p></div></div>
-            </div>
+            <div id="containerOperacoesFaturamento"><div class="empty"><div class="ico">📭</div><p>Nenhuma operação disponível.</p></div></div>
         </div>
 
-        <!-- ============================================================ -->
-        <!-- PÁGINA: ESTOQUE                                               -->
-        <!-- ============================================================ -->
+        <!-- Estoque -->
         <div class="page" id="pageEstoque">
             <div class="card">
-                <div class="titulo"><i class="fas fa-boxes"></i> Controle de Insumos e Estoque</div>
+                <div class="titulo">📦 Controle de Insumos e Estoque</div>
                 <div class="subtitulo">Gerencie entradas por NF e saídas automáticas por município</div>
             </div>
-
             <div class="stats-grid" id="estoqueResumo">
-                <div class="stat-card sb-roxo"><div class="label">📦 Total de Insumos</div><div class="value" id="totalInsumos">0</div></div>
-                <div class="stat-card sb-verde"><div class="label">🏷️ Total em Estoque</div><div class="value" id="totalEstoque">0 <span class="unit">kg</span></div></div>
-                <div class="stat-card sb-azul"><div class="label">📍 Municípios</div><div class="value" id="totalMunicipios">0</div></div>
-                <div class="stat-card sb-roxo"><div class="label">📄 Movimentações</div><div class="value" id="totalMovimentacoes">0</div></div>
+                <div class="stat-card"><div class="label">📦 Total de Insumos</div><div class="value" id="totalInsumos">0</div></div>
+                <div class="stat-card"><div class="label">🏷️ Total em Estoque</div><div class="value" id="totalEstoque">0 <span class="unit">kg</span></div></div>
+                <div class="stat-card"><div class="label">📍 Municípios</div><div class="value" id="totalMunicipios">0</div></div>
+                <div class="stat-card"><div class="label">📄 Movimentações</div><div class="value" id="totalMovimentacoes">0</div></div>
             </div>
-
             <div class="card">
-                <div class="titulo"><i class="fas fa-file-invoice"></i> Registrar Entrada por Nota Fiscal</div>
-                <div class="subtitulo">Adicione insumos ao estoque informando a NF e município de destino</div>
+                <div class="titulo">📄 Registrar Entrada por Nota Fiscal</div>
                 <div class="form-estoque">
-                    <div>
-                        <label>📅 Data</label>
-                        <input type="date" id="entradaData" />
-                    </div>
-                    <div>
-                        <label>📄 Número da NF</label>
-                        <input type="text" id="entradaNF" placeholder="Ex: 000002007" />
-                    </div>
-                    <div>
-                        <label>🧪 Insumo</label>
-                        <input type="text" id="entradaInsumo" placeholder="Ex: ADUBO ACRIL 25KG COPOLIMERO" list="insumoList" />
-                        <datalist id="insumoList">
-                            <option value="ADUBO ACRIL 25KG COPOLIMERO">
-                            <option value="Fipronil">
-                            <option value="Adubo NPK">
-                            <option value="Herbicida">
-                            <option value="Fungicida">
-                            <option value="Sementes">
-                            <option value="Calcário">
-                            <option value="Glifosato">
-                        </datalist>
-                    </div>
-                    <div>
-                        <label>📍 Município de Destino</label>
-                        <input type="text" id="entradaMunicipio" placeholder="Ex: AGUDOS" list="municipioList" />
-                        <datalist id="municipioList">
-                            <option value="AGUDOS">
-                            <option value="BOREBI">
-                            <option value="IARAS">
-                            <option value="LENÇOIS PAULISTA">
-                            <option value="SÃO PAULO">
-                            <option value="RIO DE JANEIRO">
-                            <option value="BELO HORIZONTE">
-                            <option value="CURITIBA">
-                        </datalist>
-                    </div>
-                    <div>
-                        <label>⚖️ Quantidade (kg)</label>
-                        <input type="number" id="entradaQtd" step="0.01" placeholder="0,00" />
-                    </div>
-                    <div>
-                        <label>&nbsp;</label>
-                        <button class="btn-submit" onclick="registrarEntrada()"><i class="fas fa-plus"></i> Registrar Entrada</button>
-                    </div>
+                    <div><label>📅 Data</label><input type="date" id="entradaData" /></div>
+                    <div><label>📄 Número da NF</label><input type="text" id="entradaNF" placeholder="Ex: 000002007" /></div>
+                    <div><label>🧪 Insumo</label><input type="text" id="entradaInsumo" placeholder="Ex: ADUBO ACRIL 25KG" /></div>
+                    <div><label>📍 Município</label><input type="text" id="entradaMunicipio" placeholder="Ex: AGUDOS" /></div>
+                    <div><label>⚖️ Quantidade (kg)</label><input type="number" id="entradaQtd" step="0.01" placeholder="0,00" /></div>
+                    <div><label>&nbsp;</label><button class="btn-submit" onclick="registrarEntrada()">✅ Registrar Entrada</button></div>
                 </div>
             </div>
-
             <div class="card">
-                <div class="titulo"><i class="fas fa-chart-pie"></i> Estoque Consolidado por Município</div>
-                <div class="subtitulo">Saldo atual de cada insumo detalhado por município</div>
-                <div id="estoqueConsolidado"><div class="empty"><div class="ico">📦</div><p>Nenhum insumo registrado. Adicione uma entrada por NF.</p></div></div>
+                <div class="titulo">📊 Estoque Consolidado por Município</div>
+                <div id="estoqueConsolidado"><div class="empty"><div class="ico">📦</div><p>Nenhum insumo registrado.</p></div></div>
             </div>
-
             <div class="card">
-                <div class="titulo"><i class="fas fa-list"></i> Histórico de Movimentações</div>
-                <div class="subtitulo">Todas as entradas e saídas registradas no sistema</div>
-                <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
-                    <select id="filtroMovTipo" onchange="renderizarMovimentacoes()" style="padding:4px 10px;border-radius:6px;border:1px solid #d1d9e6;font-size:12px;">
-                        <option value="">Todos</option>
-                        <option value="entrada">✅ Entradas</option>
-                        <option value="saida">📤 Saídas</option>
-                    </select>
-                    <select id="filtroMovInsumo" onchange="renderizarMovimentacoes()" style="padding:4px 10px;border-radius:6px;border:1px solid #d1d9e6;font-size:12px;">
-                        <option value="">Todos os Insumos</option>
-                    </select>
-                    <button class="btn btn-roxo btn-sm" onclick="renderizarMovimentacoes()">🔄 Atualizar</button>
-                    <button class="btn btn-vermelho btn-sm" onclick="limparTudoEstoque()" style="margin-left:auto;">🗑️ Limpar Todos os Dados</button>
-                </div>
+                <div class="titulo">📋 Histórico de Movimentações</div>
                 <div id="movimentacoesContainer"><div class="empty"><div class="ico">📋</div><p>Nenhuma movimentação registrada.</p></div></div>
             </div>
         </div>
 
-        <!-- ============================================================ -->
-        <!-- PÁGINA: RESULTADO                                             -->
-        <!-- ============================================================ -->
+        <!-- Resultado -->
         <div class="page" id="pageResultado">
             <div class="card">
-                <div class="titulo"><i class="fas fa-chart-bar"></i> Resultado Consolidado</div>
+                <div class="titulo">📊 Resultado Consolidado</div>
                 <div class="subtitulo">Resumo financeiro por período e atividade</div>
-            </div>
-            <div class="filtros-area">
-                <div><label>Período</label>
-                    <select id="resPeriodo" onchange="renderizarResultado()">
-                        <option value="hoje">Hoje</option>
-                        <option value="semana">Esta Semana</option>
-                        <option value="mes">Este Mês</option>
-                        <option value="todo">Todo Período</option>
-                    </select>
-                </div>
-                <div><label>Fazenda</label>
-                    <select id="resFazenda" onchange="renderizarResultado()"><option value="">Todas</option></select>
-                </div>
-                <div><label>Atividade</label>
-                    <select id="resAtividade" onchange="renderizarResultado()"><option value="">Todas</option></select>
-                </div>
             </div>
             <div class="stats-grid">
                 <div class="stat-card"><div class="label">🌾 Total HA</div><div class="value" id="resTotalHa">0</div></div>
                 <div class="stat-card highlight"><div class="label">💰 Faturamento</div><div class="value" id="resFaturamento">R$ 0</div></div>
                 <div class="stat-card"><div class="label">📉 Custo</div><div class="value" id="resCusto">R$ 0</div></div>
                 <div class="stat-card"><div class="label">📊 Resultado</div><div class="value" id="resResultado">R$ 0</div></div>
-                <div class="stat-card"><div class="label">📈 Margem</div><div class="value" id="resMargem">0%</div></div>
-            </div>
-            <div class="card">
-                <div class="titulo"><i class="fas fa-table"></i> Detalhamento por Atividade</div>
-                <div class="table-wrap" id="resTabela"><div class="empty"><div class="ico">📊</div><p>Nenhum dado disponível.</p></div></div>
             </div>
         </div>
 
-        <!-- ============================================================ -->
-        <!-- PÁGINA: CONFIGURAÇÕES                                         -->
-        <!-- ============================================================ -->
+        <!-- Configurações -->
         <div class="page" id="pageConfiguracoes">
             <div class="card">
-                <div class="titulo"><i class="fas fa-cog"></i> Configurações</div>
+                <div class="titulo">⚙️ Configurações</div>
                 <div class="subtitulo">Gerencie os valores e custos do sistema</div>
             </div>
             <div id="configSenhaArea" style="display:block;">
                 <div class="card">
                     <div class="titulo">🔒 Área Restrita</div>
-                    <div class="subtitulo">Digite a senha de gerente para acessar as configurações</div>
+                    <div class="subtitulo">Digite a senha de gerente para acessar</div>
                     <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center;">
                         <input type="password" id="configSenhaInput" placeholder="Digite a senha..." style="padding:8px 14px;border-radius:8px;border:1px solid #d1d9e6;font-size:14px;width:250px;" />
                         <button class="btn btn-verde" onclick="validarSenhaConfig()">🔓 Desbloquear</button>
@@ -667,167 +342,14 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
             </div>
             <div id="configConteudo" style="display:none;">
                 <div class="card">
-                    <div class="titulo">💰 Valores por Atividade (R$/ha)</div>
-                    <div class="subtitulo">Configure o valor de cada atividade para o faturamento</div>
-                    <div id="configValoresAtividades" style="margin-top:12px;"></div>
+                    <div class="titulo">💰 Valores por Atividade</div>
+                    <div id="configValoresAtividades"></div>
                     <button class="btn btn-azul" onclick="salvarConfigValores()" style="margin-top:12px;">💾 Salvar Valores</button>
                 </div>
-                <div class="card">
-                    <div class="titulo">🔧 Custos dos Recursos</div>
-                    <div class="subtitulo">Configure o custo diário de cada recurso</div>
-                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px;">
-                        <div><label style="font-weight:600;font-size:12px;display:block;">👨‍🌾 TF (Trabalhador)</label>
-                            <input type="number" id="custo_TF" step="0.01" value="180.00" style="width:100%;padding:6px 10px;border-radius:6px;border:1px solid #d1d9e6;" /></div>
-                        <div><label style="font-weight:600;font-size:12px;display:block;">🚜 Máquina</label>
-                            <input type="number" id="custo_MAQ" step="0.01" value="850.00" style="width:100%;padding:6px 10px;border-radius:6px;border:1px solid #d1d9e6;" /></div>
-                        <div><label style="font-weight:600;font-size:12px;display:block;">🚛 Caminhão Pipa</label>
-                            <input type="number" id="custo_PIPA" step="0.01" value="650.00" style="width:100%;padding:6px 10px;border-radius:6px;border:1px solid #d1d9e6;" /></div>
-                        <div><label style="font-weight:600;font-size:12px;display:block;">🚚 Caminhão Apoio</label>
-                            <input type="number" id="custo_APOIO" step="0.01" value="450.00" style="width:100%;padding:6px 10px;border-radius:6px;border:1px solid #d1d9e6;" /></div>
-                    </div>
-                    <button class="btn btn-azul" onclick="salvarConfigCustos()" style="margin-top:12px;">💾 Salvar Custos</button>
-                </div>
             </div>
-        </div>
-
-    </div>
-</div>
-
-<!-- ============================================================ -->
-<!-- MODAIS                                                       -->
-<!-- ============================================================ -->
-<div class="modal-custom" id="modalNovaOperacao">
-    <div class="modal-content">
-        <h3><i class="fas fa-plus-circle"></i> Nova Operação Manual</h3>
-        <div class="sub">Adicione uma operação/atividade que não veio da planilha de produção</div>
-        <div style="margin-top:12px;">
-            <label>📌 Nome da Operação</label>
-            <input type="text" id="novaOpNome" placeholder="Ex: Capina Manual, Aplicação de Herbicida..." />
-        </div>
-        <div class="row-campos" style="margin-top:8px;">
-            <div>
-                <label>📅 Data</label>
-                <input type="date" id="novaOpData" />
-            </div>
-            <div>
-                <label>🌾 Área (ha)</label>
-                <input type="number" id="novaOpHa" step="0.01" placeholder="0,00" />
-            </div>
-        </div>
-        <div class="row-campos" style="margin-top:8px;">
-            <div>
-                <label>📍 Fazenda</label>
-                <input type="text" id="novaOpFazenda" placeholder="Fazenda" />
-            </div>
-            <div>
-                <label>📍 Município</label>
-                <input type="text" id="novaOpMunicipio" placeholder="Município" />
-            </div>
-        </div>
-        <div style="margin-top:8px;">
-            <label>👥 Equipe</label>
-            <input type="text" id="novaOpEquipe" placeholder="Equipe responsável" />
-        </div>
-        <div style="margin-top:8px;">
-            <label>📝 Observação</label>
-            <input type="text" id="novaOpObs" placeholder="Observação (opcional)" />
-        </div>
-        <div class="btn-group" style="margin-top:16px;">
-            <button class="btn-primary" onclick="salvarNovaOperacao()"><i class="fas fa-save"></i> Salvar Operação</button>
-            <button class="btn-secondary" onclick="fecharModalNovaOperacao()">Cancelar</button>
         </div>
     </div>
 </div>
-
-<div class="modal-custom" id="modalEditarEntrada">
-    <div class="modal-content">
-        <h3><i class="fas fa-edit"></i> Editar Entrada</h3>
-        <div class="sub">Corrija os dados da nota fiscal de entrada</div>
-        <input type="hidden" id="editMovId" />
-        <div style="margin-top:12px;">
-            <label>📅 Data</label>
-            <input type="text" id="editMovData" />
-        </div>
-        <div style="margin-top:8px;">
-            <label>📄 Número da NF</label>
-            <input type="text" id="editMovNF" />
-        </div>
-        <div style="margin-top:8px;">
-            <label>🧪 Insumo</label>
-            <input type="text" id="editMovInsumo" />
-        </div>
-        <div style="margin-top:8px;">
-            <label>📍 Município</label>
-            <input type="text" id="editMovMunicipio" />
-        </div>
-        <div style="margin-top:8px;">
-            <label>⚖️ Quantidade (kg)</label>
-            <input type="number" id="editMovQtd" step="0.01" />
-        </div>
-        <div class="btn-group" style="margin-top:16px;">
-            <button class="btn-primary" onclick="salvarEdicaoEntrada()"><i class="fas fa-save"></i> Salvar</button>
-            <button class="btn-secondary" onclick="fecharModalEditarEntrada()">Cancelar</button>
-        </div>
-    </div>
-</div>
-
-<!-- ============================================================ -->
-<!-- MODAL: TRANSFERÊNCIA ENTRE MUNICÍPIOS                        -->
-<!-- ============================================================ -->
-<div class="modal-custom modal-transferencia" id="modalTransferencia">
-    <div class="modal-content">
-        <h3><i class="fas fa-exchange-alt"></i> Transferir Estoque</h3>
-        <div class="sub">Transfira saldo de um município para outro</div>
-        <input type="hidden" id="transferInsumo" />
-        <input type="hidden" id="transferOrigem" />
-        
-        <div class="form-transferencia">
-            <div class="full-width">
-                <label>🧪 Insumo</label>
-                <input type="text" id="transferInsumoDisplay" disabled style="background:#f1f5f9;" />
-            </div>
-            <div class="full-width">
-                <label>📍 Origem (de onde vai sair)</label>
-                <input type="text" id="transferOrigemDisplay" disabled style="background:#f1f5f9;" />
-            </div>
-            <div class="full-width">
-                <label>📌 Destino (para onde vai)</label>
-                <select id="transferDestino">
-                    <option value="">Selecione o município de destino...</option>
-                </select>
-            </div>
-            <div class="full-width">
-                <label>⚖️ Quantidade (kg)</label>
-                <input type="number" id="transferQtd" step="0.01" placeholder="0,00" />
-            </div>
-            <div class="full-width">
-                <label>📅 Data da Transferência</label>
-                <input type="date" id="transferData" />
-            </div>
-            <div class="full-width">
-                <label>📝 Observação (opcional)</label>
-                <input type="text" id="transferObs" placeholder="Motivo da transferência..." />
-            </div>
-        </div>
-
-        <div class="resumo-transferencia" id="transferResumo">
-            <div class="resumo-item"><span class="label">📌 Origem:</span><span class="value" id="resumoOrigem">-</span></div>
-            <div class="resumo-item"><span class="label">📌 Destino:</span><span class="value" id="resumoDestino">-</span></div>
-            <div class="resumo-item"><span class="label">⚖️ Quantidade:</span><span class="value" id="resumoQtd">0.00 kg</span></div>
-            <div class="resumo-item" style="border-top:1px solid #e9eef3;padding-top:8px;margin-top:4px;">
-                <span class="label">📊 Saldo após transferência:</span>
-                <span class="value" id="resumoSaldo">-</span>
-            </div>
-        </div>
-
-        <div class="btn-group" style="margin-top:16px;">
-            <button class="btn-primary" onclick="confirmarTransferencia()"><i class="fas fa-exchange-alt"></i> Confirmar Transferência</button>
-            <button class="btn-secondary" onclick="fecharModalTransferencia()">Cancelar</button>
-        </div>
-    </div>
-</div>
-
-<div class="toast-container" id="toastContainer"></div>
 
 <script>
 // ============================================================
@@ -864,144 +386,101 @@ var state = {
     operacoesDia: {},
     insumosDia: {},
     todosRegistros: [],
-    expandidos: {},
-    filtros: {
-        irr: { fazenda: '', talhao: '', ops: [] },
-        data: { inicio: '', fim: '', fazenda: '', op: '' },
-        rep: { fazenda: '' },
-        sop: { fazenda: '', status: '' }
-    },
-    replantiosConcluidos: JSON.parse(localStorage.getItem('repConc') || '[]'),
-    sopConcluidas: JSON.parse(localStorage.getItem('sopConc') || '{}'),
-    subAbaProd: 'irrigacao',
     lancamentosFirebase: {},
-    custos: { TF: 180, MAQ: 850, PIPA: 650, APOIO: 450 },
-    valoresAtividades: {},
-    isLoaded: false,
-    isLoading: false,
-    configSenhaValida: false,
-    currentDia: 1,
     movimentacoes: [],
     estoque: {},
-    operacoesManuais: JSON.parse(localStorage.getItem('operacoesManuais') || '[]')
+    configSenhaValida: false,
+    valoresAtividades: {},
+    custos: { TF: 180, MAQ: 850, PIPA: 650, APOIO: 450 }
 };
-
-var visaoFaturamentoAtual = 'dia';
-
-// ============================================================
-// FUNÇÕES SEGURAS
-// ============================================================
-function safeVal(id, def) {
-    var el = document.getElementById(id);
-    if (!el) return def !== undefined ? def : '';
-    if (el.value !== undefined) return el.value;
-    if (el.textContent !== undefined) return el.textContent;
-    return def !== undefined ? def : '';
-}
-
-function safeSet(id, val) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    if (el.value !== undefined) el.value = val;
-    else if (el.textContent !== undefined) el.textContent = val;
-    else el.innerHTML = val;
-}
-
-function safeGetElement(id) {
-    return document.getElementById(id);
-}
 
 // ============================================================
 // HELPERS
 // ============================================================
 function safe(v, d) { var n = parseFloat(v)||0; return isNaN(n)?'0.00':n.toFixed(d||2); }
-function fmtData(d) { 
-    try { 
-        if (!d) return '-';
-        if (typeof d === 'string') return d;
-        return new Date(d).toLocaleDateString('pt-BR'); 
-    } catch(e){ return '-'; } 
-}
+function fmtData(d) { try { if (!d) return '-'; return new Date(d).toLocaleDateString('pt-BR'); } catch(e){ return '-'; } }
 function getHoje() { var d=new Date(); return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); }
-function getDiaNumero() { var d=new Date(); var inicio=new Date(2026,6,21); return Math.max(1,Math.min(31,Math.floor((d-inicio)/(1000*60*60*24))+1)); }
 function formatMoney(v) { return v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
-function ehIrr(s) { return s && (s.includes('IRRIGACAO') || s.includes('IRRICACAO')); }
-function ehPlantio(s) { return s && (s.toUpperCase().includes('PLANTIO') || s.toUpperCase().includes('PLANTI')); }
-
 function showToast(msg, type) {
     type = type || 'success';
     var toast = document.createElement('div');
     toast.className = 'toast ' + type;
-    var icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle' };
-    toast.innerHTML = '<i class="fas ' + (icons[type] || icons.success) + '"></i> ' + msg;
+    toast.innerHTML = ' ' + msg;
     var container = document.getElementById('toastContainer');
     if (container) container.appendChild(toast);
-    setTimeout(function() { toast.style.opacity = '0'; toast.style.transform = 'translateX(20px)'; setTimeout(function() { toast.remove(); }, 300); }, 3500);
+    setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 300); }, 3500);
 }
 
-function toggle(id) { state.expandidos[id] = !state.expandidos[id]; return state.expandidos[id]; }
-function isOpen(id) { return !!state.expandidos[id]; }
+function normalizarMunicipio(mun) {
+    if (!mun) return 'NÃO INFORMADO';
+    return String(mun).toUpperCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
 
-function toggleAccordion(accordionId) {
-    var body = document.getElementById('body_' + accordionId);
-    var arrow = document.getElementById('arrow_' + accordionId);
-    if (!body || !arrow) return;
-    if (body.classList.contains('open')) {
-        body.classList.remove('open');
-        arrow.classList.remove('open');
-    } else {
-        body.classList.add('open');
-        arrow.classList.add('open');
+function normalizarInsumo(ins) {
+    if (!ins) return 'INSUMO NÃO IDENTIFICADO';
+    return String(ins).toUpperCase().trim().replace(/\s*KG\s*$/i, '').replace(/\s*L\s*$/i, '').trim();
+}
+
+// ============================================================
+// FUNÇÕES DE LOGIN
+// ============================================================
+function fazerLogin() {
+    var userEl = document.getElementById('loginUser');
+    var passEl = document.getElementById('loginPassword');
+    var erroEl = document.getElementById('erroLogin');
+    if (!userEl || !passEl) { alert('Erro: elementos de login não encontrados!'); return; }
+    var user = userEl.value;
+    var senha = passEl.value;
+    if (!senha) { if (erroEl) { erroEl.style.display = 'block'; erroEl.textContent = '❌ Digite a senha!'; } return; }
+    if (CREDENCIAIS[user] && CREDENCIAIS[user].senha === senha) {
+        state.usuario = user;
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        document.getElementById('userBadge').textContent = '👤 ' + CREDENCIAIS[user].label;
+        if (user === 'producao') { document.getElementById('btnFaturamento').classList.add('oculto'); } 
+        else { document.getElementById('btnFaturamento').classList.remove('oculto'); }
+        carregarDadosFirebase();
+        carregarEstoqueFirebase();
+        showToast('✅ Bem-vindo, ' + CREDENCIAIS[user].label + '!', 'success');
+    } else { 
+        if (erroEl) { erroEl.style.display = 'block'; erroEl.textContent = '❌ Senha incorreta!'; } 
+        if (passEl) { passEl.value = ''; passEl.focus(); } 
     }
 }
 
-// ============================================================
-// NORMALIZAÇÃO
-// ============================================================
-function normalizarMunicipio(municipio) {
-    if (!municipio) return 'NÃO INFORMADO';
-    var mun = String(municipio).toUpperCase().trim();
-    mun = mun.replace(/BRASIL\s*[\\\/]\s*S[AÃO]\s*PAULO\s*[\\\/]\s*/gi, '');
-    mun = mun.replace(/BRASIL\s*[\\\/]\s*/gi, '');
-    mun = mun.replace(/S[AÃO]\s*PAULO\s*[\\\/]\s*/gi, '');
-    mun = mun.replace(/SAO\s*PAULO\s*[\\\/]\s*/gi, '');
-    mun = mun.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    mun = mun.replace(/\s+/g, ' ').trim();
-    return mun;
-}
-
-var INSUMO_EQUIVALENCIA = {
-    'ADUBOG COPOLIMERO': 'ADUBO ACRIL 25KG COPOLIMERO',
-    'ADUBO COPOLIMERO': 'ADUBO ACRIL 25KG COPOLIMERO',
-    'ACRIL COPOLIMERO': 'ADUBO ACRIL 25KG COPOLIMERO',
-    'ADUBO ACRIL': 'ADUBO ACRIL 25KG COPOLIMERO',
-    'COPOLIMERO': 'ADUBO ACRIL 25KG COPOLIMERO',
-    'FIPRONIL 50G': 'FIPRONIL',
-    'FIPRONIL 10KG': 'FIPRONIL'
-};
-
-function normalizarInsumo(insumo) {
-    if (!insumo) return 'INSUMO NÃO IDENTIFICADO';
-    var ins = String(insumo).toUpperCase().trim();
-    ins = ins.replace(/\s*KG\s*$/i, '');
-    ins = ins.replace(/\s*L\s*$/i, '');
-    ins = ins.replace(/\s*G\s*$/i, '');
-    ins = ins.replace(/\s*ML\s*$/i, '');
-    ins = ins.replace(/\b\d+\s*[A-Z]+\s*/g, '');
-    ins = ins.replace(/\s+/g, ' ').trim();
-    for (var key in INSUMO_EQUIVALENCIA) {
-        if (ins === key || ins.includes(key) || key.includes(ins)) {
-            return INSUMO_EQUIVALENCIA[key];
-        }
+function fazerLogout() {
+    if (confirm('Deseja realmente sair?')) {
+        state.usuario = null;
+        document.getElementById('app').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('loginPassword').value = '';
+        document.getElementById('erroLogin').style.display = 'none';
+        document.getElementById('configSenhaArea').style.display = 'block';
+        document.getElementById('configConteudo').style.display = 'none';
     }
-    return ins;
+}
+
+document.getElementById('loginPassword').addEventListener('keydown', function(e) { if (e.key === 'Enter') fazerLogin(); });
+
+// ============================================================
+// FUNÇÕES DE ABA
+// ============================================================
+function mudarAba(aba, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('ativo'));
+    document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('ativo'));
+    var pageId = 'page' + aba.charAt(0).toUpperCase() + aba.slice(1);
+    var el = document.getElementById(pageId);
+    if (el) el.classList.add('ativo');
+    if (btn) btn.classList.add('ativo');
+    if (aba === 'dashboard') renderizarDashboard();
+    if (aba === 'faturamento') renderizarFaturamento();
+    if (aba === 'estoque') renderizarEstoque();
+    if (aba === 'resultado') renderizarResultado();
 }
 
 // ============================================================
-// FUNÇÕES DE ESTOQUE - AGORA COM FIREBASE
+// ESTOQUE - FIREBASE
 // ============================================================
-
-// Carrega o estoque do Firebase
 function carregarEstoqueFirebase() {
     db.collection('estoque').doc('movimentacoes').get()
         .then(function(doc) {
@@ -1009,70 +488,46 @@ function carregarEstoqueFirebase() {
                 state.movimentacoes = doc.data().movimentacoes || [];
             } else {
                 state.movimentacoes = [];
-                // Cria o documento inicial
                 db.collection('estoque').doc('movimentacoes').set({
                     movimentacoes: [],
                     updatedAt: new Date()
-                }).catch(function(err) {
-                    console.warn('Erro ao criar documento de estoque:', err);
-                });
+                }).catch(function(err) { console.warn('Erro ao criar estoque:', err); });
             }
             salvarMovimentacoesFirebase();
             recalcularEstoque();
             renderizarEstoque();
         })
         .catch(function(error) {
-            console.error('Erro ao carregar estoque do Firebase:', error);
-            // Fallback: tenta carregar do localStorage
+            console.error('Erro ao carregar estoque:', error);
             try {
                 var movs = localStorage.getItem('estoqueMovimentacoes');
                 if (movs) { state.movimentacoes = JSON.parse(movs); }
                 salvarMovimentacoesFirebase();
                 recalcularEstoque();
                 renderizarEstoque();
-            } catch(e) {
-                state.movimentacoes = [];
-                renderizarEstoque();
-            }
+            } catch(e) { state.movimentacoes = []; renderizarEstoque(); }
         });
 }
 
-// Salva movimentações no Firebase
 function salvarMovimentacoesFirebase() {
-    // Salva no Firebase
     db.collection('estoque').doc('movimentacoes').set({
         movimentacoes: state.movimentacoes,
         updatedAt: new Date()
     }, { merge: true }).catch(function(error) {
         console.error('Erro ao salvar no Firebase:', error);
-        // Fallback: salva no localStorage
-        try {
-            localStorage.setItem('estoqueMovimentacoes', JSON.stringify(state.movimentacoes));
-        } catch(e) {}
+        try { localStorage.setItem('estoqueMovimentacoes', JSON.stringify(state.movimentacoes)); } catch(e) {}
     });
-    
-    // Também mantém no localStorage como backup
-    try {
-        localStorage.setItem('estoqueMovimentacoes', JSON.stringify(state.movimentacoes));
-    } catch(e) {}
+    try { localStorage.setItem('estoqueMovimentacoes', JSON.stringify(state.movimentacoes)); } catch(e) {}
 }
 
-// Função antiga - mantida para compatibilidade
-function salvarMovimentacoes() {
-    salvarMovimentacoesFirebase();
-}
-
-// Carrega do Firebase ou localStorage
-function carregarEstoqueLocal() {
-    carregarEstoqueFirebase();
-}
+function salvarMovimentacoes() { salvarMovimentacoesFirebase(); }
 
 function recalcularEstoque() {
+    var estoque = {};
     state.movimentacoes.forEach(function(mov) {
         if (mov.municipio) mov.municipio = normalizarMunicipio(mov.municipio);
         if (mov.insumo) mov.insumo = normalizarInsumo(mov.insumo);
     });
-    var estoque = {};
     var entradas = state.movimentacoes.filter(function(m) { return m.tipo === 'entrada'; });
     var saidas = state.movimentacoes.filter(function(m) { return m.tipo === 'saida'; });
     entradas.forEach(function(mov) {
@@ -1148,28 +603,19 @@ function recalcularEstoque() {
 }
 
 function registrarEntrada() {
-    var dataEl = document.getElementById('entradaData');
-    var nfEl = document.getElementById('entradaNF');
-    var insumoEl = document.getElementById('entradaInsumo');
-    var municipioEl = document.getElementById('entradaMunicipio');
-    var qtdEl = document.getElementById('entradaQtd');
-    if (!dataEl || !nfEl || !insumoEl || !municipioEl || !qtdEl) {
-        showToast('❌ Erro: elementos do formulário não encontrados!', 'error');
-        return;
-    }
-    var data = dataEl.value;
-    var nf = nfEl.value.trim();
-    var insumo = normalizarInsumo(insumoEl.value.trim());
-    var municipio = normalizarMunicipio(municipioEl.value.trim());
-    var qtd = parseFloat(qtdEl.value);
+    var data = document.getElementById('entradaData').value;
+    var nf = document.getElementById('entradaNF').value.trim();
+    var insumo = normalizarInsumo(document.getElementById('entradaInsumo').value.trim());
+    var municipio = normalizarMunicipio(document.getElementById('entradaMunicipio').value.trim());
+    var qtd = parseFloat(document.getElementById('entradaQtd').value);
     if (!data) { showToast('⚠️ Selecione uma data!', 'warning'); return; }
     if (!nf) { showToast('⚠️ Informe o número da NF!', 'warning'); return; }
     if (!insumo || insumo === 'INSUMO NÃO IDENTIFICADO') { showToast('⚠️ Informe um insumo válido!', 'warning'); return; }
-    if (!municipio || municipio === 'NÃO INFORMADO') { showToast('⚠️ Informe o município de destino!', 'warning'); return; }
+    if (!municipio || municipio === 'NÃO INFORMADO') { showToast('⚠️ Informe o município!', 'warning'); return; }
     if (!qtd || qtd <= 0) { showToast('⚠️ Informe uma quantidade válida!', 'warning'); return; }
     var dataFormatada = new Date(data).toLocaleDateString('pt-BR');
     var movimentacao = {
-        id: 'entrada_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        id: 'entrada_' + Date.now(),
         data: dataFormatada,
         tipo: 'entrada',
         insumo: insumo,
@@ -1183,11 +629,11 @@ function registrarEntrada() {
     salvarMovimentacoesFirebase();
     recalcularEstoque();
     renderizarEstoque();
-    nfEl.value = '';
-    insumoEl.value = '';
-    municipioEl.value = '';
-    qtdEl.value = '';
-    showToast('✅ Entrada registrada: ' + qtd + ' kg de ' + insumo + ' para ' + municipio + ' (NF ' + nf + ')', 'success');
+    document.getElementById('entradaNF').value = '';
+    document.getElementById('entradaInsumo').value = '';
+    document.getElementById('entradaMunicipio').value = '';
+    document.getElementById('entradaQtd').value = '';
+    showToast('✅ Entrada registrada: ' + qtd + ' kg de ' + insumo + ' para ' + municipio, 'success');
 }
 
 function renderizarEstoque() {
@@ -1200,48 +646,34 @@ function renderizarEstoque() {
         totalEstoque += item.saldo;
         if (item.municipio) municipios.add(item.municipio);
     });
-    var totalMovs = state.movimentacoes.length;
-    var el1 = document.getElementById('totalInsumos');
-    var el2 = document.getElementById('totalEstoque');
-    var el3 = document.getElementById('totalMunicipios');
-    var el4 = document.getElementById('totalMovimentacoes');
-    if (el1) el1.textContent = totalInsumos;
-    if (el2) el2.innerHTML = safe(totalEstoque) + ' <span class="unit">kg</span>';
-    if (el3) el3.textContent = municipios.size;
-    if (el4) el4.textContent = totalMovs;
+    document.getElementById('totalInsumos').textContent = totalInsumos;
+    document.getElementById('totalEstoque').innerHTML = safe(totalEstoque) + ' <span class="unit">kg</span>';
+    document.getElementById('totalMunicipios').textContent = municipios.size;
+    document.getElementById('totalMovimentacoes').textContent = state.movimentacoes.length;
+    
     var keys = Object.keys(state.estoque);
     if (keys.length === 0) {
-        container.innerHTML = '<div class="empty"><div class="ico">📦</div><p>Nenhum insumo registrado. Adicione uma entrada por NF.</p></div>';
+        container.innerHTML = '<div class="empty"><div class="ico">📦</div><p>Nenhum insumo registrado.</p></div>';
         return;
     }
     var porInsumo = {};
     keys.forEach(function(key) {
         var item = state.estoque[key];
         if (!porInsumo[item.insumo]) {
-            porInsumo[item.insumo] = { total: 0, nfs: {}, municipios: {}, consumoPorMunicipio: {} };
+            porInsumo[item.insumo] = { total: 0, nfs: {}, consumoPorMunicipio: {} };
         }
         porInsumo[item.insumo].total += item.saldo;
         var nfKey = item.nf + '|||' + item.municipio;
         if (!porInsumo[item.insumo].nfs[nfKey]) {
-            porInsumo[item.insumo].nfs[nfKey] = { nf: item.nf, municipio: item.municipio, saldo: 0, entradas: [], saidas: [] };
+            porInsumo[item.insumo].nfs[nfKey] = { nf: item.nf, municipio: item.municipio, saldo: 0 };
         }
         porInsumo[item.insumo].nfs[nfKey].saldo += item.saldo;
-        if (!porInsumo[item.insumo].municipios[item.municipio]) {
-            porInsumo[item.insumo].municipios[item.municipio] = 0;
-        }
-        porInsumo[item.insumo].municipios[item.municipio] += item.saldo;
-        item.entradas.forEach(function(e) {
-            var exists = porInsumo[item.insumo].nfs[nfKey].entradas.some(function(entry) { return entry.id === e.id; });
-            if (!exists) porInsumo[item.insumo].nfs[nfKey].entradas.push(e);
-        });
         item.saidas.forEach(function(s) {
-            var exists = porInsumo[item.insumo].nfs[nfKey].saidas.some(function(saida) { return saida.id === s.id; });
-            if (!exists) porInsumo[item.insumo].nfs[nfKey].saidas.push(s);
-            var munConsumo = s.municipio || 'NÃO INFORMADO';
-            if (!porInsumo[item.insumo].consumoPorMunicipio[munConsumo]) {
-                porInsumo[item.insumo].consumoPorMunicipio[munConsumo] = 0;
+            var mun = s.municipio || 'NÃO INFORMADO';
+            if (!porInsumo[item.insumo].consumoPorMunicipio[mun]) {
+                porInsumo[item.insumo].consumoPorMunicipio[mun] = 0;
             }
-            porInsumo[item.insumo].consumoPorMunicipio[munConsumo] += s.quantidade;
+            porInsumo[item.insumo].consumoPorMunicipio[mun] += s.quantidade;
         });
     });
     var html = '';
@@ -1249,454 +681,97 @@ function renderizarEstoque() {
     insumosOrdenados.forEach(function(insumo, index) {
         var data = porInsumo[insumo];
         var cor = data.total >= 0 ? 'positivo' : 'negativo';
-        var totalDisplay = data.total >= 0 ? safe(data.total) : safe(data.total);
         var accordionId = 'accordion_' + index;
-        var hasTransferencia = false;
-        Object.keys(data.nfs).forEach(function(nfKey) {
-            if (data.nfs[nfKey].nf === 'TRANSFERENCIA') hasTransferencia = true;
-        });
         html += '<div class="estoque-accordion" id="' + accordionId + '">';
         html += '<div class="accordion-header" onclick="toggleAccordion(\'' + accordionId + '\')">';
         html += '<div class="header-left">';
         html += '<span class="insumo-nome">' + insumo + '</span>';
-        html += '<span class="saldo-total ' + cor + '">' + totalDisplay + ' kg</span>';
+        html += '<span class="saldo-total ' + cor + '">' + safe(data.total) + ' kg</span>';
         html += '<span class="badge-insumo">' + Object.keys(data.nfs).length + ' NF(s)</span>';
-        if (hasTransferencia) {
-            html += '<span class="badge-insumo" style="background:#faf5ff;color:#7c3aed;">🔄 Transferência</span>';
-        }
         html += '</div>';
         html += '<span class="accordion-arrow" id="arrow_' + accordionId + '">▼</span>';
         html += '</div>';
         html += '<div class="accordion-body" id="body_' + accordionId + '">';
-
+        
         var consumoKeys = Object.keys(data.consumoPorMunicipio);
         if (consumoKeys.length > 0) {
             html += '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-bottom:12px;">';
-            html += '<div style="font-weight:700;font-size:13px;color:#166534;margin-bottom:6px;">📊 Histórico de Consumo por Município</div>';
+            html += '<div style="font-weight:700;font-size:13px;color:#166534;margin-bottom:6px;">📊 Consumo por Município</div>';
             html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;">';
             consumoKeys.sort().forEach(function(mun) {
                 var qtd = data.consumoPorMunicipio[mun];
-                html += '<div style="background:#fff;border:1px solid #bbf7d0;border-radius:6px;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;">';
-                html += '<span style="font-weight:600;font-size:12px;color:#475569;">📍 ' + mun + '</span>';
+                html += '<div style="background:#fff;border:1px solid #bbf7d0;border-radius:6px;padding:6px 10px;display:flex;justify-content:space-between;">';
+                html += '<span style="font-weight:600;font-size:12px;">📍 ' + mun + '</span>';
                 html += '<span style="font-weight:700;font-size:13px;color:#dc2626;">-' + safe(qtd) + ' kg</span>';
                 html += '</div>';
             });
-            html += '</div>';
-            html += '</div>';
+            html += '</div></div>';
         }
-
+        
         var nfsOrdenadas = Object.keys(data.nfs).sort();
         nfsOrdenadas.forEach(function(nfKey) {
             var nfData = data.nfs[nfKey];
             var saldoCor = nfData.saldo >= 0 ? 'positivo' : 'negativo';
-            var totalEntrada = nfData.entradas.reduce(function(sum, e) { return sum + e.quantidade; }, 0);
-            var totalConsumo = nfData.saidas.reduce(function(sum, s) { return sum + s.quantidade; }, 0);
-            var isTransferencia = nfData.nf === 'TRANSFERENCIA';
-            var displayNf = nfData.nf;
-            if (displayNf === 'SEM_NF') displayNf = '⚠️ SEM NOTA';
-            else if (isTransferencia) displayNf = '🔄 ' + displayNf;
             html += '<div class="nf-item" style="border-left-color:' + (nfData.saldo >= 0 ? '#16a34a' : '#dc2626') + ';">';
             html += '<div class="nf-info">';
-            html += '<div class="nf-tag">📄 ' + displayNf + '</div>';
+            html += '<div class="nf-tag">📄 ' + nfData.nf + '</div>';
             html += '<div class="nf-municipio">📍 ' + nfData.municipio + '</div>';
-            html += '<div class="nf-detalhes">';
-            if (totalEntrada > 0) html += '✅ Entrada: ' + safe(totalEntrada) + ' kg ';
-            if (totalConsumo > 0) html += '📤 Consumido: ' + safe(totalConsumo) + ' kg ';
-            if (isTransferencia) html += '🔄 Transferência';
             html += '</div>';
-            html += '</div>';
-            html += '<div class="nf-saldo ' + saldoCor + '">' + (nfData.saldo >= 0 ? '' : '') + safe(nfData.saldo) + ' kg</div>';
-            html += '<div class="nf-acoes">';
-            if (nfData.saldo > 0 && nfData.nf !== 'SEM_NF') {
-                html += '<button class="btn-transferir-custom" onclick="abrirModalTransferencia(\'' + insumo + '\',\'' + nfData.municipio + '\',' + nfData.saldo + ')"><i class="fas fa-exchange-alt"></i> Transferir</button>';
-            }
-            html += '</div>';
+            html += '<div class="nf-saldo ' + saldoCor + '">' + safe(nfData.saldo) + ' kg</div>';
             html += '</div>';
         });
         html += '<div class="total-geral">';
         html += '<span>TOTAL ' + insumo + '</span>';
-        html += '<span style="color:' + (data.total >= 0 ? '#16a34a' : '#dc2626') + ';">' + (data.total >= 0 ? '' : '') + safe(data.total) + ' kg</span>';
+        html += '<span style="color:' + (data.total >= 0 ? '#16a34a' : '#dc2626') + ';">' + safe(data.total) + ' kg</span>';
         html += '</div>';
-        html += '</div>';
-        html += '</div>';
+        html += '</div></div>';
     });
     container.innerHTML = html;
-    var filtroInsumo = document.getElementById('filtroMovInsumo');
-    if (filtroInsumo) {
-        var currentValue = filtroInsumo.value;
-        var options = ['<option value="">Todos os Insumos</option>'];
-        insumosOrdenados.forEach(function(i) {
-            var selected = (i === currentValue) ? 'selected' : '';
-            options.push('<option value="' + i + '" ' + selected + '>' + i + '</option>');
-        });
-        filtroInsumo.innerHTML = options.join('');
-    }
     renderizarMovimentacoes();
 }
 
 function renderizarMovimentacoes() {
     var container = document.getElementById('movimentacoesContainer');
     if (!container) return;
-    var filtroTipo = document.getElementById('filtroMovTipo');
-    var filtroInsumo = document.getElementById('filtroMovInsumo');
-    var tipo = filtroTipo ? filtroTipo.value : '';
-    var insumo = filtroInsumo ? filtroInsumo.value : '';
-    var movs = state.movimentacoes;
-    if (tipo) movs = movs.filter(function(m) { return m.tipo === tipo; });
-    if (insumo) movs = movs.filter(function(m) { return m.insumo === insumo; });
-    movs.sort(function(a, b) {
+    var movs = state.movimentacoes.slice().sort(function(a, b) {
         var da = new Date(a.data.split('/').reverse().join('/'));
         var db = new Date(b.data.split('/').reverse().join('/'));
         return db - da;
     });
     if (movs.length === 0) {
-        container.innerHTML = '<div class="empty"><div class="ico">📋</div><p>Nenhuma movimentação encontrada.</p></div>';
+        container.innerHTML = '<div class="empty"><div class="ico">📋</div><p>Nenhuma movimentação registrada.</p></div>';
         return;
     }
     var html = '';
     movs.forEach(function(mov) {
         var isEntrada = mov.tipo === 'entrada';
-        var classe = isEntrada ? 'tipo-entrada' : 'tipo-saida';
         var sinal = isEntrada ? '+' : '-';
         var cor = isEntrada ? 'entrada' : 'saida';
-        var label = isEntrada ? '✅ Entrada NF' : '📤 Consumo Produção';
-        var isTransferencia = mov.nf === 'TRANSFERENCIA';
-        if (isTransferencia) label = '🔄 Transferência';
-        html += '<div class="movimentacao-item ' + classe + '">';
+        var label = isEntrada ? '✅ Entrada NF' : '📤 Saída';
+        html += '<div class="movimentacao-item ' + (isEntrada ? 'tipo-entrada' : 'tipo-saida') + '">';
         html += '<div class="mov-info">';
         html += '<strong>' + mov.data + '</strong> — ';
-        html += '<span class="badge-status ' + (isEntrada ? 'completo' : isTransferencia ? 'transferencia' : 'aguardando') + '">' + label + '</span><br>';
+        html += '<span class="badge-status ' + (isEntrada ? 'completo' : 'aguardando') + '">' + label + '</span><br>';
         html += '<strong>' + mov.insumo + '</strong> • ';
         html += '📍 ' + mov.municipio + '<br>';
-        if (mov.nf) html += '📄 NF: ' + mov.nf + ' • ';
-        if (mov.origem) html += '📌 ' + mov.origem;
+        if (mov.nf) html += '📄 NF: ' + mov.nf;
         html += '</div>';
         html += '<div class="mov-qtd ' + cor + '">' + sinal + safe(mov.quantidade) + ' kg</div>';
-        if (isEntrada) {
-            html += '<div class="mov-acoes">';
-            html += '<button class="btn-edit-custom" onclick="abrirModalEditarEntrada(\'' + mov.id + '\')" title="Editar"><i class="fas fa-edit"></i></button>';
-            html += '<button class="btn-excluir-custom" onclick="excluirEntrada(\'' + mov.id + '\')" title="Excluir"><i class="fas fa-trash"></i></button>';
-            html += '</div>';
-        }
         html += '</div>';
     });
     container.innerHTML = html;
 }
 
-// ============================================================
-// FUNÇÕES DE EDIÇÃO E EXCLUSÃO DE ENTRADAS
-// ============================================================
-function abrirModalEditarEntrada(movId) {
-    var mov = state.movimentacoes.find(function(m) { return m.id === movId; });
-    if (!mov) { showToast('⚠️ Movimentação não encontrada!', 'warning'); return; }
-    if (mov.tipo !== 'entrada') { showToast('⚠️ Apenas entradas podem ser editadas!', 'warning'); return; }
-    document.getElementById('editMovId').value = movId;
-    document.getElementById('editMovData').value = mov.data;
-    document.getElementById('editMovNF').value = mov.nf || '';
-    document.getElementById('editMovInsumo').value = mov.insumo;
-    document.getElementById('editMovMunicipio').value = mov.municipio;
-    document.getElementById('editMovQtd').value = mov.quantidade;
-    document.getElementById('modalEditarEntrada').classList.add('active');
-}
-
-function fecharModalEditarEntrada() {
-    document.getElementById('modalEditarEntrada').classList.remove('active');
-}
-
-function salvarEdicaoEntrada() {
-    var movId = document.getElementById('editMovId').value;
-    var mov = state.movimentacoes.find(function(m) { return m.id === movId; });
-    if (!mov) { showToast('⚠️ Movimentação não encontrada!', 'error'); return; }
-    var data = document.getElementById('editMovData').value;
-    var nf = document.getElementById('editMovNF').value.trim();
-    var insumo = normalizarInsumo(document.getElementById('editMovInsumo').value.trim());
-    var municipio = normalizarMunicipio(document.getElementById('editMovMunicipio').value.trim());
-    var qtd = parseFloat(document.getElementById('editMovQtd').value);
-    if (!data) { showToast('⚠️ Data é obrigatória!', 'warning'); return; }
-    if (!insumo || insumo === 'INSUMO NÃO IDENTIFICADO') { showToast('⚠️ Insumo inválido!', 'warning'); return; }
-    if (!municipio || municipio === 'NÃO INFORMADO') { showToast('⚠️ Município inválido!', 'warning'); return; }
-    if (!qtd || qtd <= 0) { showToast('⚠️ Quantidade inválida!', 'warning'); return; }
-    mov.data = data;
-    mov.nf = nf;
-    mov.insumo = insumo;
-    mov.municipio = municipio;
-    mov.quantidade = qtd;
-    mov.origem = 'NF ' + (nf || 'EDITADA');
-    salvarMovimentacoesFirebase();
-    recalcularEstoque();
-    renderizarEstoque();
-    fecharModalEditarEntrada();
-    showToast('✅ Entrada atualizada com sucesso!', 'success');
-}
-
-function excluirEntrada(movId) {
-    if (!confirm('⚠️ Tem certeza que deseja excluir esta entrada? Esta ação não pode ser desfeita!')) return;
-    var index = state.movimentacoes.findIndex(function(m) { return m.id === movId; });
-    if (index === -1) { showToast('⚠️ Movimentação não encontrada!', 'warning'); return; }
-    var mov = state.movimentacoes[index];
-    if (mov.tipo !== 'entrada') { showToast('⚠️ Apenas entradas podem ser excluídas!', 'warning'); return; }
-    state.movimentacoes.splice(index, 1);
-    salvarMovimentacoesFirebase();
-    recalcularEstoque();
-    renderizarEstoque();
-    showToast('🗑️ Entrada excluída com sucesso!', 'success');
-}
-
-function limparTudoEstoque() {
-    if (!confirm('⚠️ ATENÇÃO: Isso irá apagar TODAS as movimentações de estoque (entradas e saídas). Esta ação não pode ser desfeita!')) return;
-    if (!confirm('🔄 Confirme novamente: deseja realmente limpar todos os dados de estoque?')) return;
-    state.movimentacoes = [];
-    salvarMovimentacoesFirebase();
-    recalcularEstoque();
-    renderizarEstoque();
-    showToast('🗑️ Todos os dados de estoque foram removidos.', 'success');
-}
-
-// ============================================================
-// FUNÇÕES DE TRANSFERÊNCIA ENTRE MUNICÍPIOS
-// ============================================================
-function abrirModalTransferencia(insumo, origem, saldo) {
-    var modal = document.getElementById('modalTransferencia');
-    if (!modal) return;
-    document.getElementById('transferInsumo').value = insumo;
-    document.getElementById('transferInsumoDisplay').value = insumo;
-    document.getElementById('transferOrigem').value = origem;
-    document.getElementById('transferOrigemDisplay').value = origem;
-    document.getElementById('transferQtd').value = '';
-    document.getElementById('transferObs').value = '';
-    var hoje = new Date();
-    var ano = hoje.getFullYear();
-    var mes = String(hoje.getMonth() + 1).padStart(2, '0');
-    var dia = String(hoje.getDate()).padStart(2, '0');
-    document.getElementById('transferData').value = ano + '-' + mes + '-' + dia;
-    var destinos = new Set();
-    Object.values(state.estoque).forEach(function(item) {
-        if (item.municipio && item.municipio !== origem && item.municipio !== 'NÃO INFORMADO') {
-            destinos.add(item.municipio);
-        }
-    });
-    var select = document.getElementById('transferDestino');
-    select.innerHTML = '<option value="">Selecione o município de destino...</option>';
-    var destinosOrdenados = Array.from(destinos).sort();
-    destinosOrdenados.forEach(function(mun) {
-        select.innerHTML += '<option value="' + mun + '">' + mun + '</option>';
-    });
-    if (destinosOrdenados.length === 0) {
-        select.innerHTML += '<option value="OUTRO">+ Outro município (digitar abaixo)</option>';
-    }
-    document.getElementById('resumoOrigem').textContent = origem;
-    document.getElementById('resumoDestino').textContent = 'Selecione um destino...';
-    document.getElementById('resumoQtd').textContent = '0.00 kg';
-    var saldoEl = document.getElementById('resumoSaldo');
-    saldoEl.textContent = safe(saldo) + ' kg disponível';
-    saldoEl.className = 'value positivo';
-    select.onchange = function() {
-        var dest = this.value;
-        if (dest === 'OUTRO') dest = 'Digitar outro...';
-        document.getElementById('resumoDestino').textContent = dest || 'Selecione um destino...';
-        atualizarResumoTransferencia();
-    };
-    document.getElementById('transferQtd').oninput = function() { atualizarResumoTransferencia(); };
-    modal.classList.add('active');
-}
-
-function atualizarResumoTransferencia() {
-    var qtd = parseFloat(document.getElementById('transferQtd').value) || 0;
-    var saldoEl = document.getElementById('resumoSaldo');
-    var saldoAtual = parseFloat(saldoEl.textContent.replace(' kg disponível', '')) || 0;
-    if (saldoEl.textContent.includes('disponível')) {
-        var novoSaldo = saldoAtual - qtd;
-        saldoEl.textContent = safe(novoSaldo) + ' kg disponível';
-        saldoEl.className = 'value ' + (novoSaldo >= 0 ? 'positivo' : 'negativo');
-    }
-    document.getElementById('resumoQtd').textContent = safe(qtd) + ' kg';
-}
-
-function fecharModalTransferencia() {
-    document.getElementById('modalTransferencia').classList.remove('active');
-}
-
-function confirmarTransferencia() {
-    var insumo = document.getElementById('transferInsumo').value;
-    var origem = document.getElementById('transferOrigem').value;
-    var destino = document.getElementById('transferDestino').value;
-    var qtd = parseFloat(document.getElementById('transferQtd').value) || 0;
-    var data = document.getElementById('transferData').value;
-    var obs = document.getElementById('transferObs').value.trim() || 'Transferência entre municípios';
-    if (!insumo) { showToast('⚠️ Insumo não identificado!', 'warning'); return; }
-    if (!origem) { showToast('⚠️ Selecione a origem!', 'warning'); return; }
-    if (!destino || destino === 'OUTRO') {
-        var outro = prompt('Digite o nome do município de destino:');
-        if (!outro) { showToast('⚠️ Informe o município de destino!', 'warning'); return; }
-        destino = outro.toUpperCase().trim();
-    }
-    if (destino === origem) { showToast('⚠️ Origem e destino não podem ser iguais!', 'warning'); return; }
-    if (qtd <= 0) { showToast('⚠️ Informe uma quantidade válida!', 'warning'); return; }
-    if (!data) { showToast('⚠️ Selecione uma data!', 'warning'); return; }
-    var saldoOrigem = 0;
-    Object.keys(state.estoque).forEach(function(key) {
-        var item = state.estoque[key];
-        if (item.insumo === insumo && item.municipio === origem) {
-            saldoOrigem += item.saldo;
-        }
-    });
-    if (qtd > saldoOrigem) {
-        showToast('⚠️ Saldo insuficiente em ' + origem + '! Disponível: ' + safe(saldoOrigem) + ' kg', 'error');
-        return;
-    }
-    if (!confirm('⚠️ Confirmar transferência de ' + safe(qtd) + ' kg de ' + insumo + '\nDe: ' + origem + '\nPara: ' + destino + '?')) return;
-    var dataFormatada = new Date(data).toLocaleDateString('pt-BR');
-    var timestamp = Date.now();
-    var saidaTransferencia = {
-        id: 'transf_saida_' + timestamp + '_' + Math.random().toString(36).substr(2, 4),
-        data: dataFormatada,
-        tipo: 'saida',
-        insumo: insumo,
-        municipio: origem,
-        quantidade: qtd,
-        nf: 'TRANSFERENCIA',
-        origem: 'Transferência para ' + destino + (obs ? ' - ' + obs : ''),
-        transferencia: { destino: destino, obs: obs },
-        createdAt: new Date().toISOString()
-    };
-    var entradaTransferencia = {
-        id: 'transf_entrada_' + timestamp + '_' + Math.random().toString(36).substr(2, 4),
-        data: dataFormatada,
-        tipo: 'entrada',
-        insumo: insumo,
-        municipio: destino,
-        quantidade: qtd,
-        nf: 'TRANSFERENCIA',
-        origem: 'Transferência de ' + origem + (obs ? ' - ' + obs : ''),
-        transferencia: { origem: origem, obs: obs },
-        createdAt: new Date().toISOString()
-    };
-    state.movimentacoes.push(saidaTransferencia);
-    state.movimentacoes.push(entradaTransferencia);
-    salvarMovimentacoesFirebase();
-    recalcularEstoque();
-    renderizarEstoque();
-    fecharModalTransferencia();
-    showToast('✅ Transferência realizada: ' + safe(qtd) + ' kg de ' + insumo + ' de ' + origem + ' para ' + destino, 'success');
-}
-
-// ============================================================
-// FUNÇÕES DE OPERAÇÕES MANUAIS
-// ============================================================
-function abrirModalNovaOperacao() {
-    var modal = document.getElementById('modalNovaOperacao');
-    if (modal) modal.classList.add('active');
-    var dataEl = document.getElementById('novaOpData');
-    if (dataEl) {
-        var hoje = new Date();
-        var ano = hoje.getFullYear();
-        var mes = String(hoje.getMonth() + 1).padStart(2, '0');
-        var dia = String(hoje.getDate()).padStart(2, '0');
-        dataEl.value = ano + '-' + mes + '-' + dia;
-    }
-}
-
-function fecharModalNovaOperacao() {
-    document.getElementById('modalNovaOperacao').classList.remove('active');
-    document.getElementById('novaOpNome').value = '';
-    document.getElementById('novaOpHa').value = '';
-    document.getElementById('novaOpFazenda').value = '';
-    document.getElementById('novaOpMunicipio').value = '';
-    document.getElementById('novaOpEquipe').value = '';
-    document.getElementById('novaOpObs').value = '';
-}
-
-function salvarNovaOperacao() {
-    var nome = document.getElementById('novaOpNome').value.trim();
-    var data = document.getElementById('novaOpData').value;
-    var ha = parseFloat(document.getElementById('novaOpHa').value) || 0;
-    var fazenda = document.getElementById('novaOpFazenda').value.trim() || 'Manual';
-    var municipio = document.getElementById('novaOpMunicipio').value.trim() || 'Não informado';
-    var equipe = document.getElementById('novaOpEquipe').value.trim() || 'Manual';
-    var obs = document.getElementById('novaOpObs').value.trim() || '';
-    if (!nome) { showToast('⚠️ Informe o nome da operação!', 'warning'); return; }
-    if (ha <= 0) { showToast('⚠️ Informe uma área válida!', 'warning'); return; }
-    if (!data) { showToast('⚠️ Selecione uma data!', 'warning'); return; }
-    var dataFormatada = new Date(data).toLocaleDateString('pt-BR');
-    var operacaoManual = {
-        id: 'manual_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-        nome: nome,
-        data: dataFormatada,
-        dataRaw: data,
-        ha: ha,
-        fazenda: fazenda,
-        municipio: municipio,
-        equipe: equipe,
-        obs: obs,
-        createdAt: new Date().toISOString()
-    };
-    state.operacoesManuais.push(operacaoManual);
-    localStorage.setItem('operacoesManuais', JSON.stringify(state.operacoesManuais));
-    var key = nome;
-    if (!state.operacoesDia[key]) {
-        state.operacoesDia[key] = {
-            nome: key,
-            nomeOriginal: nome,
-            totalHa: 0,
-            registros: [],
-            insumos: {},
-            observacoes: [],
-            isManual: true
-        };
-    }
-    state.operacoesDia[key].totalHa += ha;
-    state.operacoesDia[key].registros.push({
-        id: operacaoManual.id,
-        data: data,
-        dataStr: dataFormatada,
-        ha: ha,
-        equipe: equipe,
-        obs: obs,
-        obsLimpa: obs,
-        areaCadastro: ha,
-        fazenda: fazenda,
-        municipio: municipio,
-        talhao: 'Manual',
-        isManual: true
-    });
-    fecharModalNovaOperacao();
-    renderizarFaturamento();
-    renderizarDashboard();
-    renderizarResultado();
-    showToast('✅ Operação manual "' + nome + '" criada com sucesso!', 'success');
-}
-
-function excluirOperacaoFaturamento(opId, dataSelecionada) {
-    if (!confirm('⚠️ Tem certeza que deseja excluir esta operação?\n\nEsta ação não pode ser desfeita e removerá todos os lançamentos associados.')) return;
-    var isManual = false;
-    var manualIndex = -1;
-    state.operacoesManuais.forEach(function(op, idx) { if (op.id === opId) { isManual = true; manualIndex = idx; } });
-    var lanc = state.lancamentosFirebase[opId];
-    if (lanc && lanc.docId) {
-        db.collection('lancamentos').doc(lanc.docId).delete().then(function() {
-            delete state.lancamentosFirebase[opId];
-            if (isManual && manualIndex >= 0) {
-                state.operacoesManuais.splice(manualIndex, 1);
-                localStorage.setItem('operacoesManuais', JSON.stringify(state.operacoesManuais));
-                var key = Object.keys(state.operacoesDia).find(function(k) { return state.operacoesDia[k].nome === opId || state.operacoesDia[k].registros.some(function(r) { return r.id === opId; }); });
-                if (key) delete state.operacoesDia[key];
-            }
-            showToast('🗑️ Operação excluída com sucesso!', 'success');
-            renderizarFaturamento();
-            renderizarDashboard();
-            renderizarResultado();
-        }).catch(function(error) { showToast('❌ Erro ao excluir: ' + error.message, 'error'); });
+function toggleAccordion(accordionId) {
+    var body = document.getElementById('body_' + accordionId);
+    var arrow = document.getElementById('arrow_' + accordionId);
+    if (!body || !arrow) return;
+    if (body.classList.contains('open')) {
+        body.classList.remove('open');
+        arrow.classList.remove('open');
     } else {
-        if (isManual && manualIndex >= 0) {
-            state.operacoesManuais.splice(manualIndex, 1);
-            localStorage.setItem('operacoesManuais', JSON.stringify(state.operacoesManuais));
-            var key = Object.keys(state.operacoesDia).find(function(k) { return state.operacoesDia[k].nome === opId || state.operacoesDia[k].registros.some(function(r) { return r.id === opId; }); });
-            if (key) delete state.operacoesDia[key];
-        }
-        showToast('🗑️ Operação removida localmente.', 'success');
-        renderizarFaturamento();
-        renderizarDashboard();
-        renderizarResultado();
+        body.classList.add('open');
+        arrow.classList.add('open');
     }
 }
 
@@ -1704,8 +779,6 @@ function excluirOperacaoFaturamento(opId, dataSelecionada) {
 // CARREGAR DADOS FIREBASE
 // ============================================================
 function carregarDadosFirebase() {
-    if (state.isLoading) return;
-    state.isLoading = true;
     db.collection('config').doc('custos').get().then(function(doc) {
         if (doc.exists) {
             var data = doc.data();
@@ -1713,285 +786,321 @@ function carregarDadosFirebase() {
             state.custos.MAQ = data.MAQ || 850;
             state.custos.PIPA = data.PIPA || 650;
             state.custos.APOIO = data.APOIO || 450;
-            var tfEl = document.getElementById('custo_TF');
-            var maqEl = document.getElementById('custo_MAQ');
-            var pipaEl = document.getElementById('custo_PIPA');
-            var apoioEl = document.getElementById('custo_APOIO');
-            if (tfEl) tfEl.value = state.custos.TF;
-            if (maqEl) maqEl.value = state.custos.MAQ;
-            if (pipaEl) pipaEl.value = state.custos.PIPA;
-            if (apoioEl) apoioEl.value = state.custos.APOIO;
         }
         return db.collection('config').doc('valores_atividades').get();
     }).then(function(doc) {
         if (doc.exists) state.valoresAtividades = doc.data() || {};
-        return db.collection('lancamentos').where('dia', '==', getDiaNumero()).get();
+        return db.collection('lancamentos').get();
     }).then(function(snapshot) {
         var lancs = {};
         snapshot.forEach(function(doc) {
             var data = doc.data();
             var opId = data.opId;
-            if (!lancs[opId]) lancs[opId] = { ha: 0, valor: 0, custo: 0, tf: 0, maq: 0, pipa: 0, apoio: 0, docId: doc.id };
+            if (!lancs[opId]) lancs[opId] = { ha: 0, valor: 0, custo: 0, docId: doc.id };
             lancs[opId].ha += data.ha || 0;
             lancs[opId].valor += data.valor || 0;
             lancs[opId].custo += data.custo || 0;
-            lancs[opId].tf += data.tf || 0;
-            lancs[opId].maq += data.maq || 0;
-            lancs[opId].pipa += data.pipa || 0;
-            lancs[opId].apoio += data.apoio || 0;
         });
         state.lancamentosFirebase = lancs;
-        state.isLoading = false;
         atualizarInterface();
     }).catch(function(error) {
         console.error('Erro ao carregar dados:', error);
-        state.isLoading = false;
         showToast('❌ Erro ao carregar dados', 'error');
     });
+}
+
+// ============================================================
+// FUNÇÕES DE IMPORTAÇÃO
+// ============================================================
+function importarPlanilha() {
+    var input = document.getElementById('fileInputProducao');
+    if (!input || !input.files[0]) { showToast('⚠️ Selecione um arquivo!', 'warning'); return; }
+    var file = input.files[0];
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            var data = new Uint8Array(e.target.result);
+            var workbook = XLSX.read(data, { type: 'array' });
+            var ws = workbook.Sheets[workbook.SheetNames[0]];
+            var json = XLSX.utils.sheet_to_json(ws);
+            if (json.length === 0) { throw new Error('Planilha vazia!'); }
+            state.dadosProducao = json;
+            state.operacoesDia = {};
+            json.forEach(function(row) {
+                var op = row['Operação'] || row['OPERACAO'] || row['operacao'] || 'OPERAÇÃO';
+                if (!state.operacoesDia[op]) {
+                    state.operacoesDia[op] = { nome: op, totalHa: 0, registros: [] };
+                }
+                var ha = parseFloat(row['Produção'] || row['PRODUCAO'] || row['producao'] || 0) || 0;
+                state.operacoesDia[op].totalHa += ha;
+                state.operacoesDia[op].registros.push({
+                    data: row['Data'] || row['DATA'] || getHoje(),
+                    ha: ha,
+                    fazenda: row['Fazenda'] || row['FAZENDA'] || '',
+                    talhao: row['Talhão'] || row['TALHAO'] || '',
+                    equipe: row['Equipe'] || row['EQUIPE'] || ''
+                });
+            });
+            document.getElementById('infoArquivo').textContent = '✅ ' + file.name + ' importado! (' + json.length + ' linhas)';
+            showToast('✅ Planilha importada com sucesso!', 'success');
+            atualizarInterface();
+        } catch(error) {
+            showToast('❌ Erro: ' + error.message, 'error');
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// ============================================================
+// FUNÇÕES DE FATURAMENTO
+// ============================================================
+function renderizarFaturamento() {
+    var lancs = state.lancamentosFirebase;
+    var totalReceita = 0, totalCusto = 0;
+    for (var key in lancs) {
+        totalReceita += lancs[key].valor || 0;
+        totalCusto += lancs[key].custo || 0;
+    }
+    document.getElementById('fatReceitaTotal').textContent = formatMoney(totalReceita);
+    document.getElementById('fatCustoTotal').textContent = formatMoney(totalCusto);
+    var resultado = totalReceita - totalCusto;
+    document.getElementById('fatResultado').innerHTML = 'R$ <span style="color:' + (resultado >= 0 ? '#16a34a' : '#dc3545') + ';">' + formatMoney(resultado) + '</span>';
+    
+    var ops = state.operacoesDia;
+    var container = document.getElementById('containerOperacoesFaturamento');
+    var keys = Object.keys(ops);
+    if (keys.length === 0) {
+        container.innerHTML = '<div class="empty"><div class="ico">📭</div><p>Nenhuma operação disponível.</p></div>';
+        return;
+    }
+    var html = '';
+    keys.forEach(function(key, idx) {
+        var op = ops[key];
+        var jaLancado = lancs[key];
+        html += '<div class="operacao-pronta" style="border-left-color:' + (jaLancado ? '#16a34a' : '#2563eb') + ';">';
+        html += '<div class="info"><span class="nome">' + key + '</span><span class="qtd">' + safe(op.totalHa) + ' ha</span>';
+        html += jaLancado ? '<span class="badge-status completo">✅ Lançado</span>' : '<span class="badge-status aguardando">⏳ Aguardando</span>';
+        html += '</div>';
+        html += '<div class="campos">';
+        html += '<label>R$/ha:</label><input type="number" id="rha_' + idx + '" step="0.01" value="' + (state.valoresAtividades[key] || 0) + '" oninput="calcularTotalOp(' + idx + ')">';
+        html += '<label>TF:</label><input type="number" id="tf_' + idx + '" step="1" value="0">';
+        html += '<label>Máq:</label><input type="number" id="maq_' + idx + '" step="1" value="0">';
+        html += '<label>Pipa:</label><input type="number" id="pipa_' + idx + '" step="1" value="0">';
+        html += '<label>Apoio:</label><input type="number" id="apoio_' + idx + '" step="1" value="0">';
+        html += '<span style="font-weight:700;color:#2563eb;min-width:80px;" id="totalOp_' + idx + '">R$ 0.00</span>';
+        html += '<button class="btn-primary-custom" onclick="lancarOperacao(' + idx + ',\'' + key + '\')">✅ Lançar</button>';
+        if (jaLancado) {
+            html += '<button class="btn-danger-custom" onclick="excluirLancamento(\'' + key + '\')">🗑️ Excluir</button>';
+        }
+        html += '</div></div>';
+    });
+    container.innerHTML = html;
+    for (var j = 0; j < keys.length; j++) { calcularTotalOp(j); }
+}
+
+function calcularTotalOp(index) {
+    var rha = parseFloat(document.getElementById('rha_' + index).value) || 0;
+    var tf = parseInt(document.getElementById('tf_' + index).value) || 0;
+    var maq = parseInt(document.getElementById('maq_' + index).value) || 0;
+    var pipa = parseInt(document.getElementById('pipa_' + index).value) || 0;
+    var apoio = parseInt(document.getElementById('apoio_' + index).value) || 0;
+    var ops = state.operacoesDia;
+    var keys = Object.keys(ops);
+    var ha = ops[keys[index]].totalHa;
+    var receita = ha * rha;
+    var custo = (tf * state.custos.TF) + (maq * state.custos.MAQ) + (pipa * state.custos.PIPA) + (apoio * state.custos.APOIO);
+    var el = document.getElementById('totalOp_' + index);
+    if (el) { el.textContent = 'R$ ' + formatMoney(receita); }
+    return { receita: receita, custo: custo, tf: tf, maq: maq, pipa: pipa, apoio: apoio, ha: ha, rha: rha };
+}
+
+function lancarOperacao(index, opId) {
+    var resultado = calcularTotalOp(index);
+    var ops = state.operacoesDia;
+    var keys = Object.keys(ops);
+    var op = ops[keys[index]];
+    if (resultado.receita === 0) { showToast('⚠️ Preencha o R$/ha!', 'warning'); return; }
+    var ref = db.collection('lancamentos').doc();
+    if (state.lancamentosFirebase[opId] && state.lancamentosFirebase[opId].docId) {
+        ref = db.collection('lancamentos').doc(state.lancamentosFirebase[opId].docId);
+        ref.update({
+            opId: opId,
+            ha: resultado.ha,
+            valor: resultado.receita,
+            tf: resultado.tf,
+            maq: resultado.maq,
+            pipa: resultado.pipa,
+            apoio: resultado.apoio,
+            custo: resultado.custo,
+            updatedAt: new Date()
+        }).then(function() {
+            state.lancamentosFirebase[opId] = { ha: resultado.ha, valor: resultado.receita, custo: resultado.custo, docId: ref.id };
+            showToast('✅ Operação atualizada!', 'success');
+            renderizarFaturamento();
+            renderizarDashboard();
+            renderizarResultado();
+        }).catch(function(error) { showToast('❌ Erro: ' + error.message, 'error'); });
+    } else {
+        ref.set({
+            opId: opId,
+            ha: resultado.ha,
+            valor: resultado.receita,
+            tf: resultado.tf,
+            maq: resultado.maq,
+            pipa: resultado.pipa,
+            apoio: resultado.apoio,
+            custo: resultado.custo,
+            createdAt: new Date()
+        }).then(function() {
+            state.lancamentosFirebase[opId] = { ha: resultado.ha, valor: resultado.receita, custo: resultado.custo, docId: ref.id };
+            showToast('✅ Operação lançada: R$ ' + formatMoney(resultado.receita), 'success');
+            renderizarFaturamento();
+            renderizarDashboard();
+            renderizarResultado();
+        }).catch(function(error) { showToast('❌ Erro: ' + error.message, 'error'); });
+    }
+}
+
+function excluirLancamento(opId) {
+    if (!confirm('Excluir lançamento de "' + opId + '"?')) return;
+    var lanc = state.lancamentosFirebase[opId];
+    if (!lanc || !lanc.docId) { showToast('⚠️ Lançamento não encontrado.', 'warning'); return; }
+    db.collection('lancamentos').doc(lanc.docId).delete().then(function() {
+        delete state.lancamentosFirebase[opId];
+        showToast('🗑️ Lançamento excluído!', 'success');
+        renderizarFaturamento();
+        renderizarDashboard();
+        renderizarResultado();
+    }).catch(function(error) { showToast('❌ Erro: ' + error.message, 'error'); });
+}
+
+// ============================================================
+// RENDERIZAR DASHBOARD
+// ============================================================
+function renderizarDashboard() {
+    var ops = state.operacoesDia;
+    var lancs = state.lancamentosFirebase;
+    var totalArea = 0, totalOps = Object.keys(ops).length;
+    var totalReceita = 0, totalCusto = 0;
+    for (var key in ops) { totalArea += ops[key].totalHa; }
+    for (var key in lancs) {
+        totalReceita += lancs[key].valor || 0;
+        totalCusto += lancs[key].custo || 0;
+    }
+    document.getElementById('dashAreaTotal').innerHTML = safe(totalArea) + ' <span style="font-size:14px;">ha</span>';
+    document.getElementById('dashOperacoes').textContent = totalOps;
+    document.getElementById('dashReceita').textContent = 'R$ ' + formatMoney(totalReceita);
+    document.getElementById('dashCusto').textContent = 'R$ ' + formatMoney(totalCusto);
+    var resultado = totalReceita - totalCusto;
+    document.getElementById('dashResultado').textContent = 'R$ ' + formatMoney(resultado);
+    var margem = totalReceita > 0 ? (resultado / totalReceita) * 100 : 0;
+    document.getElementById('dashMargem').textContent = margem.toFixed(1) + '%';
+    
+    var container = document.getElementById('dashUltimasOps');
+    var keys = Object.keys(ops);
+    if (keys.length === 0) {
+        container.innerHTML = '<div class="empty"><div class="ico">📭</div><p>Nenhuma operação registrada.</p></div>';
+    } else {
+        var html = '<table><thead><tr><th>Operação</th><th class="num">Área (ha)</th><th>Status</th></tr></thead><tbody>';
+        keys.slice(0, 10).forEach(function(key) {
+            var op = ops[key];
+            var status = op.totalHa > 0 ? 'PARCIAL' : 'AGUARDANDO';
+            html += '<tr><td>' + key + '</td><td class="num">' + safe(op.totalHa) + '</td><td><span class="badge-status ' + (status === 'PARCIAL' ? 'parcial' : 'aguardando') + '">' + status + '</span></td></tr>';
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+}
+
+// ============================================================
+// RENDERIZAR RESULTADO
+// ============================================================
+function renderizarResultado() {
+    var lancs = state.lancamentosFirebase;
+    var totalHa = 0, totalReceita = 0, totalCusto = 0;
+    for (var key in lancs) {
+        totalHa += lancs[key].ha || 0;
+        totalReceita += lancs[key].valor || 0;
+        totalCusto += lancs[key].custo || 0;
+    }
+    document.getElementById('resTotalHa').textContent = safe(totalHa);
+    document.getElementById('resFaturamento').textContent = 'R$ ' + formatMoney(totalReceita);
+    document.getElementById('resCusto').textContent = 'R$ ' + formatMoney(totalCusto);
+    var resultado = totalReceita - totalCusto;
+    document.getElementById('resResultado').innerHTML = 'R$ <span style="color:' + (resultado >= 0 ? '#16a34a' : '#dc3545') + ';">' + formatMoney(resultado) + '</span>';
+}
+
+// ============================================================
+// FUNÇÕES DE CONFIGURAÇÃO (resumidas)
+// ============================================================
+function validarSenhaConfig() {
+    var senha = document.getElementById('configSenhaInput').value;
+    if (senha === 'gerente789') {
+        state.configSenhaValida = true;
+        document.getElementById('configSenhaArea').style.display = 'none';
+        document.getElementById('configConteudo').style.display = 'block';
+        carregarConfigValores();
+        showToast('🔓 Configurações desbloqueadas!', 'success');
+    } else {
+        showToast('❌ Senha incorreta!', 'error');
+    }
+}
+
+function carregarConfigValores() {
+    var container = document.getElementById('configValoresAtividades');
+    var ops = state.operacoesDia;
+    var keys = Object.keys(ops);
+    if (keys.length === 0) {
+        container.innerHTML = '<p class="text-gray">Nenhuma atividade encontrada.</p>';
+        return;
+    }
+    var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;">';
+    keys.forEach(function(key) {
+        var valor = state.valoresAtividades[key] || 0;
+        var safeKey = key.replace(/[^a-zA-Z0-9]/g, '_');
+        html += '<div style="display:flex;align-items:center;gap:8px;background:#f8fafc;padding:8px 12px;border-radius:6px;">';
+        html += '<span style="font-weight:600;font-size:12px;flex:1;">' + key + '</span>';
+        html += '<span style="font-size:12px;color:#64748b;">R$</span>';
+        html += '<input type="number" id="config_val_' + safeKey + '" step="0.01" value="' + valor + '" style="width:80px;padding:4px 8px;border-radius:4px;border:1px solid #d1d9e6;text-align:right;" />';
+        html += '<span style="font-size:12px;color:#64748b;">/ha</span>';
+        html += '</div>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function salvarConfigValores() {
+    var ops = state.operacoesDia;
+    var keys = Object.keys(ops);
+    var novosValores = {};
+    keys.forEach(function(key) {
+        var inputId = 'config_val_' + key.replace(/[^a-zA-Z0-9]/g, '_');
+        var input = document.getElementById(inputId);
+        if (input) novosValores[key] = parseFloat(input.value) || 0;
+    });
+    state.valoresAtividades = novosValores;
+    db.collection('config').doc('valores_atividades').set(novosValores).then(function() {
+        showToast('✅ Valores salvos!', 'success');
+        renderizarFaturamento();
+    }).catch(function(error) { showToast('❌ Erro: ' + error.message, 'error'); });
 }
 
 // ============================================================
 // ATUALIZAR INTERFACE
 // ============================================================
 function atualizarInterface() {
-    renderizarProducao();
-    renderizarFaturamento();
     renderizarDashboard();
-    renderizarResultado();
-    renderizarConfiguracoes();
+    renderizarFaturamento();
     renderizarEstoque();
+    renderizarResultado();
 }
-
-// ============================================================
-// RENDERIZAR PRODUÇÃO
-// ============================================================
-function renderizarProducao() {
-    var ops = state.operacoesDia;
-    var insumos = state.insumosDia;
-    var totalArea = 0;
-    var totalOps = Object.keys(ops).length;
-    var totalInsumos = Object.keys(insumos).length;
-    for (var key in ops) { totalArea += ops[key].totalHa; }
-    var prodData = document.getElementById('prodData');
-    var prodOps = document.getElementById('prodOps');
-    var prodArea = document.getElementById('prodArea');
-    var prodInsumos = document.getElementById('prodInsumos');
-    if (prodData) prodData.textContent = getHoje();
-    if (prodOps) prodOps.textContent = totalOps;
-    if (prodArea) prodArea.innerHTML = totalArea.toFixed(2) + ' <span class="unit">ha</span>';
-    if (prodInsumos) prodInsumos.textContent = totalInsumos;
-    renderIrrigacao();
-    renderData();
-    renderReplantio();
-    renderSOP();
-    renderFinalizadas();
-}
-
-// ============================================================
-// FUNÇÕES DE RENDERIZAÇÃO DA PRODUÇÃO (resumidas para não estourar limite)
-// ============================================================
-function renderIrrigacao() { /* ... código completo ... */ }
-function renderData() { /* ... código completo ... */ }
-function renderReplantio() { /* ... código completo ... */ }
-function renderSOP() { /* ... código completo ... */ }
-function renderFinalizadas() { /* ... código completo ... */ }
-
-// ============================================================
-// FUNÇÕES DO FATURAMENTO (resumidas)
-// ============================================================
-function renderizarFaturamento() { /* ... código completo ... */ }
-function renderizarDashboard() { /* ... código completo ... */ }
-function renderizarResultado() { /* ... código completo ... */ }
-function renderizarConfiguracoes() { /* ... código completo ... */ }
-function validarSenhaConfig() { /* ... código completo ... */ }
-function salvarConfigValores() { /* ... código completo ... */ }
-function salvarConfigCustos() { /* ... código completo ... */ }
 
 // ============================================================
 // INICIALIZAÇÃO
 // ============================================================
-console.log('🚀 LB Florestal - Sistema Integrado');
-console.log('🔐 Senhas: producao=campo123 | faturamento=financa456 | gerente=gerente789');
-console.log('📊 Estoque sincronizado com Firebase!');
-
 document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('entradaData').value = new Date().toISOString().split('T')[0];
     carregarEstoqueFirebase();
-    
-    var btnLancar = document.getElementById('btnLancar');
-    if (btnLancar) {
-        btnLancar.addEventListener('click', function() {
-            var opSelect = document.getElementById('opSelect');
-            if (opSelect && opSelect.value) {
-                var fatDataEl = document.getElementById('fatData');
-                var dataSelecionada = fatDataEl ? fatDataEl.textContent : null;
-                if (!dataSelecionada || dataSelecionada === '-') {
-                    var ops = state.operacoesDia;
-                    var datas = [];
-                    for (var opKey in ops) {
-                        var op = ops[opKey];
-                        if (op && op.registros) {
-                            for (var i = 0; i < op.registros.length; i++) {
-                                var reg = op.registros[i];
-                                var dataStr = reg.dataStr || '-';
-                                if (dataStr !== '-' && dataStr !== 'Invalid Date' && !datas.includes(dataStr)) {
-                                    datas.push(dataStr);
-                                }
-                            }
-                        }
-                    }
-                    datas.sort(function(a, b) {
-                        var da = new Date(a.split('/').reverse().join('/'));
-                        var db = new Date(b.split('/').reverse().join('/'));
-                        return db - da;
-                    });
-                    dataSelecionada = datas.length > 0 ? datas[0] : getHoje();
-                }
-                var ops = state.operacoesDia;
-                var keys = Object.keys(ops);
-                var index = keys.indexOf(opSelect.value);
-                if (index >= 0) lancarOperacao(index, opSelect.value, dataSelecionada);
-            } else {
-                showToast('⚠️ Selecione uma operação para lançar!', 'warning');
-            }
-        });
-    }
-    var entradaData = document.getElementById('entradaData');
-    if (entradaData) {
-        var hoje = new Date();
-        var ano = hoje.getFullYear();
-        var mes = String(hoje.getMonth() + 1).padStart(2, '0');
-        var dia = String(hoje.getDate()).padStart(2, '0');
-        entradaData.value = ano + '-' + mes + '-' + dia;
-    }
-    var novaOpData = document.getElementById('novaOpData');
-    if (novaOpData) {
-        var hoje = new Date();
-        var ano = hoje.getFullYear();
-        var mes = String(hoje.getMonth() + 1).padStart(2, '0');
-        var dia = String(hoje.getDate()).padStart(2, '0');
-        novaOpData.value = ano + '-' + mes + '-' + dia;
-    }
-});
-
-// ============================================================
-// EXPORTAÇÃO GLOBAL
-// ============================================================
-window.fazerLogin = fazerLogin;
-window.fazerLogout = fazerLogout;
-window.importarPlanilha = importarPlanilha;
-window.mudarAba = mudarAba;
-window.mudarSubAbaProd = mudarSubAbaProd;
-window.calcularTotal = calcularTotal;
-window.calcularTotalOp = calcularTotalOp;
-window.lancarOperacao = lancarOperacao;
-window.excluirLancamento = excluirLancamento;
-window.editarLancamento = editarLancamento;
-window.alternarVisaoFaturamento = alternarVisaoFaturamento;
-window.registrarEntrada = registrarEntrada;
-window.renderizarEstoque = renderizarEstoque;
-window.renderizarMovimentacoes = renderizarMovimentacoes;
-window.carregarEstoqueLocal = carregarEstoqueLocal;
-window.abrirModalNovaOperacao = abrirModalNovaOperacao;
-window.fecharModalNovaOperacao = fecharModalNovaOperacao;
-window.salvarNovaOperacao = salvarNovaOperacao;
-window.excluirOperacaoFaturamento = excluirOperacaoFaturamento;
-window.abrirModalEditarEntrada = abrirModalEditarEntrada;
-window.fecharModalEditarEntrada = fecharModalEditarEntrada;
-window.salvarEdicaoEntrada = salvarEdicaoEntrada;
-window.excluirEntrada = excluirEntrada;
-window.limparTudoEstoque = limparTudoEstoque;
-window.toggleAccordion = toggleAccordion;
-window.abrirModalTransferencia = abrirModalTransferencia;
-window.fecharModalTransferencia = fecharModalTransferencia;
-window.confirmarTransferencia = confirmarTransferencia;
-window.normalizarMunicipio = normalizarMunicipio;
-window.normalizarInsumo = normalizarInsumo;
-window.recalcularEstoque = recalcularEstoque;
-    // ============================================================
-// FUNÇÕES DE LOGIN
-// ============================================================
-function fazerLogin() {
-    var userEl = document.getElementById('loginUser');
-    var passEl = document.getElementById('loginPassword');
-    var erroEl = document.getElementById('erroLogin');
-    if (!userEl || !passEl) { 
-        alert('Erro: elementos de login não encontrados!'); 
-        return; 
-    }
-    var user = userEl.value;
-    var senha = passEl.value;
-    if (!senha) { 
-        if (erroEl) { 
-            erroEl.style.display = 'block'; 
-            erroEl.textContent = '❌ Digite a senha!'; 
-        } 
-        return; 
-    }
-    if (CREDENCIAIS[user] && CREDENCIAIS[user].senha === senha) {
-        state.usuario = user;
-        var loginScreen = document.getElementById('loginScreen');
-        var app = document.getElementById('app');
-        var userBadge = document.getElementById('userBadge');
-        if (loginScreen) loginScreen.style.display = 'none';
-        if (app) app.style.display = 'block';
-        if (userBadge) userBadge.textContent = '👤 ' + CREDENCIAIS[user].label;
-        var btnFat = document.getElementById('btnFaturamento');
-        if (user === 'producao') { 
-            if (btnFat) btnFat.classList.add('oculto'); 
-        } else { 
-            if (btnFat) btnFat.classList.remove('oculto'); 
-        }
-        if (user === 'producao') { 
-            mudarAba('producao', document.querySelector('.btn-tab.prod')); 
-        } else if (user === 'faturamento') { 
-            mudarAba('faturamento', document.querySelector('.btn-tab.fat')); 
-        } else { 
-            mudarAba('dashboard', document.querySelector('.btn-tab.dash')); 
-        }
-        carregarDadosFirebase();
-        carregarEstoqueFirebase();
-        showToast('✅ Bem-vindo, ' + CREDENCIAIS[user].label + '!', 'success');
-    } else { 
-        if (erroEl) { 
-            erroEl.style.display = 'block'; 
-            erroEl.textContent = '❌ Senha incorreta!'; 
-        } 
-        if (passEl) { 
-            passEl.value = ''; 
-            passEl.focus(); 
-        } 
-    }
-}
-
-function fazerLogout() {
-    if (confirm('Deseja realmente sair?')) {
-        state.usuario = null;
-        state.configSenhaValida = false;
-        var app = document.getElementById('app');
-        var loginScreen = document.getElementById('loginScreen');
-        var passEl = document.getElementById('loginPassword');
-        var erroEl = document.getElementById('erroLogin');
-        var configSenhaArea = document.getElementById('configSenhaArea');
-        var configConteudo = document.getElementById('configConteudo');
-        var btnFat = document.getElementById('btnFaturamento');
-        if (app) app.style.display = 'none';
-        if (loginScreen) loginScreen.style.display = 'flex';
-        if (passEl) passEl.value = '';
-        if (erroEl) erroEl.style.display = 'none';
-        if (configSenhaArea) configSenhaArea.style.display = 'block';
-        if (configConteudo) configConteudo.style.display = 'none';
-        if (btnFat) btnFat.classList.remove('oculto');
-    }
-}
-
-// Adiciona evento de Enter no campo senha
-document.addEventListener('DOMContentLoaded', function() {
-    var passInput = document.getElementById('loginPassword');
-    if (passInput) {
-        passInput.addEventListener('keydown', function(e) { 
-            if (e.key === 'Enter') fazerLogin(); 
-        });
-    }
 });
 </script>
 </body>
