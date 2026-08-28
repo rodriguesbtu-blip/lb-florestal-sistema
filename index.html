@@ -355,6 +355,19 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
             </div>
         </div>
 
+        <!-- SELETOR DE RF -->
+        <div id="rfSelector" style="display:flex;align-items:center;gap:12px;padding:8px 16px;background:#fff;border-radius:8px;border:1px solid #e9eef3;margin-bottom:12px;flex-wrap:wrap;">
+            <span style="font-weight:700;font-size:13px;color:#0a1628;">📅 RF Atual:</span>
+            <span id="rfAtualDisplay" style="font-weight:700;font-size:15px;color:#2563eb;background:#dbeafe;padding:4px 14px;border-radius:6px;"></span>
+            <span style="color:#64748b;font-size:12px;">|</span>
+            <span style="font-size:12px;color:#64748b;">Período:</span>
+            <span id="rfPeriodoDisplay" style="font-size:12px;color:#475569;"></span>
+            <span style="margin-left:auto;font-size:12px;color:#64748b;">Selecionar RF:</span>
+            <select id="rfSelect" onchange="mudarRF(this.value)" style="padding:4px 12px;border-radius:6px;border:1px solid #d1d9e6;font-size:12px;background:#fff;">
+                <option value="">Carregando...</option>
+            </select>
+        </div>
+
         <!-- ============================================================ -->
         <!-- PÁGINA: DASHBOARD                                            -->
         <!-- ============================================================ -->
@@ -417,16 +430,16 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
         <!-- ============================================================ -->
         <div class="page" id="pageFaturamento">
             <div class="card">
-                <div class="titulo"><i class="fas fa-coins"></i> Faturamento</div>
-                <div class="subtitulo">Gerencie os lançamentos financeiros das operações</div>
+                <div class="titulo"><i class="fas fa-coins"></i> Faturamento por RF</div>
+                <div class="subtitulo">Consolidado por RF (21 a 20)</div>
             </div>
             <div class="stats-grid">
-                <div class="stat-card"><div class="label">📅 Dia</div><div class="value" id="fatData">-</div></div>
+                <div class="stat-card"><div class="label">📅 RF</div><div class="value" id="fatRF">-</div></div>
                 <div class="stat-card highlight"><div class="label">💰 Receita Total</div><div class="value"><span class="currency">R$</span> <span id="fatReceitaTotal">0</span></div></div>
                 <div class="stat-card"><div class="label">📉 Custo Total</div><div class="value"><span class="currency">R$</span> <span id="fatCustoTotal">0</span></div></div>
                 <div class="stat-card"><div class="label">📊 Resultado</div><div class="value" id="fatResultado"><span class="currency">R$</span> 0</div></div>
             </div>
-            <div id="containerOperacoesFaturamento"><div class="empty"><div class="ico">📭</div><p>Nenhuma operação disponível.</p></div></div>
+            <div id="containerFaturamentoRF"><div class="empty"><div class="ico">📊</div><p>Nenhuma operação encontrada para esta RF.</p></div></div>
         </div>
 
         <!-- ============================================================ -->
@@ -664,9 +677,8 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
 
 <script>
 // ============================================================
-// FIREBASE CONFIG - COM LOGS DE DIAGNÓSTICO
+// FIREBASE CONFIG
 // ============================================================
-
 console.log('🔥 Iniciando configuração do Firebase...');
 
 var firebaseConfig = {
@@ -677,8 +689,6 @@ var firebaseConfig = {
     messagingSenderId: "559764824181",
     appId: "1:559764824181:web:c74cf676a0e5e867dcd83c"
 };
-
-console.log('✅ Credenciais carregadas.');
 
 try {
     firebase.initializeApp(firebaseConfig);
@@ -747,16 +757,17 @@ var state = {
     valoresAtividades: {},
     custos: { TF: 180, MAQ: 850, PIPA: 650, APOIO: 450 },
     unsubscribeLancamentos: null,
-    unsubscribeEstoque: null
+    unsubscribeEstoque: null,
+    rfSelecionada: null
 };
 
 // ============================================================
 // HELPERS
 // ============================================================
 function safe(v, d) { var n = parseFloat(v)||0; return isNaN(n)?'0.00':n.toFixed(d||2); }
-function fmtData(d) { try { if (!d) return '-'; return new Date(d).toLocaleDateString('pt-BR'); } catch(e){ return '-'; } }
-function getHoje() { var d=new Date(); return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); }
 function formatMoney(v) { return v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+function getHoje() { var d=new Date(); return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); }
+
 function showToast(msg, type) {
     type = type || 'success';
     var toast = document.createElement('div');
@@ -766,6 +777,184 @@ function showToast(msg, type) {
     var container = document.getElementById('toastContainer');
     if (container) container.appendChild(toast);
     setTimeout(function() { toast.style.opacity = '0'; toast.style.transform = 'translateX(20px)'; setTimeout(function() { toast.remove(); }, 300); }, 3500);
+}
+
+// ============================================================
+// FUNÇÕES DE RF (RELATÓRIO DE FATURAMENTO)
+// ============================================================
+function calcularRF(data) {
+    var d = new Date(data);
+    var dia = d.getDate();
+    var mes = d.getMonth() + 1;
+    var ano = d.getFullYear();
+    
+    if (dia >= 21) {
+        return { 
+            rf: 'RF_' + String(mes).padStart(2,'0') + '_' + ano,
+            mes: mes,
+            ano: ano,
+            inicio: new Date(ano, mes-1, 21),
+            fim: new Date(ano, mes, 20)
+        };
+    } else {
+        var mesAnterior = mes - 1;
+        var anoAnterior = ano;
+        if (mesAnterior === 0) {
+            mesAnterior = 12;
+            anoAnterior = ano - 1;
+        }
+        return {
+            rf: 'RF_' + String(mesAnterior).padStart(2,'0') + '_' + anoAnterior,
+            mes: mesAnterior,
+            ano: anoAnterior,
+            inicio: new Date(anoAnterior, mesAnterior-1, 21),
+            fim: new Date(anoAnterior, mesAnterior, 20)
+        };
+    }
+}
+
+function getRFAtual() {
+    var hoje = new Date();
+    var rf = calcularRF(hoje);
+    return rf.rf;
+}
+
+function formatarRF(rf) {
+    var partes = rf.split('_');
+    var mes = parseInt(partes[1]);
+    var ano = partes[2];
+    var meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    return meses[mes-1] + '/' + ano;
+}
+
+function listarRFsDisponiveis() {
+    var rfs = new Set();
+    var hoje = new Date();
+    var rfAtual = getRFAtual();
+    rfs.add(rfAtual);
+    
+    for (var key in state.lancamentosFirebase) {
+        var lanc = state.lancamentosFirebase[key];
+        if (lanc.dataReferencia) {
+            var partes = lanc.dataReferencia.split('/');
+            if (partes.length === 3) {
+                var dataObj = new Date(partes[2], partes[1]-1, partes[0]);
+                var rf = calcularRF(dataObj);
+                rfs.add(rf.rf);
+            }
+        }
+    }
+    
+    // Adiciona RFs das operações
+    for (var opKey in state.operacoesDia) {
+        var op = state.operacoesDia[opKey];
+        if (op.registros) {
+            op.registros.forEach(function(reg) {
+                if (reg.data) {
+                    var dataObj = new Date(reg.data);
+                    if (!isNaN(dataObj)) {
+                        var rf = calcularRF(dataObj);
+                        rfs.add(rf.rf);
+                    }
+                }
+            });
+        }
+    }
+    
+    return Array.from(rfs).sort().reverse();
+}
+
+function getRFObj(rf) {
+    var partes = rf.split('_');
+    var mes = parseInt(partes[1]);
+    var ano = parseInt(partes[2]);
+    return {
+        inicio: new Date(ano, mes-1, 21),
+        fim: new Date(ano, mes, 20)
+    };
+}
+
+function estaNaRF(data, rf) {
+    if (!data || !rf) return false;
+    var rfObj = getRFObj(rf);
+    var d = new Date(data);
+    return d >= rfObj.inicio && d <= rfObj.fim;
+}
+
+function mudarRF(rf) {
+    state.rfSelecionada = rf;
+    var display = document.getElementById('rfAtualDisplay');
+    var periodo = document.getElementById('rfPeriodoDisplay');
+    var fatRF = document.getElementById('fatRF');
+    
+    if (rf && rf !== '') {
+        var rfObj = getRFObj(rf);
+        display.textContent = rf;
+        display.style.background = '#dbeafe';
+        display.style.color = '#2563eb';
+        periodo.textContent = rfObj.inicio.toLocaleDateString('pt-BR') + ' a ' + rfObj.fim.toLocaleDateString('pt-BR');
+        if (fatRF) fatRF.textContent = rf;
+    } else {
+        var atual = getRFAtual();
+        var rfObj = getRFObj(atual);
+        display.textContent = atual;
+        display.style.background = '#16a34a';
+        display.style.color = '#fff';
+        periodo.textContent = rfObj.inicio.toLocaleDateString('pt-BR') + ' a ' + rfObj.fim.toLocaleDateString('pt-BR');
+        state.rfSelecionada = atual;
+        if (fatRF) fatRF.textContent = atual;
+    }
+    
+    renderizarDashboard();
+    renderizarFaturamentoPorRF();
+    renderizarResultado();
+    renderizarProducao();
+}
+
+function carregarSeletorRF() {
+    var select = document.getElementById('rfSelect');
+    var rfs = listarRFsDisponiveis();
+    
+    if (rfs.length === 0) {
+        select.innerHTML = '<option value="">Nenhuma RF disponível</option>';
+        return;
+    }
+    
+    var atual = getRFAtual();
+    var options = '';
+    rfs.forEach(function(rf) {
+        var selected = (rf === atual) ? 'selected' : '';
+        var label = formatarRF(rf);
+        options += '<option value="' + rf + '" ' + selected + '>' + label + ' (' + rf + ')</option>';
+    });
+    select.innerHTML = options;
+    
+    var rfSelecionada = select.value || atual;
+    mudarRF(rfSelecionada);
+}
+
+// ============================================================
+// FUNÇÕES DE INTERFACE
+// ============================================================
+function mudarAba(aba, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('ativo'));
+    document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('ativo'));
+    var pageId = 'page' + aba.charAt(0).toUpperCase() + aba.slice(1);
+    var el = document.getElementById(pageId);
+    if (el) el.classList.add('ativo');
+    if (btn) btn.classList.add('ativo');
+    
+    if (aba === 'dashboard') renderizarDashboard();
+    if (aba === 'faturamento') renderizarFaturamentoPorRF();
+    if (aba === 'estoque') renderizarEstoque();
+    if (aba === 'resultado') renderizarResultado();
+    if (aba === 'producao') renderizarProducao();
+}
+
+function mudarSubAbaProd(aba, btn) {
+    document.querySelectorAll('.sub-prod-aba').forEach(p => p.style.display = 'none');
+    var target = document.getElementById('subProducao' + aba.charAt(0).toUpperCase() + aba.slice(1));
+    if (target) target.style.display = 'block';
 }
 
 function normalizarMunicipio(mun) {
@@ -778,23 +967,8 @@ function normalizarInsumo(ins) {
     return String(ins).toUpperCase().trim().replace(/\s*KG\s*$/i, '').replace(/\s*L\s*$/i, '').trim();
 }
 
-function mudarAba(aba, btn) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('ativo'));
-    document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('ativo'));
-    var pageId = 'page' + aba.charAt(0).toUpperCase() + aba.slice(1);
-    var el = document.getElementById(pageId);
-    if (el) el.classList.add('ativo');
-    if (btn) btn.classList.add('ativo');
-}
-
-function mudarSubAbaProd(aba, btn) {
-    document.querySelectorAll('.sub-prod-aba').forEach(p => p.style.display = 'none');
-    var target = document.getElementById('subProducao' + aba.charAt(0).toUpperCase() + aba.slice(1));
-    if (target) target.style.display = 'block';
-}
-
 // ============================================================
-// OPERAÇÕES FIREBASE - LANÇAMENTOS
+// OPERAÇÕES FIREBASE
 // ============================================================
 function salvarLancamentoFirebase(dados) {
     return db.collection('lancamentos').add({
@@ -809,7 +983,6 @@ function salvarLancamentoFirebase(dados) {
         dataReferencia: dados.dataReferencia || getHoje(),
         fazenda: dados.fazenda || '',
         talhao: dados.talhao || '',
-        dia: dados.dia || new Date().getDate(),
         criadoEm: firebase.firestore.FieldValue.serverTimestamp()
     });
 }
@@ -848,9 +1021,6 @@ function ouvirLancamentosFirebase(callback) {
         });
 }
 
-// ============================================================
-// OPERAÇÕES FIREBASE - ESTOQUE
-// ============================================================
 function salvarMovimentacaoFirebase(dados) {
     return db.collection('estoque_movimentacoes').add({
         tipo: dados.tipo || 'entrada',
@@ -926,7 +1096,6 @@ function fazerLogin() {
             document.getElementById('btnFaturamento').classList.remove('oculto'); 
         }
         
-        // Inicia listeners
         iniciarListenersFirebase();
         testarConexaoFirebase();
         showToast('✅ Bem-vindo, ' + CREDENCIAIS[user].label + '!', 'success');
@@ -965,9 +1134,11 @@ function iniciarListenersFirebase() {
     if (state.unsubscribeLancamentos) state.unsubscribeLancamentos();
     state.unsubscribeLancamentos = ouvirLancamentosFirebase(function(dados) {
         state.lancamentosFirebase = dados;
+        carregarSeletorRF();
         renderizarDashboard();
-        renderizarFaturamento();
+        renderizarFaturamentoPorRF();
         renderizarResultado();
+        renderizarProducao();
     });
     
     if (state.unsubscribeEstoque) state.unsubscribeEstoque();
@@ -1031,8 +1202,9 @@ function importarPlanilha() {
             
             document.getElementById('infoArquivo').textContent = '✅ ' + file.name + ' importado! (' + json.length + ' linhas)';
             showToast('✅ Planilha importada com sucesso!', 'success');
+            carregarSeletorRF();
             renderizarDashboard();
-            renderizarFaturamento();
+            renderizarFaturamentoPorRF();
             renderizarProducao();
             
         } catch(error) {
@@ -1040,6 +1212,224 @@ function importarPlanilha() {
         }
     };
     reader.readAsArrayBuffer(file);
+}
+
+// ============================================================
+// FATURAMENTO POR RF
+// ============================================================
+function renderizarFaturamentoPorRF() {
+    var container = document.getElementById('containerFaturamentoRF');
+    if (!container) return;
+    
+    var rfSelecionada = state.rfSelecionada || getRFAtual();
+    var lancs = state.lancamentosFirebase;
+    var ops = state.operacoesDia;
+    
+    if (!rfSelecionada) {
+        container.innerHTML = '<div class="empty"><div class="ico">📊</div><p>Selecione uma RF para visualizar.</p></div>';
+        return;
+    }
+    
+    var rfObj = getRFObj(rfSelecionada);
+    
+    // Filtra operações pela RF
+    var operacoesFiltradas = {};
+    for (var key in ops) {
+        var op = ops[key];
+        if (op.registros) {
+            var haNaRF = 0;
+            var registrosRF = [];
+            op.registros.forEach(function(reg) {
+                if (reg.data) {
+                    var dataObj = new Date(reg.data);
+                    if (!isNaN(dataObj) && dataObj >= rfObj.inicio && dataObj <= rfObj.fim) {
+                        haNaRF += reg.ha || 0;
+                        registrosRF.push(reg);
+                    }
+                }
+            });
+            if (haNaRF > 0) {
+                operacoesFiltradas[key] = {
+                    nome: key,
+                    ha: haNaRF,
+                    registros: registrosRF
+                };
+            }
+        }
+    }
+    
+    var html = '';
+    if (Object.keys(operacoesFiltradas).length === 0) {
+        // Tenta mostrar lançamentos mesmo sem operações
+        var temLancamentos = false;
+        var lancamentosRF = {};
+        for (var lKey in lancs) {
+            var lanc = lancs[lKey];
+            if (lanc.dataReferencia) {
+                var partes = lanc.dataReferencia.split('/');
+                if (partes.length === 3) {
+                    var dataItem = new Date(partes[2], partes[1]-1, partes[0]);
+                    if (dataItem >= rfObj.inicio && dataItem <= rfObj.fim) {
+                        temLancamentos = true;
+                        lancamentosRF[lKey] = lanc;
+                    }
+                }
+            }
+        }
+        if (!temLancamentos) {
+            container.innerHTML = '<div class="empty"><div class="ico">📭</div><p>Nenhuma operação ou lançamento encontrado para esta RF.</p></div>';
+            return;
+        }
+        
+        // Mostra apenas os lançamentos
+        var htmlLanc = '<div style="overflow-x:auto;margin-top:12px;">';
+        htmlLanc += '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+        htmlLanc += '<thead><tr style="background:#f1f5f9;">';
+        htmlLanc += '<th style="padding:10px 12px;text-align:left;border-bottom:2px solid #d1d5db;">Operação</th>';
+        htmlLanc += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">HA</th>';
+        htmlLanc += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">Valor Faturado</th>';
+        htmlLanc += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">Custo</th>';
+        htmlLanc += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">Resultado</th>';
+        htmlLanc += '</tr></thead><tbody>';
+        
+        var totalHa = 0, totalReceita = 0, totalCusto = 0;
+        for (var lKey in lancamentosRF) {
+            var lanc = lancamentosRF[lKey];
+            totalHa += lanc.ha || 0;
+            totalReceita += lanc.valor || 0;
+            totalCusto += lanc.custo || 0;
+            var resultado = (lanc.valor || 0) - (lanc.custo || 0);
+            var cor = resultado >= 0 ? '#16a34a' : '#dc2626';
+            htmlLanc += '<tr style="border-bottom:1px solid #e5e7eb;">';
+            htmlLanc += '<td style="padding:8px 12px;font-weight:600;">' + lKey + '</td>';
+            htmlLanc += '<td style="padding:8px 12px;text-align:right;">' + safe(lanc.ha) + '</td>';
+            htmlLanc += '<td style="padding:8px 12px;text-align:right;font-weight:600;color:#2563eb;">R$ ' + formatMoney(lanc.valor || 0) + '</td>';
+            htmlLanc += '<td style="padding:8px 12px;text-align:right;color:#6b7280;">R$ ' + formatMoney(lanc.custo || 0) + '</td>';
+            htmlLanc += '<td style="padding:8px 12px;text-align:right;font-weight:700;color:' + cor + ';">' + (resultado >= 0 ? '+ ' : '- ') + 'R$ ' + formatMoney(Math.abs(resultado)) + '</td>';
+            htmlLanc += '</tr>';
+        }
+        
+        var resultadoTotal = totalReceita - totalCusto;
+        var corTotal = resultadoTotal >= 0 ? '#16a34a' : '#dc2626';
+        htmlLanc += '<tr style="background:#dcfce7;font-weight:700;border-top:2px solid #16a34a;">';
+        htmlLanc += '<td style="padding:10px 12px;">TOTAL</td>';
+        htmlLanc += '<td style="padding:10px 12px;text-align:right;">' + safe(totalHa) + '</td>';
+        htmlLanc += '<td style="padding:10px 12px;text-align:right;color:#2563eb;">R$ ' + formatMoney(totalReceita) + '</td>';
+        htmlLanc += '<td style="padding:10px 12px;text-align:right;color:#6b7280;">R$ ' + formatMoney(totalCusto) + '</td>';
+        htmlLanc += '<td style="padding:10px 12px;text-align:right;font-weight:700;color:' + corTotal + ';">' + (resultadoTotal >= 0 ? '+ ' : '- ') + 'R$ ' + formatMoney(Math.abs(resultadoTotal)) + '</td>';
+        htmlLanc += '</tr>';
+        htmlLanc += '</tbody></table></div>';
+        container.innerHTML = htmlLanc;
+        atualizarResumoFaturamentoRF(rfSelecionada);
+        return;
+    }
+    
+    // Monta tabela com operações
+    var totalHa = 0, totalReceita = 0, totalCusto = 0;
+    html += '<div style="overflow-x:auto;margin-top:12px;">';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+    html += '<thead><tr style="background:#f1f5f9;">';
+    html += '<th style="padding:10px 12px;text-align:left;border-bottom:2px solid #d1d5db;">Operação</th>';
+    html += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">HA Realizado</th>';
+    html += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">R$/HA</th>';
+    html += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">Valor Faturado</th>';
+    html += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">Custo</th>';
+    html += '<th style="padding:10px 12px;text-align:right;border-bottom:2px solid #d1d5db;">Resultado</th>';
+    html += '<th style="padding:10px 12px;text-align:center;border-bottom:2px solid #d1d5db;">Status</th>';
+    html += '</tr></thead><tbody>';
+    
+    var sortedKeys = Object.keys(operacoesFiltradas).sort();
+    sortedKeys.forEach(function(key) {
+        var op = operacoesFiltradas[key];
+        var ha = op.ha;
+        var rha = state.valoresAtividades[key] || 0;
+        var receita = ha * rha;
+        
+        var lanc = state.lancamentosFirebase[key];
+        if (lanc) {
+            receita = lanc.valor || receita;
+            rha = ha > 0 ? receita / ha : 0;
+        }
+        
+        // Calcula custo
+        var custo = 0;
+        if (lanc) {
+            custo = lanc.custo || 0;
+        } else {
+            // Estima custo baseado nos registros
+            var tfTotal = 0, maqTotal = 0, pipaTotal = 0, apoioTotal = 0;
+            op.registros.forEach(function(reg) {
+                tfTotal += reg.tf || 0;
+                maqTotal += reg.maq || 0;
+                pipaTotal += reg.pipa || 0;
+                apoioTotal += reg.apoio || 0;
+            });
+            custo = (tfTotal * state.custos.TF) + (maqTotal * state.custos.MAQ) + 
+                    (pipaTotal * state.custos.PIPA) + (apoioTotal * state.custos.APOIO);
+        }
+        
+        var resultado = receita - custo;
+        totalHa += ha;
+        totalReceita += receita;
+        totalCusto += custo;
+        
+        var resultadoStr = (resultado >= 0 ? '+ ' : '- ') + 'R$ ' + formatMoney(Math.abs(resultado));
+        var resultadoCor = resultado >= 0 ? '#16a34a' : '#dc2626';
+        var status = lanc ? '✅ Lançado' : '⏳ Aguardando';
+        var statusCls = lanc ? 'completo' : 'aguardando';
+        
+        html += '<tr style="border-bottom:1px solid #e5e7eb;">';
+        html += '<td style="padding:8px 12px;font-weight:600;">' + key + '</td>';
+        html += '<td style="padding:8px 12px;text-align:right;font-weight:600;">' + safe(ha) + '</td>';
+        html += '<td style="padding:8px 12px;text-align:right;">R$ ' + formatMoney(rha) + '</td>';
+        html += '<td style="padding:8px 12px;text-align:right;font-weight:600;color:#2563eb;">R$ ' + formatMoney(receita) + '</td>';
+        html += '<td style="padding:8px 12px;text-align:right;color:#6b7280;">R$ ' + formatMoney(custo) + '</td>';
+        html += '<td style="padding:8px 12px;text-align:right;font-weight:700;color:' + resultadoCor + ';">' + resultadoStr + '</td>';
+        html += '<td style="padding:8px 12px;text-align:center;"><span class="badge-status ' + statusCls + '">' + status + '</span></td>';
+        html += '</tr>';
+    });
+    
+    var resultadoTotal = totalReceita - totalCusto;
+    var corTotal = resultadoTotal >= 0 ? '#16a34a' : '#dc2626';
+    html += '<tr style="background:#dcfce7;font-weight:700;border-top:2px solid #16a34a;">';
+    html += '<td style="padding:10px 12px;">TOTAL</td>';
+    html += '<td style="padding:10px 12px;text-align:right;">' + safe(totalHa) + '</td>';
+    html += '<td style="padding:10px 12px;text-align:right;"></td>';
+    html += '<td style="padding:10px 12px;text-align:right;color:#2563eb;">R$ ' + formatMoney(totalReceita) + '</td>';
+    html += '<td style="padding:10px 12px;text-align:right;color:#6b7280;">R$ ' + formatMoney(totalCusto) + '</td>';
+    html += '<td style="padding:10px 12px;text-align:right;font-weight:700;color:' + corTotal + ';">' + (resultadoTotal >= 0 ? '+ ' : '- ') + 'R$ ' + formatMoney(Math.abs(resultadoTotal)) + '</td>';
+    html += '<td style="padding:10px 12px;text-align:center;"></td>';
+    html += '</tr>';
+    html += '</tbody></table></div>';
+    
+    container.innerHTML = html;
+    atualizarResumoFaturamentoRF(rfSelecionada);
+}
+
+function atualizarResumoFaturamentoRF(rf) {
+    var lancs = state.lancamentosFirebase;
+    var rfObj = getRFObj(rf);
+    var totalReceita = 0, totalCusto = 0;
+    
+    for (var key in lancs) {
+        var lanc = lancs[key];
+        if (lanc.dataReferencia) {
+            var partes = lanc.dataReferencia.split('/');
+            if (partes.length === 3) {
+                var dataItem = new Date(partes[2], partes[1]-1, partes[0]);
+                if (dataItem >= rfObj.inicio && dataItem <= rfObj.fim) {
+                    totalReceita += lanc.valor || 0;
+                    totalCusto += lanc.custo || 0;
+                }
+            }
+        }
+    }
+    
+    document.getElementById('fatReceitaTotal').textContent = formatMoney(totalReceita);
+    document.getElementById('fatCustoTotal').textContent = formatMoney(totalCusto);
+    var resultado = totalReceita - totalCusto;
+    var cor = resultado >= 0 ? '#16a34a' : '#dc3545';
+    document.getElementById('fatResultado').innerHTML = 'R$ <span style="color:' + cor + ';">' + formatMoney(resultado) + '</span>';
 }
 
 // ============================================================
@@ -1266,20 +1656,7 @@ function limparTudoEstoque() {
     if (!confirm('⚠️ ATENÇÃO: Isso irá apagar TODAS as movimentações de estoque. Esta ação não pode ser desfeita!')) return;
     if (!confirm('🔄 Confirme novamente:')) return;
     state.movimentacoes = [];
-    // Não podemos limpar o Firebase assim, apenas localmente
     showToast('⚠️ Os dados no Firebase precisam ser removidos manualmente.', 'warning');
-}
-
-// ============================================================
-// CONFIRMAR TRANSFERÊNCIA
-// ============================================================
-function confirmarTransferencia() {
-    showToast('⚠️ Funcionalidade em desenvolvimento.', 'warning');
-    document.getElementById('modalTransferencia').classList.remove('active');
-}
-
-function fecharModalTransferencia() {
-    document.getElementById('modalTransferencia').classList.remove('active');
 }
 
 // ============================================================
@@ -1331,8 +1708,9 @@ function salvarNovaOperacao() {
     
     fecharModalNovaOperacao();
     showToast('✅ Operação manual "' + nome + '" criada!', 'success');
+    carregarSeletorRF();
     renderizarDashboard();
-    renderizarFaturamento();
+    renderizarFaturamentoPorRF();
     renderizarProducao();
 }
 
@@ -1350,7 +1728,6 @@ function renderizarProducao() {
     document.getElementById('prodOps').textContent = totalOps;
     document.getElementById('prodArea').innerHTML = totalArea.toFixed(2) + ' <span class="unit">ha</span>';
     
-    // Limpa sub-abas
     document.querySelectorAll('.sub-prod-aba').forEach(function(el) {
         if (el.id !== 'subProducaoIrrigacao') {
             el.innerHTML = '<div class="empty"><div class="ico">📊</div><p>Selecione uma operação para visualizar.</p></div>';
@@ -1359,162 +1736,50 @@ function renderizarProducao() {
 }
 
 // ============================================================
-// RENDERIZAR FATURAMENTO
-// ============================================================
-function renderizarFaturamento() {
-    var lancs = state.lancamentosFirebase;
-    var totalReceita = 0, totalCusto = 0;
-    
-    for (var key in lancs) {
-        totalReceita += lancs[key].valor || 0;
-        totalCusto += lancs[key].custo || 0;
-    }
-    
-    document.getElementById('fatReceitaTotal').textContent = formatMoney(totalReceita);
-    document.getElementById('fatCustoTotal').textContent = formatMoney(totalCusto);
-    
-    var resultado = totalReceita - totalCusto;
-    var cor = resultado >= 0 ? '#16a34a' : '#dc3545';
-    document.getElementById('fatResultado').innerHTML = 'R$ <span style="color:' + cor + ';">' + formatMoney(resultado) + '</span>';
-    
-    var ops = state.operacoesDia;
-    var container = document.getElementById('containerOperacoesFaturamento');
-    var keys = Object.keys(ops);
-    
-    if (keys.length === 0) {
-        container.innerHTML = '<div class="empty"><div class="ico">📭</div><p>Nenhuma operação disponível.</p></div>';
-        return;
-    }
-    
-    var html = '';
-    keys.forEach(function(key, idx) {
-        var op = ops[key];
-        var jaLancado = lancs[key];
-        var valorConfig = state.valoresAtividades[key] || 0;
-        
-        html += '<div class="operacao-pronta" style="border-left-color:' + (jaLancado ? '#16a34a' : '#2563eb') + ';">';
-        html += '<div class="info">';
-        html += '<span class="nome">' + key + '</span>';
-        html += '<span class="qtd">' + safe(op.totalHa) + ' ha</span>';
-        html += jaLancado ? '<span class="badge-status completo">✅ Lançado</span>' : '<span class="badge-status aguardando">⏳ Aguardando</span>';
-        html += '</div>';
-        html += '<div class="campos">';
-        html += '<label>R$/ha:</label><input type="number" id="rha_' + idx + '" step="0.01" value="' + (jaLancado ? safe(jaLancado.valor / op.totalHa) : safe(valorConfig)) + '" oninput="calcularTotalOp(' + idx + ')">';
-        html += '<label>TF:</label><input type="number" id="tf_' + idx + '" step="1" value="' + (jaLancado ? jaLancado.tf || 0 : 0) + '">';
-        html += '<label>Máq:</label><input type="number" id="maq_' + idx + '" step="1" value="' + (jaLancado ? jaLancado.maq || 0 : 0) + '">';
-        html += '<label>Pipa:</label><input type="number" id="pipa_' + idx + '" step="1" value="' + (jaLancado ? jaLancado.pipa || 0 : 0) + '">';
-        html += '<label>Apoio:</label><input type="number" id="apoio_' + idx + '" step="1" value="' + (jaLancado ? jaLancado.apoio || 0 : 0) + '">';
-        html += '<span style="font-weight:700;color:#2563eb;min-width:80px;" id="totalOp_' + idx + '">R$ ' + (jaLancado ? formatMoney(jaLancado.valor || 0) : '0.00') + '</span>';
-        html += '<button class="btn-primary-custom" onclick="lancarOperacao(' + idx + ',\'' + key + '\')">✅ Lançar</button>';
-        if (jaLancado) {
-            html += '<button class="btn-danger-custom" onclick="excluirLancamento(\'' + key + '\')">🗑️ Excluir</button>';
-        }
-        html += '</div></div>';
-    });
-    container.innerHTML = html;
-}
-
-function calcularTotalOp(index) {
-    var rha = parseFloat(document.getElementById('rha_' + index).value) || 0;
-    var ops = state.operacoesDia;
-    var keys = Object.keys(ops);
-    var ha = ops[keys[index]].totalHa;
-    var total = ha * rha;
-    var el = document.getElementById('totalOp_' + index);
-    if (el) { el.textContent = 'R$ ' + formatMoney(total); }
-    return { receita: total, ha: ha, rha: rha };
-}
-
-function lancarOperacao(index, opId) {
-    var rhaEl = document.getElementById('rha_' + index);
-    var tfEl = document.getElementById('tf_' + index);
-    var maqEl = document.getElementById('maq_' + index);
-    var pipaEl = document.getElementById('pipa_' + index);
-    var apoioEl = document.getElementById('apoio_' + index);
-    
-    var rha = parseFloat(rhaEl.value) || 0;
-    var tf = parseInt(tfEl.value) || 0;
-    var maq = parseInt(maqEl.value) || 0;
-    var pipa = parseInt(pipaEl.value) || 0;
-    var apoio = parseInt(apoioEl.value) || 0;
-    
-    var ops = state.operacoesDia;
-    var keys = Object.keys(ops);
-    var ha = ops[keys[index]].totalHa;
-    var receita = ha * rha;
-    var custo = (tf * state.custos.TF) + (maq * state.custos.MAQ) + (pipa * state.custos.PIPA) + (apoio * state.custos.APOIO);
-    
-    if (receita === 0 && custo === 0) {
-        showToast('⚠️ Preencha o R$/ha ou os recursos!', 'warning');
-        return;
-    }
-    
-    var dados = {
-        opId: opId,
-        ha: ha,
-        valor: receita,
-        custo: custo,
-        tf: tf,
-        maq: maq,
-        pipa: pipa,
-        apoio: apoio,
-        dataReferencia: getHoje(),
-        fazenda: ops[keys[index]].registros[0]?.fazenda || '',
-        talhao: ops[keys[index]].registros[0]?.talhao || '',
-        dia: new Date().getDate()
-    };
-    
-    var existente = state.lancamentosFirebase[opId];
-    if (existente && existente.id) {
-        atualizarLancamentoFirebase(existente.id, dados)
-            .then(function() {
-                showToast('✅ Operação atualizada!', 'success');
-            })
-            .catch(function(error) {
-                showToast('❌ Erro: ' + error.message, 'error');
-            });
-    } else {
-        salvarLancamentoFirebase(dados)
-            .then(function() {
-                showToast('✅ Operação lançada: R$ ' + formatMoney(receita), 'success');
-            })
-            .catch(function(error) {
-                showToast('❌ Erro: ' + error.message, 'error');
-            });
-    }
-}
-
-function excluirLancamento(opId) {
-    if (!confirm('Excluir lançamento de "' + opId + '"?')) return;
-    
-    var lanc = state.lancamentosFirebase[opId];
-    if (!lanc || !lanc.id) {
-        showToast('⚠️ Lançamento não encontrado.', 'warning');
-        return;
-    }
-    
-    excluirLancamentoFirebase(lanc.id)
-        .then(function() {
-            showToast('🗑️ Lançamento excluído!', 'success');
-        })
-        .catch(function(error) {
-            showToast('❌ Erro: ' + error.message, 'error');
-        });
-}
-
-// ============================================================
 // RENDERIZAR DASHBOARD
 // ============================================================
 function renderizarDashboard() {
     var ops = state.operacoesDia;
     var lancs = state.lancamentosFirebase;
-    var totalArea = 0, totalOps = Object.keys(ops).length;
+    var rfSelecionada = state.rfSelecionada || getRFAtual();
+    var rfObj = getRFObj(rfSelecionada);
+    
+    var totalArea = 0, totalOps = 0;
     var totalReceita = 0, totalCusto = 0;
     
-    for (var key in ops) { totalArea += ops[key].totalHa; }
-    for (var key in lancs) {
-        totalReceita += lancs[key].valor || 0;
-        totalCusto += lancs[key].custo || 0;
+    // Filtra operações pela RF
+    for (var key in ops) {
+        var op = ops[key];
+        if (op.registros) {
+            var haNaRF = 0;
+            op.registros.forEach(function(reg) {
+                if (reg.data) {
+                    var dataObj = new Date(reg.data);
+                    if (!isNaN(dataObj) && dataObj >= rfObj.inicio && dataObj <= rfObj.fim) {
+                        haNaRF += reg.ha || 0;
+                    }
+                }
+            });
+            if (haNaRF > 0) {
+                totalArea += haNaRF;
+                totalOps++;
+            }
+        }
+    }
+    
+    // Filtra lançamentos pela RF
+    for (var lKey in lancs) {
+        var lanc = lancs[lKey];
+        if (lanc.dataReferencia) {
+            var partes = lanc.dataReferencia.split('/');
+            if (partes.length === 3) {
+                var dataItem = new Date(partes[2], partes[1]-1, partes[0]);
+                if (dataItem >= rfObj.inicio && dataItem <= rfObj.fim) {
+                    totalReceita += lanc.valor || 0;
+                    totalCusto += lanc.custo || 0;
+                }
+            }
+        }
     }
     
     document.getElementById('dashAreaTotal').innerHTML = safe(totalArea) + ' <span style="font-size:14px;">ha</span>';
@@ -1533,9 +1798,24 @@ function renderizarDashboard() {
         container.innerHTML = '<div class="empty"><div class="ico">📭</div><p>Nenhuma operação registrada.</p></div>';
     } else {
         var html = '<table><thead><tr><th>Operação</th><th class="num">Área (ha)</th><th>Status</th></tr></thead><tbody>';
-        keys.slice(0, 10).forEach(function(key) {
-            html += '<tr><td>' + key + '</td><td class="num">' + safe(ops[key].totalHa) + '</td><td><span class="badge-status parcial">PARCIAL</span></td></tr>';
-        });
+        var count = 0;
+        for (var key in ops) {
+            if (count >= 10) break;
+            var op = ops[key];
+            var haNaRF = 0;
+            op.registros.forEach(function(reg) {
+                if (reg.data) {
+                    var dataObj = new Date(reg.data);
+                    if (!isNaN(dataObj) && dataObj >= rfObj.inicio && dataObj <= rfObj.fim) {
+                        haNaRF += reg.ha || 0;
+                    }
+                }
+            });
+            if (haNaRF > 0) {
+                html += '<tr><td>' + key + '</td><td class="num">' + safe(haNaRF) + '</td><td><span class="badge-status parcial">PARCIAL</span></td></tr>';
+                count++;
+            }
+        }
         html += '</tbody></table>';
         container.innerHTML = html;
     }
@@ -1546,12 +1826,24 @@ function renderizarDashboard() {
 // ============================================================
 function renderizarResultado() {
     var lancs = state.lancamentosFirebase;
+    var rfSelecionada = state.rfSelecionada || getRFAtual();
+    var rfObj = getRFObj(rfSelecionada);
+    
     var totalHa = 0, totalReceita = 0, totalCusto = 0;
     
     for (var key in lancs) {
-        totalHa += lancs[key].ha || 0;
-        totalReceita += lancs[key].valor || 0;
-        totalCusto += lancs[key].custo || 0;
+        var lanc = lancs[key];
+        if (lanc.dataReferencia) {
+            var partes = lanc.dataReferencia.split('/');
+            if (partes.length === 3) {
+                var dataItem = new Date(partes[2], partes[1]-1, partes[0]);
+                if (dataItem >= rfObj.inicio && dataItem <= rfObj.fim) {
+                    totalHa += lanc.ha || 0;
+                    totalReceita += lanc.valor || 0;
+                    totalCusto += lanc.custo || 0;
+                }
+            }
+        }
     }
     
     document.getElementById('resTotalHa').textContent = safe(totalHa);
@@ -1646,12 +1938,23 @@ function salvarConfigCustos() {
 }
 
 // ============================================================
+// CONFIRMAR TRANSFERÊNCIA
+// ============================================================
+function confirmarTransferencia() {
+    showToast('⚠️ Funcionalidade em desenvolvimento.', 'warning');
+    document.getElementById('modalTransferencia').classList.remove('active');
+}
+
+function fecharModalTransferencia() {
+    document.getElementById('modalTransferencia').classList.remove('active');
+}
+
+// ============================================================
 // INICIALIZAÇÃO
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Sistema LB Florestal inicializando...');
     
-    // Data atual
     var hoje = new Date();
     var dataStr = hoje.getFullYear() + '-' + 
         String(hoje.getMonth() + 1).padStart(2, '0') + '-' + 
@@ -1663,7 +1966,6 @@ document.addEventListener('DOMContentLoaded', function() {
     var novaOpData = document.getElementById('novaOpData');
     if (novaOpData) novaOpData.value = dataStr;
     
-    // Testa conexão após 2 segundos
     setTimeout(testarConexaoFirebase, 2000);
 });
 </script>
