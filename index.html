@@ -1907,6 +1907,92 @@ window.confirmarTransferencia = confirmarTransferencia;
 window.normalizarMunicipio = normalizarMunicipio;
 window.normalizarInsumo = normalizarInsumo;
 window.recalcularEstoque = recalcularEstoque;
+    // ============================================================
+// FUNÇÕES DE LOGIN
+// ============================================================
+function fazerLogin() {
+    var userEl = document.getElementById('loginUser');
+    var passEl = document.getElementById('loginPassword');
+    var erroEl = document.getElementById('erroLogin');
+    if (!userEl || !passEl) { 
+        alert('Erro: elementos de login não encontrados!'); 
+        return; 
+    }
+    var user = userEl.value;
+    var senha = passEl.value;
+    if (!senha) { 
+        if (erroEl) { 
+            erroEl.style.display = 'block'; 
+            erroEl.textContent = '❌ Digite a senha!'; 
+        } 
+        return; 
+    }
+    if (CREDENCIAIS[user] && CREDENCIAIS[user].senha === senha) {
+        state.usuario = user;
+        var loginScreen = document.getElementById('loginScreen');
+        var app = document.getElementById('app');
+        var userBadge = document.getElementById('userBadge');
+        if (loginScreen) loginScreen.style.display = 'none';
+        if (app) app.style.display = 'block';
+        if (userBadge) userBadge.textContent = '👤 ' + CREDENCIAIS[user].label;
+        var btnFat = document.getElementById('btnFaturamento');
+        if (user === 'producao') { 
+            if (btnFat) btnFat.classList.add('oculto'); 
+        } else { 
+            if (btnFat) btnFat.classList.remove('oculto'); 
+        }
+        if (user === 'producao') { 
+            mudarAba('producao', document.querySelector('.btn-tab.prod')); 
+        } else if (user === 'faturamento') { 
+            mudarAba('faturamento', document.querySelector('.btn-tab.fat')); 
+        } else { 
+            mudarAba('dashboard', document.querySelector('.btn-tab.dash')); 
+        }
+        carregarDadosFirebase();
+        carregarEstoqueFirebase();
+        showToast('✅ Bem-vindo, ' + CREDENCIAIS[user].label + '!', 'success');
+    } else { 
+        if (erroEl) { 
+            erroEl.style.display = 'block'; 
+            erroEl.textContent = '❌ Senha incorreta!'; 
+        } 
+        if (passEl) { 
+            passEl.value = ''; 
+            passEl.focus(); 
+        } 
+    }
+}
+
+function fazerLogout() {
+    if (confirm('Deseja realmente sair?')) {
+        state.usuario = null;
+        state.configSenhaValida = false;
+        var app = document.getElementById('app');
+        var loginScreen = document.getElementById('loginScreen');
+        var passEl = document.getElementById('loginPassword');
+        var erroEl = document.getElementById('erroLogin');
+        var configSenhaArea = document.getElementById('configSenhaArea');
+        var configConteudo = document.getElementById('configConteudo');
+        var btnFat = document.getElementById('btnFaturamento');
+        if (app) app.style.display = 'none';
+        if (loginScreen) loginScreen.style.display = 'flex';
+        if (passEl) passEl.value = '';
+        if (erroEl) erroEl.style.display = 'none';
+        if (configSenhaArea) configSenhaArea.style.display = 'block';
+        if (configConteudo) configConteudo.style.display = 'none';
+        if (btnFat) btnFat.classList.remove('oculto');
+    }
+}
+
+// Adiciona evento de Enter no campo senha
+document.addEventListener('DOMContentLoaded', function() {
+    var passInput = document.getElementById('loginPassword');
+    if (passInput) {
+        passInput.addEventListener('keydown', function(e) { 
+            if (e.key === 'Enter') fazerLogin(); 
+        });
+    }
+});
 </script>
 </body>
 </html>
