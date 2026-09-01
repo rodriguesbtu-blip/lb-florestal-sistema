@@ -12,6 +12,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f9;color:#1e293b;padding:20px}
 .container{max-width:1400px;margin:0 auto}
+
 .nav-principal{background:#fff;border-radius:12px;padding:10px 20px;margin-bottom:16px;border:1px solid #e9eef3;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .nav-principal .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:#0a1628;margin-right:20px}
 .nav-principal .logo .icon{width:36px;height:36px;background:#2e7d32;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px}
@@ -47,14 +48,18 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f9;color:#1e293
 .btn-excluir-custom:hover{background:#fecaca;transform:scale(1.02)}
 .btn-transferir-custom{background:#7c3aed;color:#fff;border:none;padding:5px 12px;border-radius:6px;font-weight:600;font-size:11px;cursor:pointer;transition:background .2s;display:inline-flex;align-items:center;gap:4px}
 .btn-transferir-custom:hover{background:#6d28d9}
+
 .page{display:none;padding:0;animation:fadeIn .3s}
 .page.ativo{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
 .card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08);padding:20px 24px;margin-bottom:16px}
 .card .titulo{font-size:18px;font-weight:700;margin-bottom:4px}
 .card .subtitulo{font-size:13px;color:#64748b}
+
 .upload-area{background:#f8fafc;padding:16px;border-radius:10px;border:2px dashed #d1d9e6;margin-top:12px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
 .upload-area input[type=file]{padding:8px;border:1px solid #d1d9e6;border-radius:6px;background:#fff;flex:1;min-width:200px}
+
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
 .stat-card{background:#fff;border-radius:12px;padding:14px 16px;border:1px solid #e9eef3}
 .stat-card .label{font-size:11px;color:#64748b;font-weight:500;text-transform:uppercase}
@@ -64,6 +69,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f9;color:#1e293
 .stat-card.highlight{background:#0a1628;border-color:#0a1628}
 .stat-card.highlight .label{color:#94a3b8}
 .stat-card.highlight .value{color:#fff}
+
 .estoque-accordion{border:2px solid #e9eef3;border-radius:12px;margin-bottom:12px;overflow:hidden;background:#fff;transition:all .3s ease}
 .estoque-accordion .accordion-header{padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#f8fafc;transition:background .2s;user-select:none}
 .estoque-accordion .accordion-header:hover{background:#f1f5f9}
@@ -87,6 +93,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f9;color:#1e293
 .estoque-accordion .accordion-body .nf-item .nf-saldo.negativo{color:#dc2626}
 .estoque-accordion .accordion-body .nf-item .nf-acoes{display:flex;gap:6px}
 .estoque-accordion .accordion-body .total-geral{background:#f1f5f9;padding:8px 16px;border-radius:8px;display:flex;justify-content:space-between;font-weight:700;margin-top:8px}
+
 .modal-transferencia .modal-content{max-width:480px}
 .modal-transferencia .form-transferencia{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
 .modal-transferencia .form-transferencia .full-width{grid-column:1/-1}
@@ -99,6 +106,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f9;color:#1e293
 .modal-transferencia .resumo-transferencia .resumo-item .value{font-weight:600}
 .modal-transferencia .resumo-transferencia .resumo-item .value.positivo{color:#16a34a}
 .modal-transferencia .resumo-transferencia .resumo-item .value.negativo{color:#dc2626}
+
 .estoque-card{background:#fff;border-radius:12px;padding:16px 18px;border:2px solid #e9eef3;border-top:4px solid #7c3aed}
 .estoque-card .insumo-nome{font-size:16px;font-weight:700;color:#0a1628}
 .estoque-card .insumo-total{font-size:28px;font-weight:700;color:#7c3aed;margin:6px 0}
@@ -106,15 +114,18 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f9;color:#1e293
 .estoque-card .municipio-item{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f1f5f9;font-size:12px}
 .estoque-card .municipio-item .mun-nome{font-weight:500}
 .estoque-card .municipio-item .mun-qtd{font-weight:700;color:#7c3aed}
+
 .tabela-estoque{width:100%;border-collapse:collapse;font-size:12px}
 .tabela-estoque th{background:#f3f4f6;padding:8px 10px;text-align:left;font-weight:bold;border-bottom:2px solid #d1d5db;font-size:10px;text-transform:uppercase}
 .tabela-estoque td{padding:6px 10px;border-bottom:1px solid #e5e7eb}
 .tabela-estoque .total-row td{background:#faf5ff;font-weight:bold;border-top:2px solid #7c3aed}
+
 .form-estoque{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e9eef3}
 .form-estoque label{font-weight:600;font-size:11px;display:block;margin-bottom:3px;color:#475569}
 .form-estoque input,.form-estoque select{width:100%;padding:6px 10px;border-radius:6px;border:1px solid #d1d9e6;font-size:13px;background:#fff}
 .form-estoque .btn-submit{padding:8px 20px;background:#7c3aed;color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;align-self:flex-end}
 .form-estoque .btn-submit:hover{background:#6d28d9}
+
 .movimentacao-item{background:#f8fafc;border-radius:8px;padding:10px 14px;margin-bottom:8px;border-left:4px solid #7c3aed;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
 .movimentacao-item .tipo-entrada{border-left-color:#16a34a}
 .movimentacao-item .tipo-saida{border-left-color:#dc2626}
@@ -124,6 +135,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f9;color:#1e293
 .movimentacao-item .mov-qtd.entrada{color:#16a34a}
 .movimentacao-item .mov-qtd.saida{color:#dc2626}
 .movimentacao-item .mov-acoes{display:flex;gap:4px}
+
 .op-card{background:#f8fafc;border-radius:10px;padding:14px 18px;margin-bottom:12px;border:1px solid #e9eef3;border-left:4px solid #16a34a}
 .op-card .op-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:4px}
 .op-card .op-header .op-nome{font-weight:700;font-size:15px;color:#0a1628;word-break:break-word}
@@ -134,6 +146,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f9;color:#1e293
 .op-card .op-registros .reg-tag .area{font-weight:700;color:#2563eb}
 .op-card .op-registros .reg-tag .equipe{color:#475569}
 .op-card .op-registros .reg-tag .obs{color:#6b7280;font-style:italic;font-size:10px}
+
 .table-wrap{max-height:600px;overflow-y:auto}
 .table-wrap::-webkit-scrollbar{width:5px}
 .table-wrap::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
@@ -150,11 +163,13 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
 .text-red{color:#dc2626}
 .text-purple{color:#7c3aed}
 .bold{font-weight:700}
+
 .badge-status{display:inline-block;padding:2px 12px;border-radius:9999px;font-size:11px;font-weight:600}
 .badge-status.completo{background:#dcfce7;color:#166534}
 .badge-status.parcial{background:#fef9c3;color:#854d0e}
 .badge-status.aguardando{background:#dbeafe;color:#1e40af}
 .badge-status.transferencia{background:#faf5ff;color:#7c3aed}
+
 .operacao-pronta{background:#f8fafc;border-radius:8px;padding:12px 16px;border-left:4px solid #2563eb;margin-bottom:10px}
 .operacao-pronta .info{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
 .operacao-pronta .info .nome{font-weight:700;font-size:13px;word-wrap:break-word;max-width:350px}
@@ -162,9 +177,11 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
 .operacao-pronta .campos{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
 .operacao-pronta .campos label{font-size:10px;font-weight:600;color:#475569}
 .operacao-pronta .campos input{padding:3px 6px;border-radius:6px;border:1px solid #d1d9e6;font-size:12px;width:65px}
+
 .filtros-area{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid #e5e7eb}
 .filtros-area label{font-weight:600;font-size:11px;display:block;margin-bottom:3px;color:#475569}
 .filtros-area select,.filtros-area input{width:100%;padding:6px 10px;border-radius:6px;border:1px solid #d1d9e6;font-size:13px;background:#fff}
+
 .faz-header{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;padding:14px 20px;border-radius:12px 12px 0 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
 .faz-header:hover{background:linear-gradient(135deg,#15803d,#166534)}
 .faz-block{border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:12px;overflow:hidden}
@@ -184,10 +201,12 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
 .irr-azul{background:#dbeafe;border-color:#2563eb;color:#1e40af}
 .irr-vermelho{background:#fee2e2;border-color:#dc2626;color:#991b1b}
 .aviso-obs{background:#fef9c3;color:#854d0e;font-size:11px;padding:4px 8px;border-radius:6px;margin-top:4px}
+
 .dia-header{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:14px 20px;border-radius:12px 12px 0 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
 .dia-block{border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:12px;overflow:hidden}
 .dia-body{background:#fff;padding:16px;display:none}
 .dia-body.open{display:block}
+
 .rep-card{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:10px;overflow:hidden}
 .rep-body{padding:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .rep-info{flex:1;min-width:200px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
@@ -197,20 +216,25 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
 .sop-header{background:linear-gradient(135deg,#faf5ff,#f3e8ff);padding:14px 18px;border-bottom:2px solid #e9d5ff}
 .sop-ops{padding:14px 18px;display:flex;flex-direction:column;gap:10px}
 .sop-op{border-radius:8px;border:2px solid;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
 .fin-card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:14px;overflow:hidden;border-left:6px solid #059669}
 .fin-header{background:linear-gradient(135deg,#f0fdf4,#dcfce7);padding:14px 18px;border-bottom:2px solid #bbf7d0;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .fin-header .field label{font-size:11px;color:#6b7280;font-weight:bold;display:block;margin-bottom:2px}
 .fin-body{padding:14px 18px}
+
 .insumos-box{background:#faf5ff;border:2px solid #c4b5fd;border-radius:8px;padding:12px;margin-bottom:14px}
 .insumos-box h4{color:#6d28d9;font-size:13px;font-weight:bold;margin-bottom:10px}
 .insumos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
 .ins-item{background:#fff;border:1px solid #c4b5fd;border-radius:6px;padding:6px 10px}
 .ins-item .nome{font-size:11px;color:#6b7280}
 .ins-item .qtd{font-size:15px;font-weight:700;color:#6d28d9}
+
 .hist-row{background:#eff6ff;padding:10px 14px;border-left:3px solid #2563eb;margin-top:6px;border-radius:0 6px 6px 0}
 .hist-expand{font-size:11px;font-weight:bold;padding:3px 8px;background:#dbeafe;color:#1e40af;border:none;border-radius:4px;cursor:pointer}
+
 .check-list{border:1px solid #d1d5db;border-radius:6px;padding:8px;max-height:130px;overflow-y:auto;background:#fff}
 .check-list label{display:flex;align-items:center;gap:6px;padding:3px 0;cursor:pointer;font-size:12px}
+
 .modal-custom{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:999;justify-content:center;align-items:center;backdrop-filter:blur(4px)}
 .modal-custom.active{display:flex}
 .modal-custom .modal-content{background:#fff;border-radius:16px;padding:24px;max-width:520px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.2)}
@@ -237,24 +261,29 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
 .modal-custom .modal-content .resultado-preview .rec{color:#1a56db}
 .modal-custom .modal-content .resultado-preview .cus{color:#dc3545}
 .modal-custom .modal-content .resultado-preview .res{font-weight:700}
+
 .toast-container{position:fixed;bottom:24px;right:24px;z-index:1000}
 .toast{background:#0f172a;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;box-shadow:0 8px 32px rgba(0,0,0,.15);display:flex;align-items:center;gap:10px;animation:toastIn .3s;margin-top:8px}
 .toast.success{background:#2e7d32}
 .toast.error{background:#dc3545}
 .toast.warning{background:#f59e0b}
 @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
 #loading{display:none;position:fixed;inset:0;background:rgba(255,255,255,.8);align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:16px;font-size:20px;font-weight:bold;color:#374151}
 #loading.show{display:flex}
 .spinner{width:50px;height:50px;border:4px solid #e5e7eb;border-top-color:#2e7d32;border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+
 .empty{text-align:center;padding:40px 20px}
 .empty .ico{font-size:48px;margin-bottom:12px}
 .empty p{font-size:16px;color:#64748b}
+
 .prazo-badge{display:inline-block;padding:4px 12px;border-radius:6px;font-size:13px;font-weight:bold;border:2px solid}
 .p-vencido{background:#111827;color:#fff;border-color:#111827}
 .p-urgente{background:#fee2e2;color:#991b1b;border-color:#dc2626}
 .p-atencao{background:#fef9c3;color:#854d0e;border-color:#ca8a04}
 .p-ok{background:#dcfce7;color:#166534;border-color:#16a34a}
+
 .stat-grid{display:grid;gap:12px;margin-bottom:16px}
 .stat-box{border-radius:10px;border:2px solid;padding:14px;text-align:center}
 .stat-box .n{font-size:28px;font-weight:bold}
@@ -266,6 +295,7 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
 .sb-cinza{background:#f3f4f6;border-color:#6b7280;color:#374151}
 .sb-preto{background:#111827;border-color:#111827;color:#fff}
 .sb-roxo{background:#faf5ff;border-color:#7c3aed;color:#7c3aed}
+
 .dash-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:16px}
 .dash-card{background:#fff;border-radius:12px;padding:18px 20px;border:1px solid #e9eef3;text-align:center}
 .dash-card .icon{font-size:32px;margin-bottom:8px}
@@ -279,6 +309,7 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
 .dash-card.preto{background:#0a1628;border-color:#0a1628}
 .dash-card.preto .label{color:#94a3b8}
 .dash-card.preto .valor{color:#fff}
+
 #loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,#0a1628,#1a3a5c);display:flex;align-items:center;justify-content:center;z-index:9999}
 #loginScreen .login-box{background:#fff;border-radius:20px;padding:48px 40px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.4)}
 #loginScreen .login-box .logo{text-align:center;margin-bottom:28px}
@@ -294,6 +325,7 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
 #loginScreen .login-box .erro-login{color:#dc3545;font-size:13px;text-align:center;margin-top:12px;display:none}
 #loginScreen .login-box .info-acesso{margin-top:16px;padding:12px;background:#f1f4f8;border-radius:8px;font-size:12px;color:#64748b;text-align:center}
 #loginScreen .login-box .info-acesso strong{color:#0a1628}
+
 @media(max-width:768px){body{padding:12px}.nav-principal{flex-direction:column;align-items:stretch}.nav-principal .logo{justify-content:center;margin-right:0}.nav-principal .user-info{justify-content:center;flex-wrap:wrap}.stats-grid{grid-template-columns:repeat(2,1fr)}.dash-cards{grid-template-columns:repeat(2,1fr)}.op-card .op-registros .reg-tag{font-size:10px;padding:2px 6px}.operacao-pronta .campos{flex-direction:column;align-items:stretch}.operacao-pronta .campos input{width:100%}.filtros-area{grid-template-columns:1fr}.dia-header{flex-direction:column;align-items:stretch;gap:8px}.dia-header .dia-info{flex-direction:column;align-items:flex-start}.dia-header .dia-actions{justify-content:flex-start}.estoque-grid{grid-template-columns:1fr}.form-estoque{grid-template-columns:1fr}.estoque-accordion .accordion-header{flex-direction:column;align-items:stretch;gap:8px}.estoque-accordion .accordion-header .header-left{flex-wrap:wrap}.estoque-accordion .accordion-body .nf-item{flex-direction:column;align-items:stretch}.estoque-accordion .accordion-body .nf-item .nf-saldo{text-align:left}.modal-transferencia .form-transferencia{grid-template-columns:1fr}.modal-transferencia .form-transferencia .full-width{grid-column:1}}
 @media(max-width:480px){.stats-grid{grid-template-columns:1fr 1fr}.dash-cards{grid-template-columns:1fr 1fr}.stat-card .value{font-size:18px}.op-card .op-header .op-nome{font-size:13px}.op-card .op-header .op-total{font-size:13px}}
 </style>
@@ -347,19 +379,6 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
                 <span class="badge-user" id="userBadge">👤 Produção</span>
                 <button onclick="fazerLogout()" style="background:#dc3545;color:#fff;border:none;padding:4px 14px;border-radius:6px;cursor:pointer;font-weight:600;font-size:12px;">Sair</button>
             </div>
-        </div>
-
-        <!-- SELETOR DE RF -->
-        <div id="rfSelector" style="display:flex;align-items:center;gap:12px;padding:8px 16px;background:#fff;border-radius:8px;border:1px solid #e9eef3;margin-bottom:12px;flex-wrap:wrap;">
-            <span style="font-weight:700;font-size:13px;color:#0a1628;">📅 RF Atual:</span>
-            <span id="rfAtualDisplay" style="font-weight:700;font-size:15px;color:#2563eb;background:#dbeafe;padding:4px 14px;border-radius:6px;"></span>
-            <span style="color:#64748b;font-size:12px;">|</span>
-            <span style="font-size:12px;color:#64748b;">Período:</span>
-            <span id="rfPeriodoDisplay" style="font-size:12px;color:#475569;"></span>
-            <span style="margin-left:auto;font-size:12px;color:#64748b;">Selecionar RF:</span>
-            <select id="rfSelect" onchange="mudarRF(this.value)" style="padding:4px 12px;border-radius:6px;border:1px solid #d1d9e6;font-size:12px;background:#fff;">
-                <option value="">Carregando...</option>
-            </select>
         </div>
 
         <!-- ============================================================ -->
@@ -814,8 +833,6 @@ td{padding:6px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
 // ============================================================
 // FIREBASE CONFIG
 // ============================================================
-console.log('🔥 Iniciando configuração do Firebase...');
-
 var firebaseConfig = {
     apiKey: "AIzaSyCp50cm-LM557728tct3lwmwT3xpPpI4FA",
     authDomain: "lb-florestal-sistema.firebaseapp.com",
@@ -825,16 +842,56 @@ var firebaseConfig = {
     appId: "1:559764824181:web:c74cf676a0e5e867dcd83c"
 };
 
-try {
-    firebase.initializeApp(firebaseConfig);
-    console.log('✅ Firebase inicializado com sucesso!');
-} catch (error) {
-    console.error('❌ Erro ao inicializar Firebase:', error.message);
-}
-
+firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
 db.settings({ timestampsInSnapshots: true });
+// ============================================================
+// SINCRONIZAÇÃO EM TEMPO REAL COM O FIREBASE (VERSÃO CORRIGIDA)
+// ============================================================
+function iniciarOuvintesFirebase() {
+    // Ouve a coleção inteira de produção para sincronizar qualquer alteração em tempo real
+    db.collection('producao_dia').onSnapshot(function(snapshot) {
+        var opsDia = {};
+        var todosRegistros = [];
+        var insumosAcum = {};
 
+        snapshot.forEach(function(doc) {
+            var dataDoc = doc.data();
+            if (dataDoc.operacao) {
+                opsDia[dataDoc.operacao] = {
+                    nome: dataDoc.operacao,
+                    nomeOriginal: dataDoc.operacaoOriginal || dataDoc.operacao,
+                    totalHa: dataDoc.totalHa || 0,
+                    registros: dataDoc.registros || [],
+                    insumos: dataDoc.insumos || {},
+                    observacoes: []
+                };
+            }
+            if (dataDoc.todosRegistros && Array.isArray(dataDoc.todosRegistros)) {
+                todosRegistros = todosRegistros.concat(dataDoc.todosRegistros);
+            }
+            if (dataDoc.insumos) {
+                // Acumula insumos se houver múltiplos registros
+                for (var ins in dataDoc.insumos) {
+                    insumosAcum[ins] = (insumosAcum[ins] || 0) + dataDoc.insumos[ins];
+                }
+            }
+        });
+
+        // Atualiza o estado global com os dados da nuvem
+        state.operacoesDia = opsDia;
+        state.todosRegistros = todosRegistros;
+        state.insumosDia = insumosAcum;
+
+        // Se houver dados carregados, atualiza a interface automaticamente
+        if (typeof atualizarInterface === 'function' && Object.keys(opsDia).length > 0) {
+            atualizarInterface();
+        }
+        console.log('🔄 Sincronizado com o Firebase em tempo real!');
+    }, function(error) {
+        console.error('❌ Erro na sincronização em tempo real:', error);
+    });
+}
 // ============================================================
 // CREDENCIAIS
 // ============================================================
@@ -876,6 +933,29 @@ var state = {
 };
 
 var visaoFaturamentoAtual = 'dia';
+
+// ============================================================
+// FUNÇÕES SEGURAS
+// ============================================================
+function safeVal(id, def) {
+    var el = document.getElementById(id);
+    if (!el) return def !== undefined ? def : '';
+    if (el.value !== undefined) return el.value;
+    if (el.textContent !== undefined) return el.textContent;
+    return def !== undefined ? def : '';
+}
+
+function safeSet(id, val) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (el.value !== undefined) el.value = val;
+    else if (el.textContent !== undefined) el.textContent = val;
+    else el.innerHTML = val;
+}
+
+function safeGetElement(id) {
+    return document.getElementById(id);
+}
 
 // ============================================================
 // HELPERS
@@ -922,182 +1002,68 @@ function toggleAccordion(accordionId) {
 }
 
 // ============================================================
-// FUNÇÕES DE RF (RELATÓRIO DE FATURAMENTO)
+// NORMALIZAÇÃO
 // ============================================================
-function calcularRF(data) {
-    var d = new Date(data);
-    var dia = d.getDate();
-    var mes = d.getMonth() + 1;
-    var ano = d.getFullYear();
-    
-    if (dia >= 21) {
-        return { 
-            rf: 'RF_' + String(mes).padStart(2,'0') + '_' + ano,
-            mes: mes,
-            ano: ano,
-            inicio: new Date(ano, mes-1, 21),
-            fim: new Date(ano, mes, 20)
-        };
-    } else {
-        var mesAnterior = mes - 1;
-        var anoAnterior = ano;
-        if (mesAnterior === 0) {
-            mesAnterior = 12;
-            anoAnterior = ano - 1;
-        }
-        return {
-            rf: 'RF_' + String(mesAnterior).padStart(2,'0') + '_' + anoAnterior,
-            mes: mesAnterior,
-            ano: anoAnterior,
-            inicio: new Date(anoAnterior, mesAnterior-1, 21),
-            fim: new Date(anoAnterior, mesAnterior, 20)
-        };
-    }
+function normalizarMunicipio(municipio) {
+    if (!municipio) return 'NÃO INFORMADO';
+    var mun = String(municipio).toUpperCase().trim();
+    mun = mun.replace(/BRASIL\s*[\\\/]\s*S[AÃO]\s*PAULO\s*[\\\/]\s*/gi, '');
+    mun = mun.replace(/BRASIL\s*[\\\/]\s*/gi, '');
+    mun = mun.replace(/S[AÃO]\s*PAULO\s*[\\\/]\s*/gi, '');
+    mun = mun.replace(/SAO\s*PAULO\s*[\\\/]\s*/gi, '');
+    mun = mun.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    mun = mun.replace(/\s+/g, ' ').trim();
+    return mun;
 }
 
-function getRFAtual() {
-    var hoje = new Date();
-    var rf = calcularRF(hoje);
-    return rf.rf;
-}
+var INSUMO_EQUIVALENCIA = {
+    'ADUBOG COPOLIMERO': 'ADUBO ACRIL 25KG COPOLIMERO',
+    'ADUBO COPOLIMERO': 'ADUBO ACRIL 25KG COPOLIMERO',
+    'ACRIL COPOLIMERO': 'ADUBO ACRIL 25KG COPOLIMERO',
+    'ADUBO ACRIL': 'ADUBO ACRIL 25KG COPOLIMERO',
+    'COPOLIMERO': 'ADUBO ACRIL 25KG COPOLIMERO',
+    'FIPRONIL 50G': 'FIPRONIL',
+    'FIPRONIL 10KG': 'FIPRONIL'
+};
 
-function formatarRF(rf) {
-    var partes = rf.split('_');
-    var mes = parseInt(partes[1]);
-    var ano = partes[2];
-    var meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-    return meses[mes-1] + '/' + ano;
-}
-
-function listarRFsDisponiveis() {
-    var rfs = new Set();
-    var atual = getRFAtual();
-    rfs.add(atual);
-    
-    for (var key in state.lancamentosFirebase) {
-        var lanc = state.lancamentosFirebase[key];
-        if (lanc.dataReferencia) {
-            var partes = lanc.dataReferencia.split('/');
-            if (partes.length === 3) {
-                var dataObj = new Date(partes[2], partes[1]-1, partes[0]);
-                var rf = calcularRF(dataObj);
-                rfs.add(rf.rf);
-            }
+function normalizarInsumo(insumo) {
+    if (!insumo) return 'INSUMO NÃO IDENTIFICADO';
+    var ins = String(insumo).toUpperCase().trim();
+    ins = ins.replace(/\s*KG\s*$/i, '');
+    ins = ins.replace(/\s*L\s*$/i, '');
+    ins = ins.replace(/\s*G\s*$/i, '');
+    ins = ins.replace(/\s*ML\s*$/i, '');
+    ins = ins.replace(/\b\d+\s*[A-Z]+\s*/g, '');
+    ins = ins.replace(/\s+/g, ' ').trim();
+    for (var key in INSUMO_EQUIVALENCIA) {
+        if (ins === key || ins.includes(key) || key.includes(ins)) {
+            return INSUMO_EQUIVALENCIA[key];
         }
     }
-    
-    for (var opKey in state.operacoesDia) {
-        var op = state.operacoesDia[opKey];
-        if (op.registros) {
-            op.registros.forEach(function(reg) {
-                if (reg.data) {
-                    var dataObj = new Date(reg.data);
-                    if (!isNaN(dataObj)) {
-                        var rf = calcularRF(dataObj);
-                        rfs.add(rf.rf);
-                    }
-                }
-            });
-        }
-    }
-    
-    return Array.from(rfs).sort().reverse();
+    return ins;
 }
 
-function getRFObj(rf) {
-    var partes = rf.split('_');
-    var mes = parseInt(partes[1]);
-    var ano = parseInt(partes[2]);
-    return {
-        inicio: new Date(ano, mes-1, 21),
-        fim: new Date(ano, mes, 20)
-    };
-}
-
-function mudarRF(rf) {
-    state.rfSelecionada = rf;
-    var display = document.getElementById('rfAtualDisplay');
-    var periodo = document.getElementById('rfPeriodoDisplay');
-    var fatRF = document.getElementById('fatRF');
-    
-    if (rf && rf !== '') {
-        var rfObj = getRFObj(rf);
-        display.textContent = rf;
-        display.style.background = '#dbeafe';
-        display.style.color = '#2563eb';
-        periodo.textContent = rfObj.inicio.toLocaleDateString('pt-BR') + ' a ' + rfObj.fim.toLocaleDateString('pt-BR');
-        if (fatRF) fatRF.textContent = rf;
-    } else {
-        var atual = getRFAtual();
-        var rfObj = getRFObj(atual);
-        display.textContent = atual;
-        display.style.background = '#16a34a';
-        display.style.color = '#fff';
-        periodo.textContent = rfObj.inicio.toLocaleDateString('pt-BR') + ' a ' + rfObj.fim.toLocaleDateString('pt-BR');
-        state.rfSelecionada = atual;
-        if (fatRF) fatRF.textContent = atual;
-    }
-    
-    renderizarDashboard();
-    renderizarFaturamento();
-    renderizarResultado();
-    renderizarProducao();
-}
-
-function carregarSeletorRF() {
-    var select = document.getElementById('rfSelect');
-    var rfs = listarRFsDisponiveis();
-    
-    if (rfs.length === 0) {
-        select.innerHTML = '<option value="">Nenhuma RF disponível</option>';
-        return;
-    }
-    
-    var atual = getRFAtual();
-    var options = '';
-    rfs.forEach(function(rf) {
-        var selected = (rf === atual) ? 'selected' : '';
-        var label = formatarRF(rf);
-        options += '<option value="' + rf + '" ' + selected + '>' + label + ' (' + rf + ')</option>';
-    });
-    select.innerHTML = options;
-    
-    var rfSelecionada = select.value || atual;
-    mudarRF(rfSelecionada);
+function salvarMovimentacoes() {
+    localStorage.setItem('estoqueMovimentacoes', JSON.stringify(state.movimentacoes));
 }
 
 // ============================================================
-// FUNÇÕES DE INTERFACE
+// CALCULAR TOTAL
 // ============================================================
-function mudarAba(aba, btn) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('ativo'));
-    document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('ativo'));
-    var pageId = 'page' + aba.charAt(0).toUpperCase() + aba.slice(1);
-    var el = document.getElementById(pageId);
-    if (el) el.classList.add('ativo');
-    if (btn) btn.classList.add('ativo');
-    
-    if (aba === 'dashboard') renderizarDashboard();
-    if (aba === 'faturamento') renderizarFaturamento();
-    if (aba === 'estoque') renderizarEstoque();
-    if (aba === 'resultado') renderizarResultado();
-    if (aba === 'producao') renderizarProducao();
+function calcularTotal() {
+    var haEl = document.getElementById('valorHa');
+    var rhaEl = document.getElementById('valorRha');
+    var totalDisplay = document.getElementById('totalDisplay');
+    var ha = (haEl && haEl.value) ? parseFloat(haEl.value) || 0 : 0;
+    var rha = (rhaEl && rhaEl.value) ? parseFloat(rhaEl.value) || 0 : 0;
+    var total = ha * rha;
+    if (totalDisplay) totalDisplay.textContent = 'R$ ' + formatMoney(total);
+    return total;
 }
 
-function mudarSubAbaProd(aba, btn) {
-    document.querySelectorAll('.sub-prod-aba').forEach(p => p.style.display = 'none');
-    var target = document.getElementById('subProducao' + aba.charAt(0).toUpperCase() + aba.slice(1));
-    if (target) target.style.display = 'block';
-}
-
-function normalizarMunicipio(mun) {
-    if (!mun) return 'NÃO INFORMADO';
-    return String(mun).toUpperCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-}
-
-function normalizarInsumo(ins) {
-    if (!ins) return 'INSUMO NÃO IDENTIFICADO';
-    return String(ins).toUpperCase().trim().replace(/\s*KG\s*$/i, '').replace(/\s*L\s*$/i, '').trim();
+function salvarConfiguracoes() {
+    var ref = db.collection('config').doc('app');
+    return ref.set({ currentDia: state.currentDia || 1, updatedAt: new Date() }, { merge: true });
 }
 
 // ============================================================
@@ -1150,123 +1116,88 @@ function limparDesc(obs, op) {
 }
 
 // ============================================================
-// OPERAÇÕES FIREBASE
-// ============================================================
-function salvarLancamentoFirebase(dados) {
-    return db.collection('lancamentos').add({
-        opId: dados.opId || 'OPERAÇÃO',
-        ha: dados.ha || 0,
-        valor: dados.valor || 0,
-        custo: dados.custo || 0,
-        tf: dados.tf || 0,
-        maq: dados.maq || 0,
-        pipa: dados.pipa || 0,
-        apoio: dados.apoio || 0,
-        dataReferencia: dados.dataReferencia || getHoje(),
-        fazenda: dados.fazenda || '',
-        talhao: dados.talhao || '',
-        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-    });
-}
-
-function atualizarLancamentoFirebase(docId, dados) {
-    return db.collection
-// ============================================================
 // LOGIN / LOGOUT
 // ============================================================
 function fazerLogin() {
     var userEl = document.getElementById('loginUser');
     var passEl = document.getElementById('loginPassword');
     var erroEl = document.getElementById('erroLogin');
-    
     if (!userEl || !passEl) { alert('Erro: elementos de login não encontrados!'); return; }
-    
     var user = userEl.value;
     var senha = passEl.value;
-    
-    if (!senha) { 
-        if (erroEl) { erroEl.style.display = 'block'; erroEl.textContent = '❌ Digite a senha!'; } 
-        return; 
-    }
-    
+    if (!senha) { if (erroEl) { erroEl.style.display = 'block'; erroEl.textContent = '❌ Digite a senha!'; } return; }
     if (CREDENCIAIS[user] && CREDENCIAIS[user].senha === senha) {
         state.usuario = user;
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-        document.getElementById('userBadge').textContent = '👤 ' + CREDENCIAIS[user].label;
-        
-        if (user === 'producao') { 
-            document.getElementById('btnFaturamento').classList.add('oculto'); 
-        } else { 
-            document.getElementById('btnFaturamento').classList.remove('oculto'); 
-        }
-        
-        iniciarListenersFirebase();
+        var loginScreen = document.getElementById('loginScreen');
+        var app = document.getElementById('app');
+        var userBadge = document.getElementById('userBadge');
+        if (loginScreen) loginScreen.style.display = 'none';
+        if (app) app.style.display = 'block';
+        if (userBadge) userBadge.textContent = '👤 ' + CREDENCIAIS[user].label;
+        var btnFat = document.getElementById('btnFaturamento');
+        if (user === 'producao') { if (btnFat) btnFat.classList.add('oculto'); var pageFat = document.getElementById('pageFaturamento'); if (pageFat && pageFat.classList.contains('ativo')) { mudarAba('dashboard', document.querySelector('.btn-tab.dash')); } } else { if (btnFat) btnFat.classList.remove('oculto'); }
+        if (user === 'producao') { mudarAba('producao', document.querySelector('.btn-tab.prod')); } else if (user === 'faturamento') { mudarAba('faturamento', document.querySelector('.btn-tab.fat')); } else { mudarAba('dashboard', document.querySelector('.btn-tab.dash')); }
+        carregarDadosFirebase();
+        carregarEstoqueLocal();
         showToast('✅ Bem-vindo, ' + CREDENCIAIS[user].label + '!', 'success');
-    } else { 
-        if (erroEl) { erroEl.style.display = 'block'; erroEl.textContent = '❌ Senha incorreta!'; } 
-        if (passEl) { passEl.value = ''; passEl.focus(); } 
-    }
+    } else { if (erroEl) { erroEl.style.display = 'block'; erroEl.textContent = '❌ Senha incorreta!'; } if (passEl) { passEl.value = ''; passEl.focus(); } }
 }
 
 function fazerLogout() {
     if (confirm('Deseja realmente sair?')) {
-        if (state.unsubscribeLancamentos) {
-            state.unsubscribeLancamentos();
-            state.unsubscribeLancamentos = null;
-        }
-        if (state.unsubscribeEstoque) {
-            state.unsubscribeEstoque();
-            state.unsubscribeEstoque = null;
-        }
         state.usuario = null;
-        document.getElementById('app').style.display = 'none';
-        document.getElementById('loginScreen').style.display = 'flex';
-        document.getElementById('loginPassword').value = '';
-        document.getElementById('erroLogin').style.display = 'none';
+        state.configSenhaValida = false;
+        var app = document.getElementById('app');
+        var loginScreen = document.getElementById('loginScreen');
+        var passEl = document.getElementById('loginPassword');
+        var erroEl = document.getElementById('erroLogin');
+        var configSenhaArea = document.getElementById('configSenhaArea');
+        var configConteudo = document.getElementById('configConteudo');
+        var btnFat = document.getElementById('btnFaturamento');
+        if (app) app.style.display = 'none';
+        if (loginScreen) loginScreen.style.display = 'flex';
+        if (passEl) passEl.value = '';
+        if (erroEl) erroEl.style.display = 'none';
+        if (configSenhaArea) configSenhaArea.style.display = 'block';
+        if (configConteudo) configConteudo.style.display = 'none';
+        if (btnFat) btnFat.classList.remove('oculto');
     }
 }
 
 document.getElementById('loginPassword').addEventListener('keydown', function(e) { if (e.key === 'Enter') fazerLogin(); });
 
 // ============================================================
-// LISTENERS FIREBASE
+// MUDAR ABA PRINCIPAL
 // ============================================================
-function iniciarListenersFirebase() {
-    console.log('🔄 Iniciando listeners do Firebase...');
-    
-    if (state.unsubscribeLancamentos) state.unsubscribeLancamentos();
-    state.unsubscribeLancamentos = ouvirLancamentosFirebase(function(dados) {
-        state.lancamentosFirebase = dados;
-        carregarSeletorRF();
-        renderizarDashboard();
-        renderizarFaturamento();
-        renderizarResultado();
-    });
-    
-    if (state.unsubscribeEstoque) state.unsubscribeEstoque();
-    state.unsubscribeEstoque = ouvirEstoqueFirebase(function(dados) {
-        state.movimentacoes = dados;
-        recalcularEstoque();
-        renderizarEstoque();
-    });
-    
-    carregarConfigFirebase('custos').then(function(dados) {
-        if (dados) {
-            state.custos.TF = dados.TF || 180;
-            state.custos.MAQ = dados.MAQ || 850;
-            state.custos.PIPA = dados.PIPA || 650;
-            state.custos.APOIO = dados.APOIO || 450;
-        }
-    });
-    
-    carregarConfigFirebase('valores_atividades').then(function(dados) {
-        if (dados) state.valoresAtividades = dados;
-    });
+function mudarAba(aba, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('ativo'));
+    document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('ativo'));
+    var pageId = 'page' + aba.charAt(0).toUpperCase() + aba.slice(1);
+    var el = document.getElementById(pageId);
+    if (el) el.classList.add('ativo');
+    if (btn) btn.classList.add('ativo');
+    if (aba === 'dashboard') renderizarDashboard();
+    if (aba === 'faturamento') renderizarFaturamento();
+    if (aba === 'producao') renderizarProducao();
+    if (aba === 'resultado') renderizarResultado();
+    if (aba === 'configuracoes') renderizarConfiguracoes();
+    if (aba === 'estoque') renderizarEstoque();
+}
+
+function mudarSubAbaProd(aba, btn) {
+    state.subAbaProd = aba;
+    document.querySelectorAll('.sub-prod-aba').forEach(p => p.style.display = 'none');
+    var target = document.getElementById('subProducao' + aba.charAt(0).toUpperCase() + aba.slice(1));
+    if (target) target.style.display = 'block';
+    if (aba === 'irrigacao') renderIrrigacao();
+    else if (aba === 'data') renderData();
+    else if (aba === 'replantio') renderReplantio();
+    else if (aba === 'sop') renderSOP();
+    else if (aba === 'finalizadas') renderFinalizadas();
 }
 
 // ============================================================
-// IMPORTAÇÃO DE PLANILHA - FUNCIONANDO COM FIREBASE
+// IMPORTAÇÃO (PRODUÇÃO) - VERSÃO ESTÁVEL COM PROTEÇÃO CONTRA ERROS
 // ============================================================
 function importarPlanilha() {
     var input = document.getElementById('fileInputProducao');
@@ -1280,11 +1211,13 @@ function importarPlanilha() {
     processarArquivoExcel(file);
 }
 
+// ============================================================
+// PROCESSAR EXCEL (PRODUÇÃO) - COM PROTEÇÃO CONTRA ERROS
+// ============================================================
 function processarArquivoExcel(file) {
     var loadingEl = document.getElementById('loading');
     if (loadingEl) loadingEl.classList.add('show');
     var reader = new FileReader();
-    
     reader.onload = function(e) {
         try {
             var data = new Uint8Array(e.target.result);
@@ -1298,8 +1231,6 @@ function processarArquivoExcel(file) {
             var ws = workbook.Sheets[wsName];
             if (!ws) { throw new Error('Aba "' + wsName + '" não encontrada!'); }
             var range = XLSX.utils.decode_range(ws['!ref']);
-            
-            // ENCONTRA O CABEÇALHO
             var hRow = -1;
             for (var r = 0; r <= 10; r++) {
                 for (var c = 0; c <= range.e.c; c++) {
@@ -1309,8 +1240,6 @@ function processarArquivoExcel(file) {
                 if (hRow >= 0) break;
             }
             if (hRow < 0) { throw new Error('Não encontrei coluna "Talhão" no cabeçalho.'); }
-            
-            // MAPEIA COLUNAS
             var cols = {};
             for (var c = 0; c <= range.e.c; c++) {
                 var cell = ws[XLSX.utils.encode_cell({ r: hRow, c: c })];
@@ -1329,19 +1258,11 @@ function processarArquivoExcel(file) {
                 if (h==='ID'||h.includes('ID FAZENDA')) cols.id = c;
                 if (h.includes('MUNICÍPIO') || h.includes('MUNICIPIO') || h.includes('CIDADE')) cols.municipio = c;
             }
-            
-            // VERIFICA SE ENCONTROU AS COLUNAS ESSENCIAIS
-            if (cols.talhao === undefined || cols.op === undefined) {
-                throw new Error('Colunas essenciais (Talhão e Operação) não encontradas. Verifique o cabeçalho da planilha.');
-            }
-            
             var resultados = [];
             var insumosAcum = {};
             var opsDia = {};
             var todosRegistros = [];
             var count = 0;
-            
-            // PERCORRE AS LINHAS
             for (var r = hRow + 1; r <= range.e.r; r++) {
                 var tCell = ws[XLSX.utils.encode_cell({ r: r, c: cols.talhao })];
                 var oCell = ws[XLSX.utils.encode_cell({ r: r, c: cols.op })];
@@ -1350,12 +1271,9 @@ function processarArquivoExcel(file) {
                 var op = String(oCell.v).trim();
                 if (!tal || !op) continue;
                 count++;
-                
-                // FUNÇÕES AUXILIARES
                 var gv = function(c, def) { if (c === undefined || c === null) return def || ''; var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; return cell && cell.v !== undefined ? String(cell.v).trim() : (def || ''); };
                 var gn = function(c) { if (c === undefined || c === null) return 0; var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; if (!cell) return 0; var v = parseFloat(String(cell.v).replace(',', '.')); return isNaN(v) ? 0 : v; };
                 var gd = function(c) { if (c === undefined || c === null) return null; var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; return cell ? cell.v : null; };
-                
                 var dataRaw = gd(cols.data);
                 var dataStr = dataRaw ? fmtData(dataRaw) : getHoje();
                 var fazenda = gv(cols.faz, '');
@@ -1365,7 +1283,6 @@ function processarArquivoExcel(file) {
                 var obs = gv(cols.obs, '');
                 var areaCadastro = gn(cols.area);
                 var idRegistro = gv(cols.id, '');
-                
                 var insumos = [];
                 if (cols.insumos && cols.quantidades) {
                     for (var i = 0; i < Math.min(cols.insumos.length, cols.quantidades.length); i++) {
@@ -1378,12 +1295,10 @@ function processarArquivoExcel(file) {
                         }
                     }
                 }
-                
                 var idOp = extrairIdOperacao(op);
                 var nomeOperacao = op;
                 var obsLimpa = limparObservacao(obs);
-                
-                var registro = {
+                todosRegistros.push({
                     id: idRegistro || idOp,
                     idOp: idOp,
                     operacao: nomeOperacao,
@@ -1400,9 +1315,7 @@ function processarArquivoExcel(file) {
                     dataStr: dataStr,
                     insumos: insumos,
                     insumosStr: insumos.map(i => extrairInsumoLimpo(i.nome) + ' ' + safe(i.qtd)).join(', ')
-                };
-                todosRegistros.push(registro);
-                
+                });
                 if (!opsDia[nomeOperacao]) {
                     opsDia[nomeOperacao] = {
                         nome: nomeOperacao,
@@ -1431,7 +1344,6 @@ function processarArquivoExcel(file) {
                     opsDia[nomeOperacao].observacoes.push(obsLimpa);
                 }
                 opsDia[nomeOperacao].insumos = insumosAcum;
-                
                 resultados.push({
                     talhao: tal,
                     operacao: op,
@@ -1446,63 +1358,59 @@ function processarArquivoExcel(file) {
                     id: idRegistro || idOp
                 });
             }
-            
             if (count === 0) { throw new Error('Nenhuma linha de dados encontrada.'); }
-            
-            // ATUALIZA ESTADO LOCAL
             state.dadosProducao = resultados;
             state.operacoesDia = opsDia;
             state.insumosDia = insumosAcum;
             state.todosRegistros = todosRegistros;
-            
-            // ============================================================
-            // 🔥 SALVA DIRETO NO FIREBASE FIRESTORE - CORRIGIDO
-            // ============================================================
-            showToast('🔄 Salvando ' + Object.keys(opsDia).length + ' operações no Firebase...', 'warning');
-            
+            processarSaidasInsumos(resultados);
             var dia = getDiaNumero();
             var dataHoje = getHoje();
-            var rfAtual = getRFAtual ? getRFAtual() : 'RF_' + String(new Date().getMonth() + 1).padStart(2,'0') + '_' + new Date().getFullYear();
             
             // ============================================================
-            // PASSO 1: REMOVE DADOS ANTIGOS DO DIA (COM TRATATIVA DE ERRO)
+            // SALVAMENTO NO FIREBASE - COM PROTEÇÃO CONTRA ERROS
             // ============================================================
+            // VERIFICA SE O FIREBASE ESTÁ DISPONÍVEL
+            if (typeof db === 'undefined' || !db) {
+                throw new Error('Firebase não está disponível. Verifique a conexão.');
+            }
+            
             db.collection('producao_dia').where('dia', '==', dia).get()
                 .then(function(snapshot) {
-                    // VERIFICA SE O SNAPSHOT EXISTE E TEM DOCUMENTOS
+                    // VERIFICA SE O SNAPSHOT EXISTE E NÃO É UNDEFINED
                     var batch = db.batch();
-                    var count = 0;
+                    var countDeleted = 0;
                     
-                    // TRATATIVA SEGURA PARA forEach
+                    // PROTEÇÃO: verifica se snapshot existe e tem forEach
                     if (snapshot && typeof snapshot.forEach === 'function') {
                         snapshot.forEach(function(doc) {
-                            batch.delete(doc.ref);
-                            count++;
+                            if (doc && doc.ref) {
+                                batch.delete(doc.ref);
+                                countDeleted++;
+                            }
                         });
+                    } else {
+                        console.log('ℹ️ Nenhum documento antigo encontrado ou snapshot vazio.');
                     }
                     
-                    if (count > 0) {
-                        console.log('🗑️ Removendo ' + count + ' documentos antigos do dia ' + dia);
+                    if (countDeleted > 0) {
+                        console.log('🗑️ Removendo ' + countDeleted + ' documentos antigos do dia ' + dia);
                         return batch.commit();
                     } else {
-                        console.log('ℹ️ Nenhum documento antigo encontrado para o dia ' + dia);
+                        console.log('ℹ️ Nenhum documento antigo para remover.');
                         return Promise.resolve();
                     }
                 })
                 .then(function() {
-                    // ============================================================
-                    // PASSO 2: SALVA AS NOVAS OPERAÇÕES
-                    // ============================================================
+                    // SALVA NOVAS OPERAÇÕES
                     var promises = [];
                     var salvos = 0;
                     var erros = 0;
                     
-                    // SALVA CADA OPERAÇÃO
                     for (var opKey in opsDia) {
                         var op = opsDia[opKey];
                         var ref = db.collection('producao_dia').doc();
                         var promise = ref.set({
-                            rf: rfAtual,
                             dia: dia,
                             data: dataHoje,
                             operacao: opKey,
@@ -1511,7 +1419,7 @@ function processarArquivoExcel(file) {
                             registros: op.registros,
                             insumos: insumosAcum,
                             todosRegistros: todosRegistros,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            createdAt: new Date()
                         })
                         .then(function() {
                             salvos++;
@@ -1524,48 +1432,27 @@ function processarArquivoExcel(file) {
                         promises.push(promise);
                     }
                     
-                    // SALVA REGISTROS INDIVIDUAIS
-                    todosRegistros.forEach(function(reg) {
-                        var promise = db.collection('registros_producao').add({
-                            rf: rfAtual,
-                            dia: dia,
-                            data: reg.dataStr || dataHoje,
-                            operacao: reg.operacao,
-                            ha: reg.areaRealizada || 0,
-                            fazenda: reg.fazenda || '',
-                            talhao: reg.talhao || '',
-                            municipio: reg.municipio || '',
-                            equipe: reg.equipe || '',
-                            obs: reg.observacao || '',
-                            insumos: reg.insumos || [],
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        })
-                        .catch(function(error) {
-                            console.error('❌ Erro ao salvar registro individual:', error.message);
+                    return Promise.all(promises)
+                        .then(function() {
+                            console.log('✅ ' + salvos + ' operações salvas com sucesso.');
+                            if (erros > 0) {
+                                console.warn('⚠️ ' + erros + ' erros durante o salvamento.');
+                            }
+                            return { salvos: salvos, erros: erros };
                         });
-                        promises.push(promise);
-                    });
-                    
-                    // PROCESSA SAÍDAS DE INSUMOS
-                    processarSaidasInsumos(resultados);
-                    
-                    // ============================================================
-                    // PASSO 3: EXECUTA TODAS AS PROMESSAS
-                    // ============================================================
-                    return Promise.all(promises);
                 })
-                .then(function() {
+                .then(function(result) {
                     if (loadingEl) loadingEl.classList.remove('show');
                     var infoEl = document.getElementById('infoArquivo');
                     if (infoEl) infoEl.textContent = '✅ ' + file.name + ' importado! (' + count + ' linhas, ' + Object.keys(opsDia).length + ' operações)';
                     
-                    showToast('✅ Planilha importada! ' + Object.keys(opsDia).length + ' operações salvas no Firebase.', 'success');
+                    var msg = '✅ Planilha importada! ' + Object.keys(opsDia).length + ' operações salvas no Firebase.';
+                    if (result.erros > 0) {
+                        msg += ' ⚠️ ' + result.erros + ' erros ocorreram. Verifique o console.';
+                    }
+                    showToast(msg, result.erros > 0 ? 'warning' : 'success');
                     
-                    // ATUALIZA INTERFACE
                     atualizarInterface();
-                    if (typeof carregarSeletorRF === 'function') carregarSeletorRF();
-                    
-                    console.log('✅ Importação concluída! Dados salvos no Firebase.');
                 })
                 .catch(function(error) {
                     console.error('❌ Erro ao salvar produção:', error);
@@ -1579,7 +1466,6 @@ function processarArquivoExcel(file) {
             showToast('❌ Erro: ' + error.message, 'error');
         }
     };
-    
     reader.onerror = function(error) {
         console.error('❌ Erro ao ler arquivo:', error);
         var loadingEl = document.getElementById('loading');
@@ -1618,19 +1504,22 @@ function processarSaidasInsumos(resultados) {
     });
     if (saidas.length > 0) {
         saidas.forEach(function(s) {
-            salvarMovimentacaoFirebase({
+            state.movimentacoes.push({
+                id: 'saida_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                data: s.data,
                 tipo: 'saida',
                 insumo: s.insumo,
                 municipio: s.municipio,
                 quantidade: s.quantidade,
                 nf: 'PRODUÇÃO',
                 origem: s.origem,
-                data: s.data
-            }).catch(function(error) {
-                console.error('❌ Erro ao salvar saída de insumo:', error.message);
+                createdAt: new Date().toISOString()
             });
         });
-        showToast('📤 ' + saidas.length + ' saídas de insumos registradas.', 'info');
+        salvarMovimentacoes();
+        recalcularEstoque();
+        renderizarEstoque();
+        showToast('📤 ' + saidas.length + ' saídas de insumos registradas a partir da planilha.', 'info');
     }
 }
 
@@ -1638,59 +1527,98 @@ function processarSaidasInsumos(resultados) {
 // FUNÇÕES DE ESTOQUE
 // ============================================================
 function carregarEstoqueLocal() {
-    // Agora o estoque vem do Firebase via listener
-    // Mantido para compatibilidade
+    try {
+        var movs = localStorage.getItem('estoqueMovimentacoes');
+        if (movs) { state.movimentacoes = JSON.parse(movs); } else { state.movimentacoes = []; }
+    } catch(e) { console.warn('Erro ao carregar movimentações:', e); state.movimentacoes = []; }
+    state.movimentacoes.forEach(function(mov) {
+        if (mov.municipio) mov.municipio = normalizarMunicipio(mov.municipio);
+        if (mov.insumo) mov.insumo = normalizarInsumo(mov.insumo);
+    });
+    salvarMovimentacoes();
+    recalcularEstoque();
+    renderizarEstoque();
 }
 
 function recalcularEstoque() {
+    state.movimentacoes.forEach(function(mov) {
+        if (mov.municipio) mov.municipio = normalizarMunicipio(mov.municipio);
+        if (mov.insumo) mov.insumo = normalizarInsumo(mov.insumo);
+    });
     var estoque = {};
     var entradas = state.movimentacoes.filter(function(m) { return m.tipo === 'entrada'; });
     var saidas = state.movimentacoes.filter(function(m) { return m.tipo === 'saida'; });
-    
     entradas.forEach(function(mov) {
         var nf = mov.nf || 'SEM_NF';
         var municipio = mov.municipio || 'NÃO INFORMADO';
         var insumo = mov.insumo || 'INSUMO NÃO IDENTIFICADO';
         var key = nf + '|||' + municipio + '|||' + insumo;
         if (!estoque[key]) {
-            estoque[key] = { nf: nf, municipio: municipio, insumo: insumo, saldo: 0 };
+            estoque[key] = { nf: nf, municipio: municipio, insumo: insumo, saldo: 0, entradas: [], saidas: [] };
         }
         estoque[key].saldo += mov.quantidade;
+        estoque[key].entradas.push(mov);
     });
-    
     saidas.forEach(function(mov) {
         var municipio = mov.municipio || 'NÃO INFORMADO';
         var insumo = mov.insumo || 'INSUMO NÃO IDENTIFICADO';
-        var keys = Object.keys(estoque).filter(function(k) {
-            return estoque[k].municipio === municipio && estoque[k].insumo === insumo;
+        var chaves = Object.keys(estoque).filter(function(k) {
+            var item = estoque[k];
+            return item.municipio === municipio && item.insumo === insumo;
         });
-        if (keys.length === 0) {
+        if (chaves.length === 0) {
             var key = 'SEM_NF|||' + municipio + '|||' + insumo;
             if (!estoque[key]) {
-                estoque[key] = { nf: 'SEM_NF', municipio: municipio, insumo: insumo, saldo: 0 };
+                estoque[key] = { nf: 'SEM_NF', municipio: municipio, insumo: insumo, saldo: 0, entradas: [], saidas: [] };
             }
             estoque[key].saldo -= mov.quantidade;
+            estoque[key].saidas.push(mov);
         } else {
             var quantidadeRestante = mov.quantidade;
-            keys.sort();
-            for (var i = 0; i < keys.length && quantidadeRestante > 0; i++) {
-                var k = keys[i];
-                if (estoque[k].saldo > 0) {
-                    var abater = Math.min(estoque[k].saldo, quantidadeRestante);
-                    estoque[k].saldo -= abater;
+            chaves.sort();
+            for (var i = 0; i < chaves.length && quantidadeRestante > 0; i++) {
+                var k = chaves[i];
+                var item = estoque[k];
+                if (item.saldo > 0) {
+                    var abater = Math.min(item.saldo, quantidadeRestante);
+                    item.saldo -= abater;
                     quantidadeRestante -= abater;
+                    item.saidas.push({
+                        id: mov.id,
+                        data: mov.data,
+                        tipo: 'saida',
+                        insumo: mov.insumo,
+                        municipio: mov.municipio,
+                        quantidade: abater,
+                        nf: mov.nf || 'PRODUÇÃO',
+                        origem: mov.origem || 'Consumo Produção',
+                        originalQtd: mov.quantidade
+                    });
                 }
             }
             if (quantidadeRestante > 0) {
                 var keyNeg = 'SEM_NF|||' + municipio + '|||' + insumo;
                 if (!estoque[keyNeg]) {
-                    estoque[keyNeg] = { nf: 'SEM_NF', municipio: municipio, insumo: insumo, saldo: 0 };
+                    estoque[keyNeg] = { nf: 'SEM_NF', municipio: municipio, insumo: insumo, saldo: 0, entradas: [], saidas: [] };
                 }
                 estoque[keyNeg].saldo -= quantidadeRestante;
+                estoque[keyNeg].saidas.push({
+                    id: mov.id,
+                    data: mov.data,
+                    tipo: 'saida',
+                    insumo: mov.insumo,
+                    municipio: mov.municipio,
+                    quantidade: quantidadeRestante,
+                    nf: 'PRODUÇÃO (SEM NF)',
+                    origem: mov.origem || 'Consumo Produção (sem NF)',
+                    originalQtd: mov.quantidade,
+                    pendente: true
+                });
             }
         }
     });
     state.estoque = estoque;
+    salvarMovimentacoes();
 }
 
 function registrarEntrada() {
@@ -1714,28 +1642,31 @@ function registrarEntrada() {
     if (!municipio || municipio === 'NÃO INFORMADO') { showToast('⚠️ Informe o município de destino!', 'warning'); return; }
     if (!qtd || qtd <= 0) { showToast('⚠️ Informe uma quantidade válida!', 'warning'); return; }
     var dataFormatada = new Date(data).toLocaleDateString('pt-BR');
-    
-    salvarMovimentacaoFirebase({
+    var movimentacao = {
+        id: 'entrada_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        data: dataFormatada,
         tipo: 'entrada',
         insumo: insumo,
         municipio: municipio,
         quantidade: qtd,
         nf: nf,
         origem: 'NF ' + nf,
-        data: dataFormatada
-    })
-    .then(function() {
-        nfEl.value = '';
-        insumoEl.value = '';
-        municipioEl.value = '';
-        qtdEl.value = '';
-        showToast('✅ Entrada registrada: ' + qtd + ' kg de ' + insumo + ' para ' + municipio + ' (NF ' + nf + ')', 'success');
-    })
-    .catch(function(error) {
-        showToast('❌ Erro ao registrar entrada: ' + error.message, 'error');
-    });
+        createdAt: new Date().toISOString()
+    };
+    state.movimentacoes.push(movimentacao);
+    salvarMovimentacoes();
+    recalcularEstoque();
+    renderizarEstoque();
+    nfEl.value = '';
+    insumoEl.value = '';
+    municipioEl.value = '';
+    qtdEl.value = '';
+    showToast('✅ Entrada registrada: ' + qtd + ' kg de ' + insumo + ' para ' + municipio + ' (NF ' + nf + ')', 'success');
 }
 
+// ============================================================
+// RENDERIZAR ESTOQUE - COM RASTREIO DE CONSUMO POR MUNICÍPIO
+// ============================================================
 function renderizarEstoque() {
     var container = document.getElementById('estoqueConsolidado');
     if (!container) return;
@@ -1783,6 +1714,7 @@ function renderizarEstoque() {
         item.saidas.forEach(function(s) {
             var exists = porInsumo[item.insumo].nfs[nfKey].saidas.some(function(saida) { return saida.id === s.id; });
             if (!exists) porInsumo[item.insumo].nfs[nfKey].saidas.push(s);
+            // === RASTREIO DE CONSUMO POR MUNICÍPIO ===
             var munConsumo = s.municipio || 'NÃO INFORMADO';
             if (!porInsumo[item.insumo].consumoPorMunicipio[munConsumo]) {
                 porInsumo[item.insumo].consumoPorMunicipio[munConsumo] = 0;
@@ -1814,6 +1746,8 @@ function renderizarEstoque() {
         html += '<span class="accordion-arrow" id="arrow_' + accordionId + '">▼</span>';
         html += '</div>';
         html += '<div class="accordion-body" id="body_' + accordionId + '">';
+
+        // === BLOCO: Histórico de Consumo por Município ===
         var consumoKeys = Object.keys(data.consumoPorMunicipio);
         if (consumoKeys.length > 0) {
             html += '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-bottom:12px;">';
@@ -1826,8 +1760,34 @@ function renderizarEstoque() {
                 html += '<span style="font-weight:700;font-size:13px;color:#dc2626;">-' + safe(qtd) + ' kg</span>';
                 html += '</div>';
             });
-            html += '</div></div>';
+            html += '</div>';
+            // Detalhamento das movimentações que geraram consumo
+            html += '<div style="margin-top:8px;font-size:11px;color:#64748b;">';
+            html += '<span style="font-weight:600;">🔍 Detalhamento:</span> ';
+            var consumoDetalhes = [];
+            state.movimentacoes.forEach(function(mov) {
+                if (mov.tipo === 'saida' && mov.insumo === insumo) {
+                    var mun = mov.municipio || 'NÃO INFORMADO';
+                    consumoDetalhes.push(mun + ': ' + safe(mov.quantidade) + ' kg' + (mov.origem ? ' (' + mov.origem + ')' : ''));
+                }
+            });
+            var agrupado = {};
+            consumoDetalhes.forEach(function(d) {
+                var parts = d.split(': ');
+                var mun = parts[0];
+                if (!agrupado[mun]) agrupado[mun] = [];
+                agrupado[mun].push(parts[1]);
+            });
+            var detalhesHtml = [];
+            Object.keys(agrupado).sort().forEach(function(mun) {
+                detalhesHtml.push('<span style="display:inline-block;background:#f1f5f9;border-radius:4px;padding:2px 8px;margin:2px 4px 2px 0;"><strong>📍 ' + mun + '</strong>: ' + agrupado[mun].join('; '));
+            });
+            html += detalhesHtml.join(' ');
+            html += '</div>';
+            html += '</div>';
         }
+        // === FIM DO BLOCO ===
+
         var nfsOrdenadas = Object.keys(data.nfs).sort();
         nfsOrdenadas.forEach(function(nfKey) {
             var nfData = data.nfs[nfKey];
@@ -1965,14 +1925,11 @@ function salvarEdicaoEntrada() {
     mov.municipio = municipio;
     mov.quantidade = qtd;
     mov.origem = 'NF ' + (nf || 'EDITADA');
-    salvarMovimentacaoFirebase(mov)
-        .then(function() {
-            showToast('✅ Entrada atualizada com sucesso!', 'success');
-        })
-        .catch(function(error) {
-            showToast('❌ Erro ao atualizar: ' + error.message, 'error');
-        });
+    salvarMovimentacoes();
+    recalcularEstoque();
+    renderizarEstoque();
     fecharModalEditarEntrada();
+    showToast('✅ Entrada atualizada com sucesso!', 'success');
 }
 
 function excluirEntrada(movId) {
@@ -1982,38 +1939,20 @@ function excluirEntrada(movId) {
     var mov = state.movimentacoes[index];
     if (mov.tipo !== 'entrada') { showToast('⚠️ Apenas entradas podem ser excluídas!', 'warning'); return; }
     state.movimentacoes.splice(index, 1);
-    // Remove do Firebase
-    if (mov.id) {
-        db.collection('estoque_movimentacoes').doc(mov.id).delete()
-            .then(function() {
-                showToast('🗑️ Entrada excluída com sucesso!', 'success');
-            })
-            .catch(function(error) {
-                showToast('❌ Erro ao excluir: ' + error.message, 'error');
-            });
-    }
+    salvarMovimentacoes();
+    recalcularEstoque();
+    renderizarEstoque();
+    showToast('🗑️ Entrada excluída com sucesso!', 'success');
 }
 
 function limparTudoEstoque() {
-    if (!confirm('⚠️ ATENÇÃO: Isso irá apagar TODAS as movimentações de estoque. Esta ação não pode ser desfeita!')) return;
-    if (!confirm('🔄 Confirme novamente:')) return;
+    if (!confirm('⚠️ ATENÇÃO: Isso irá apagar TODAS as movimentações de estoque (entradas e saídas). Esta ação não pode ser desfeita!')) return;
+    if (!confirm('🔄 Confirme novamente: deseja realmente limpar todos os dados de estoque?')) return;
     state.movimentacoes = [];
-    // Remove todas do Firebase
-    db.collection('estoque_movimentacoes').get()
-        .then(function(snapshot) {
-            var batch = db.batch();
-            snapshot.forEach(function(doc) {
-                batch.delete(doc.ref);
-            });
-            return batch.commit();
-        })
-        .then(function() {
-            showToast('🗑️ Todos os dados de estoque foram removidos.', 'success');
-            renderizarEstoque();
-        })
-        .catch(function(error) {
-            showToast('❌ Erro ao limpar: ' + error.message, 'error');
-        });
+    salvarMovimentacoes();
+    recalcularEstoque();
+    renderizarEstoque();
+    showToast('🗑️ Todos os dados de estoque foram removidos.', 'success');
 }
 
 // ============================================================
@@ -2112,7 +2051,7 @@ function confirmarTransferencia() {
     var dataFormatada = new Date(data).toLocaleDateString('pt-BR');
     var timestamp = Date.now();
     var saidaTransferencia = {
-        id: 'transf_saida_' + timestamp,
+        id: 'transf_saida_' + timestamp + '_' + Math.random().toString(36).substr(2, 4),
         data: dataFormatada,
         tipo: 'saida',
         insumo: insumo,
@@ -2120,10 +2059,11 @@ function confirmarTransferencia() {
         quantidade: qtd,
         nf: 'TRANSFERENCIA',
         origem: 'Transferência para ' + destino + (obs ? ' - ' + obs : ''),
-        transferencia: { destino: destino, obs: obs }
+        transferencia: { destino: destino, obs: obs },
+        createdAt: new Date().toISOString()
     };
     var entradaTransferencia = {
-        id: 'transf_entrada_' + timestamp,
+        id: 'transf_entrada_' + timestamp + '_' + Math.random().toString(36).substr(2, 4),
         data: dataFormatada,
         tipo: 'entrada',
         insumo: insumo,
@@ -2131,22 +2071,29 @@ function confirmarTransferencia() {
         quantidade: qtd,
         nf: 'TRANSFERENCIA',
         origem: 'Transferência de ' + origem + (obs ? ' - ' + obs : ''),
-        transferencia: { origem: origem, obs: obs }
+        transferencia: { origem: origem, obs: obs },
+        createdAt: new Date().toISOString()
     };
-    
-    // Salva no Firebase
-    var promises = [];
-    promises.push(salvarMovimentacaoFirebase(saidaTransferencia));
-    promises.push(salvarMovimentacaoFirebase(entradaTransferencia));
-    
-    Promise.all(promises)
-        .then(function() {
-            fecharModalTransferencia();
-            showToast('✅ Transferência realizada: ' + safe(qtd) + ' kg de ' + insumo + ' de ' + origem + ' para ' + destino, 'success');
-        })
-        .catch(function(error) {
-            showToast('❌ Erro ao realizar transferência: ' + error.message, 'error');
-        });
+    state.movimentacoes.push(saidaTransferencia);
+    state.movimentacoes.push(entradaTransferencia);
+    salvarMovimentacoes();
+    recalcularEstoque();
+    renderizarEstoque();
+    fecharModalTransferencia();
+    showToast('✅ Transferência realizada: ' + safe(qtd) + ' kg de ' + insumo + ' de ' + origem + ' para ' + destino, 'success');
+}
+
+function limparTransferencias() {
+    if (!confirm('⚠️ Remover TODAS as transferências? Isso não afeta NFs ou produção.')) return;
+    var removidas = 0;
+    state.movimentacoes = state.movimentacoes.filter(function(m) {
+        if (m.nf === 'TRANSFERENCIA') { removidas++; return false; }
+        return true;
+    });
+    salvarMovimentacoes();
+    recalcularEstoque();
+    renderizarEstoque();
+    showToast('🗑️ ' + removidas + ' transferências removidas!', 'success');
 }
 
 // ============================================================
@@ -2188,7 +2135,7 @@ function salvarNovaOperacao() {
     if (!data) { showToast('⚠️ Selecione uma data!', 'warning'); return; }
     var dataFormatada = new Date(data).toLocaleDateString('pt-BR');
     var operacaoManual = {
-        id: 'manual_' + Date.now(),
+        id: 'manual_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
         nome: nome,
         data: dataFormatada,
         dataRaw: data,
@@ -2270,12 +2217,610 @@ function excluirOperacaoFaturamento(opId, dataSelecionada) {
 }
 
 // ============================================================
-// FUNÇÕES DE FATURAMENTO
+// CARREGAR DADOS FIREBASE
 // ============================================================
+function carregarDadosFirebase() {
+    if (state.isLoading) return;
+    state.isLoading = true;
+    db.collection('config').doc('custos').get().then(function(doc) {
+        if (doc.exists) {
+            var data = doc.data();
+            state.custos.TF = data.TF || 180;
+            state.custos.MAQ = data.MAQ || 850;
+            state.custos.PIPA = data.PIPA || 650;
+            state.custos.APOIO = data.APOIO || 450;
+            var tfEl = document.getElementById('custo_TF');
+            var maqEl = document.getElementById('custo_MAQ');
+            var pipaEl = document.getElementById('custo_PIPA');
+            var apoioEl = document.getElementById('custo_APOIO');
+            if (tfEl) tfEl.value = state.custos.TF;
+            if (maqEl) maqEl.value = state.custos.MAQ;
+            if (pipaEl) pipaEl.value = state.custos.PIPA;
+            if (apoioEl) apoioEl.value = state.custos.APOIO;
+        }
+        return db.collection('config').doc('valores_atividades').get();
+    }).then(function(doc) {
+        if (doc.exists) state.valoresAtividades = doc.data() || {};
+        return db.collection('lancamentos').where('dia', '==', getDiaNumero()).get();
+    }).then(function(snapshot) {
+        var lancs = {};
+        snapshot.forEach(function(doc) {
+            var data = doc.data();
+            var opId = data.opId;
+            if (!lancs[opId]) lancs[opId] = { ha: 0, valor: 0, custo: 0, tf: 0, maq: 0, pipa: 0, apoio: 0, docId: doc.id };
+            lancs[opId].ha += data.ha || 0;
+            lancs[opId].valor += data.valor || 0;
+            lancs[opId].custo += data.custo || 0;
+            lancs[opId].tf += data.tf || 0;
+            lancs[opId].maq += data.maq || 0;
+            lancs[opId].pipa += data.pipa || 0;
+            lancs[opId].apoio += data.apoio || 0;
+        });
+        state.lancamentosFirebase = lancs;
+        state.isLoading = false;
+        atualizarInterface();
+    }).catch(function(error) {
+        console.error('Erro ao carregar dados:', error);
+        state.isLoading = false;
+        showToast('❌ Erro ao carregar dados', 'error');
+    });
+}
+
+// ============================================================
+// ATUALIZAR INTERFACE
+// ============================================================
+function atualizarInterface() {
+    renderizarProducao();
+    renderizarFaturamento();
+    renderizarDashboard();
+    renderizarResultado();
+    renderizarConfiguracoes();
+    renderizarEstoque();
+}
+
+// ============================================================
+// RENDERIZAR PRODUÇÃO
+// ============================================================
+function renderizarProducao() {
+    var ops = state.operacoesDia;
+    var insumos = state.insumosDia;
+    var totalArea = 0;
+    var totalOps = Object.keys(ops).length;
+    var totalInsumos = Object.keys(insumos).length;
+    for (var key in ops) { totalArea += ops[key].totalHa; }
+    var prodData = document.getElementById('prodData');
+    var prodOps = document.getElementById('prodOps');
+    var prodArea = document.getElementById('prodArea');
+    var prodInsumos = document.getElementById('prodInsumos');
+    if (prodData) prodData.textContent = getHoje();
+    if (prodOps) prodOps.textContent = totalOps;
+    if (prodArea) prodArea.innerHTML = totalArea.toFixed(2) + ' <span class="unit">ha</span>';
+    if (prodInsumos) prodInsumos.textContent = totalInsumos;
+    renderIrrigacao();
+    renderData();
+    renderReplantio();
+    renderSOP();
+    renderFinalizadas();
+}
+
+// ============================================================
+// FUNÇÕES DE RENDERIZAÇÃO DA PRODUÇÃO
+// ============================================================
+function renderIrrigacao() {
+    var container = document.getElementById('subProducaoIrrigacao');
+    if (!container) return;
+    var grupos = calcGrupos();
+    var f = state.filtros.irr;
+    var fazendasU = [...new Set(state.dadosProducao.map(d=>d.fazenda))].filter(Boolean).sort();
+    var talhoesU = [...new Set(state.dadosProducao.map(d=>d.talhao))].filter(Boolean).sort();
+    var opsU = [...new Set(state.dadosProducao.map(d=>d.operacao))].filter(Boolean).sort();
+    var gf = grupos;
+    if (f.fazenda) gf = gf.filter(x=>x.fazenda===f.fazenda);
+    if (f.talhao) gf = gf.filter(x=>x.talhao===f.talhao);
+    var porFaz = {};
+    gf.forEach(g => {
+        if (!porFaz[g.fazenda]) porFaz[g.fazenda] = { faz:g.fazenda, tals:[] };
+        porFaz[g.fazenda].tals.push(g);
+    });
+    var fazList = Object.values(porFaz).sort((a,b)=>a.faz.localeCompare(b.faz));
+    var html = '<div class="card"><h1 style="font-size:22px;margin-bottom:6px">📊 Relatório de Irrigação</h1><p class="text-gray">' + fazList.length + ' fazendas | ' + gf.length + ' talhões | ' + state.dadosProducao.length + ' registros</p><div class="filtros-area"><div><label>Fazenda</label><select onchange="state.filtros.irr.fazenda=this.value;renderIrrigacao()"><option value="">Todas (' + fazendasU.length + ')</option>' + fazendasU.map(function(f){ return '<option value="' + f + '" ' + (f===state.filtros.irr.fazenda?'selected':'') + '>' + f + '</option>'; }).join('') + '</select></div><div><label>Talhão</label><select onchange="state.filtros.irr.talhao=this.value;renderIrrigacao()"><option value="">Todos (' + talhoesU.length + ')</option>' + talhoesU.map(function(t){ return '<option value="' + t + '" ' + (t===state.filtros.irr.talhao?'selected':'') + '>' + t + '</option>'; }).join('') + '</select></div><div><label>Operação</label><div class="check-list">' + opsU.map(function(o){ return '<label><input type="checkbox" ' + (state.filtros.irr.ops.includes(o)?'checked':'') + ' onchange="toggleOpIrr(\'' + o.replace(/'/g,"\\'") + '\',this.checked)">' + o + '</label>'; }).join('') + '</div></div></div></div>';
+    if (fazList.length === 0) { html += '<div class="empty"><div class="ico">🔍</div><p>Nenhum resultado</p></div>'; container.innerHTML = html; return; }
+    fazList.forEach(function(faz) {
+        var fazId = 'faz_'+faz.faz;
+        var open = isOpen(fazId);
+        html += '<div class="faz-block"><div class="faz-header" onclick="toggleRender(\'' + fazId + '\',\'irr\')"><div><div style="font-size:18px;font-weight:bold">' + faz.faz + '</div><div style="font-size:12px;opacity:.85">' + faz.tals.length + ' talhões</div></div><div class="arrow ' + (open?'open':'') + '">▼</div></div><div class="faz-body ' + (open?'open':'') + '">';
+        faz.tals.forEach(function(tal) {
+            var talId = 'tal_' + faz.faz + '_' + tal.talhao;
+            var talOpen = isOpen(talId);
+            var opsIrr = Object.values(tal.ops).filter(function(op){ return ehIrr(op.nome); });
+            var opsAll = Object.values(tal.ops);
+            html += '<div class="tal-card"><div class="tal-header" onclick="toggleRender(\'' + talId + '\',\'irr\')"><div><div style="font-size:16px;font-weight:bold">Talhão ' + tal.talhao + '</div><div class="text-gray text-sm">' + safe(tal.areaCad) + ' ha cadastrado</div></div><div class="arrow ' + (talOpen?'open':'') + '">▼</div></div>';
+            opsIrr.forEach(function(op) {
+                html += '<div style="background:#eff6ff;border-radius:8px;padding:10px;margin-top:6px"><div style="font-size:12px;font-weight:bold;margin-bottom:6px">' + op.nome + (op.obs?' — ' + op.obs:'') + '</div>';
+                if (op.totIrr && Object.keys(op.totIrr).length > 0) {
+                    html += '<div class="irr-grid">';
+                    Object.entries(op.totIrr).sort(function(a,b){ return parseInt(a[0])-parseInt(b[0]); }).forEach(function(entry){
+                        var n = entry[0], info = entry[1];
+                        var p = info.perc;
+                        var cls = p>110?'irr-vermelho':p>=100?'irr-verde':p>=50?'irr-amarelo':'irr-azul';
+                        var ic = p>110?'🔴':p>=100?'✅':p>=50?'⚠️':'🔵';
+                        html += '<div class="irr-card ' + cls + '"><div style="display:flex;justify-content:space-between"><span style="font-weight:bold">' + n + 'ª</span><span>' + ic + '</span></div><div class="num">' + safe(p,0) + '%</div><div class="sub">' + safe(info.total,1) + ' / ' + safe(tal.areaCad,1) + ' ha</div>' + (p>110?'<div style="font-size:9px;font-weight:bold;margin-top:3px;background:rgba(0,0,0,.1);border-radius:4px;padding:2px">⚠️ +' + safe(p-100,0) + '% ESTOUROU</div>':'') + '<div class="datas" style="font-size:9px;margin-top:3px;color:#374151;font-weight:600;">' + info.datas + '</div></div>';
+                    });
+                    html += '</div>';
+                } else { html += '<div class="aviso-obs">⚠️ Preencha a coluna Observações com o número da irrigação</div>'; }
+                html += '</div>';
+            });
+            html += '<div class="tal-detail ' + (talOpen?'open':'') + '"><div class="bold mt8" style="margin-bottom:6px;font-size:13px;">Detalhes de todas as operações:</div>';
+            opsAll.forEach(function(op) {
+                html += '<div style="background:#f9fafb;border-left:3px solid #16a34a;padding:8px;border-radius:0 6px 6px 0;margin-bottom:6px;font-size:12px;"><div class="bold">' + op.nome + (op.obs?' — ' + op.obs:'') + '</div><div class="text-gray text-sm">' + op.vezes + 'x | Total: <strong>' + safe(op.total) + ' ha</strong></div><div style="margin-top:4px;">';
+                op.regs.forEach(function(r,j) {
+                    html += '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #e5e7eb;font-size:11px"><span>' + (j+1) + '. ' + fmtData(r.data) + ' | ' + (r.eq||'S/equipe') + (r.numIrr?' <span style="background:#dbeafe;color:#1e40af;padding:1px 6px;border-radius:4px;font-weight:bold">' + r.numIrr + 'ª</span>':'') + '</span><span class="bold text-blue">' + safe(r.prod) + ' ha</span></div>';
+                });
+                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;border-top:2px solid #e5e7eb;font-weight:bold;font-size:12px;"><span>TOTAL:</span><span class="text-green">' + safe(op.total) + ' ha</span></div></div></div>';
+            });
+            html += '</div></div>';
+        });
+        html += '</div></div>';
+    });
+    container.innerHTML = html;
+}
+
+function toggleOpIrr(op, checked) {
+    if (checked) { if (!state.filtros.irr.ops.includes(op)) state.filtros.irr.ops.push(op); }
+    else state.filtros.irr.ops = state.filtros.irr.ops.filter(function(o){ return o!==op; });
+    renderIrrigacao();
+}
+
+function toggleRender(id, aba) {
+    toggle(id);
+    if (aba==='irr') renderIrrigacao();
+    else if (aba==='data') renderData();
+}
+
+function calcGrupos() {
+    var g = {};
+    state.dadosProducao.forEach(function(row) {
+        var k = row.talhao + '___' + row.fazenda;
+        if (!g[k]) g[k] = { talhao:row.talhao, fazenda:row.fazenda, areaCad:row.areaCad || 0, ops:{} };
+        var obsLimpa = limparDesc(row.obs, row.operacao);
+        var opKey = row.operacao + '___' + obsLimpa;
+        if (!g[k].ops[opKey]) g[k].ops[opKey] = { nome:row.operacao, obs:row.obs, obsLimpa:obsLimpa, regs:[] };
+        var numIrr = null;
+        if (ehIrr(row.operacao) && row.obs) {
+            var m = row.obs.toUpperCase().match(/(\d+)\s*IRRIG/);
+            if (m) numIrr = parseInt(m[1]);
+        }
+        g[k].ops[opKey].regs.push({ data:row.data, prod:row.producao, eq:row.equipe, numIrr:numIrr, obs:row.obs });
+    });
+    Object.values(g).forEach(function(gr) {
+        Object.values(gr.ops).forEach(function(op) {
+            op.total = op.regs.reduce(function(s,r){ return s+r.prod; }, 0);
+            op.vezes = op.regs.length;
+            if (ehIrr(op.nome)) {
+                var nums = [...new Set(op.regs.map(function(r){ return r.numIrr; }).filter(function(n){ return n; }))].sort(function(a,b){ return a-b; });
+                op.numsIrr = nums;
+                op.totIrr = {};
+                nums.forEach(function(n) {
+                    var tot = op.regs.filter(function(r){ return r.numIrr===n; }).reduce(function(s,r){ return s+r.prod; }, 0);
+                    op.totIrr[n] = { total:tot, perc: gr.areaCad>0?(tot/gr.areaCad)*100:0 };
+                    op.totIrr[n].datas = op.regs.filter(function(r){ return r.numIrr===n; }).map(function(r){ return fmtData(r.data); }).join(', ');
+                });
+            }
+        });
+    });
+    return Object.values(g).sort(function(a,b){ var cf=a.fazenda.localeCompare(b.fazenda); return cf!==0?cf:a.talhao.localeCompare(b.talhao); });
+}
+
+// ============================================================
+// RENDERIZAR DATA
+// ============================================================
+function renderData() {
+    var container = document.getElementById('subProducaoData');
+    if (!container) return;
+    var diasData = calcDadosPorData();
+    var html = '';
+    if (diasData.length===0) { html = '<div class="empty"><div class="ico">📭</div><p>Nenhuma operação encontrada</p></div>'; }
+    diasData.forEach(function(dia) {
+        var totalDia = dia.ops.reduce(function(s,o){ return s+o.producaoDia; }, 0);
+        var ds = dia.dataStr;
+        var diaId = 'dia_'+ds.replace(/\//g,'-');
+        var open = isOpen(diaId);
+        var diasemana = new Date(dia.data).toLocaleDateString('pt-BR',{weekday:'long'});
+        var insDia = {};
+        dia.ops.forEach(function(op){ (op.insumos||[]).forEach(function(ins){ if(!insDia[ins.nome]) insDia[ins.nome]=0; insDia[ins.nome]+=ins.qtd; }); });
+        var insumosHtml = '';
+        if (Object.keys(insDia).length > 0) {
+            insumosHtml = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0 0;">';
+            Object.entries(insDia).sort(function(a,b){ return a[0].localeCompare(b[0]); }).forEach(function(entry){
+                var nome = entry[0], qtd = entry[1];
+                insumosHtml += '<div style="background:#f8fafc;border:1px solid #e9eef3;border-radius:8px;padding:8px 14px;display:inline-flex;flex-direction:column;align-items:center;min-width:80px;transition:all .2s;"><span style="font-size:11px;font-weight:600;color:#475569;text-align:center;line-height:1.2;">' + nome + '</span><span style="font-size:16px;font-weight:700;color:#7c3aed;margin-top:2px;">' + safe(qtd) + ' <span style="font-size:10px;font-weight:400;color:#94a3b8;">kg</span></span></div>';
+            });
+            insumosHtml += '</div>';
+        }
+        html += '<div class="dia-block"><div class="dia-header" onclick="toggleRender(\'' + diaId + '\',\'data\')"><div><div style="font-size:18px;font-weight:bold">' + ds + '</div><div style="font-size:12px;opacity:.85;text-transform:capitalize">' + diasemana + ' • ' + dia.ops.length + ' operações • ' + safe(totalDia) + ' ha</div></div><div style="display:flex;gap:6px;align-items:center"><button class="btn btn-azul btn-sm" onclick="event.stopPropagation();imprimirDia(\'' + diaId + '\',\'' + ds + '\')">🖨️ Imprimir</button><div class="arrow ' + (open?'open':'') + '">▼</div></div></div><div class="dia-body ' + (open?'open':'') + '" id="' + diaId + '">' + insumosHtml + '<div style="overflow-x:auto;margin-top:10px;"><table><thead><tr><th>#</th><th>ID</th><th>Operação</th><th>Fazenda</th><th>Talhão</th><th>Realizado / Total (ha)</th><th>Status</th><th>Insumos</th><th>Equipe</th><th>Observações</th></tr></thead><tbody>';
+        dia.ops.forEach(function(op,idx) {
+            var perc = op.areaCad>0?(op.acumulado/op.areaCad)*100:0;
+            var ehIOP = ehIrr(op.operacao)||ehPlantio(op.operacao);
+            var sCls, sTxt;
+            if (ehIOP && perc>110) { sCls='s-estouro'; sTxt='🔴 ESTOUROU'; }
+            else if (perc>=100) { sCls='s-completo'; sTxt='✅ COMPLETO'; }
+            else if (perc>=50) { sCls='s-parcial-alt'; sTxt='⚠️ PARCIAL'; }
+            else { sCls='s-parcial'; sTxt='🔵 PARCIAL'; }
+            var histId = 'hist_' + diaId + '_' + idx;
+            var histOpen = isOpen(histId);
+            var nHist = op.historico?op.historico.length:0;
+            var prazoBadge = '';
+            if (perc>=100 && perc<=110 && ehPlantio(op.operacao) && op.historico && op.historico.length>0) {
+                var ultData = new Date(Math.max.apply(null, op.historico.map(function(h){ return new Date(h.data); })));
+                var diasDec = Math.floor((new Date()-ultData)/86400000);
+                var diasRest = 30-diasDec;
+                var limDate = new Date(ultData); limDate.setDate(limDate.getDate()+30);
+                var pcls = diasRest<0?'p-vencido':diasRest<=3?'p-urgente':diasRest<=10?'p-atencao':'p-ok';
+                prazoBadge = '<div style="margin-top:3px;"><span class="prazo-badge ' + pcls + '" style="font-size:10px;padding:2px 8px;">' + (diasRest<0?'⚫ VENCIDO há ' + Math.abs(diasRest) + 'd':'⏰ Replantio: ' + limDate.toLocaleDateString('pt-BR') + ' (' + diasRest + 'd)') + '</span></div>';
+            }
+            html += '<tr><td><div style="display:flex;align-items:center;gap:4px"><span>' + (idx+1) + '</span>' + (nHist>0?'<button class="hist-expand" onclick="toggleRender(\'' + histId + '\',\'data\')">' + (histOpen?'▼':'▶') + ' ' + nHist + ' ' + (nHist===1?'dia':'dias') + '</button>':'') + '</div></td><td class="bold text-blue">' + (op.id||'-') + '</td><td class="bold text-blue" style="font-size:11px;">' + op.operacao + (op.obsLimpa?' — ' + op.obsLimpa:'') + '</td><td>' + op.fazenda + '</td><td class="bold">' + op.talhao + '</td><td><div><span class="bold text-green">' + safe(op.acumulado) + '</span><span class="text-gray"> / </span><span class="bold">' + safe(op.areaCad) + '</span><span class="text-gray text-xs"> (' + safe(perc,0) + '%)</span></div><div class="text-xs text-gray">Hoje: ' + safe(op.producaoDia) + ' ha</div>' + (nHist>0?'<div class="text-xs" style="color:#2563eb;margin-top:2px;">📅 ' + op.historico.map(function(h){ return h.dataStr + '(' + safe(h.producao) + 'ha)'; }).join(' + ') + '</div>':'') + '</td><td><span class="badge-status ' + sCls + '">' + sTxt + '</span>' + (ehIOP&&perc>110?'<div style="margin-top:3px;font-size:10px;font-weight:bold;color:#991b1b;">⚠️ +' + safe(perc-100,0) + '% da área</div>':'') + prazoBadge + '</td><td style="font-size:11px;">' + (op.insumos&&op.insumos.length>0?op.insumos.map(function(i){ return '<div><span class="bold text-purple">' + i.nome + '</span> • <span>' + safe(i.qtd) + '</span></div>'; }).join(''):'<span class="text-gray">-</span>') + '</td><td>' + (op.equipe||'-') + '</td><td class="text-xs text-gray">' + (op.obs||'-') + '</td></tr>';
+            if (histOpen && op.historico && op.historico.length>0) {
+                html += '<tr><td colspan="10" style="padding:0"><div style="background:#eff6ff;padding:12px;border-left:4px solid #2563eb;"><div class="bold text-blue" style="margin-bottom:8px;font-size:12px;">📅 Histórico Completo — ' + op.talhao + ' — ' + op.operacao + '</div><div style="display:grid;gap:4px;">';
+                var acumH=0;
+                op.historico.forEach(function(h,i) {
+                    acumH += h.producao;
+                    var percH = op.areaCad>0?(acumH/op.areaCad)*100:0;
+                    html += '<div style="background:#fff;border:1px solid #bfdbfe;border-radius:6px;padding:8px;display:grid;grid-template-columns:1fr 1fr 2fr 1fr 1fr;gap:6px;font-size:11px;"><div><div class="text-gray text-xs">Data</div><div class="bold">' + h.dataStr + '</div></div><div><div class="text-gray text-xs">Realizado</div><div class="bold text-green">' + safe(h.producao) + ' ha</div></div><div><div class="text-gray text-xs">Acumulado</div><div class="bold text-blue">' + safe(acumH) + ' / ' + safe(op.areaCad) + ' ha (' + safe(percH,0) + '%)</div></div><div><div class="text-gray text-xs">Equipe</div><div>' + (h.equipe||'-') + '</div></div><div><div class="text-gray text-xs">Insumos</div>' + (h.insumos&&h.insumos.length>0?h.insumos.map(function(ins){ return '<div class="text-purple bold" style="font-size:10px;">' + ins.nome + ': ' + safe(ins.qtd) + '</div>'; }).join(''):'<span class="text-gray">-</span>') + '</div></div>';
+                });
+                html += '</div></div></td></tr>';
+            }
+        });
+        html += '<tr class="total-row"><td colspan="5" style="text-align:right">TOTAL DO DIA:</td><td class="text-green" style="font-size:14px;">' + safe(totalDia) + ' ha</td><td colspan="4"></td></tr>';
+        html += '</tbody></table></div></div></div>';
+    });
+    container.innerHTML = html;
+}
+
+function calcDadosPorData() {
+    var filtrados = state.dadosProducao.slice();
+    var f = state.filtros.data;
+    if (f.inicio) { var d=new Date(f.inicio); filtrados = filtrados.filter(function(x){ return x.data && new Date(x.data) >= d; }); }
+    if (f.fim) { var d=new Date(f.fim); d.setHours(23,59,59); filtrados = filtrados.filter(function(x){ return x.data && new Date(x.data) <= d; }); }
+    if (f.fazenda) filtrados = filtrados.filter(function(x){ return x.fazenda === f.fazenda; });
+    if (f.op) filtrados = filtrados.filter(function(x){ return x.operacao === f.op; });
+    var hist = {};
+    filtrados.forEach(function(d) {
+        if (!d.data) return;
+        var obsL = limparDesc(d.obs,d.operacao);
+        var k = d.fazenda + '_' + d.talhao + '_' + d.operacao + '_' + (obsL||'SEM');
+        if (!hist[k]) hist[k]=[];
+        hist[k].push({ data:d.data, dataStr:fmtData(d.data), producao:d.producao, insumos:d.insumos||[], equipe:d.equipe, obs:d.obs });
+    });
+    Object.values(hist).forEach(function(h){ h.sort(function(a,b){ return new Date(a.data)-new Date(b.data); }); });
+    var porData = {};
+    filtrados.forEach(function(d) {
+        if (!d.data) return;
+        var ds = fmtData(d.data);
+        if (!porData[ds]) porData[ds]={ data:d.data, dataStr:ds, opsOriginais:[] };
+        porData[ds].opsOriginais.push(d);
+    });
+    var datasOrd = Object.values(porData).sort(function(a,b){ return new Date(a.data)-new Date(b.data); });
+    var acum = {};
+    datasOrd.forEach(function(dia) {
+        var opsAg = {};
+        dia.opsOriginais.forEach(function(op) {
+            var obsL = limparDesc(op.obs,op.operacao);
+            var k = op.fazenda + '_' + op.talhao + '_' + op.operacao + '_' + obsL;
+            var kH = op.fazenda + '_' + op.talhao + '_' + op.operacao + '_' + (obsL||'SEM');
+            if (!opsAg[k]) opsAg[k]={ id:op.id, fazenda:op.fazenda, talhao:op.talhao, operacao:op.operacao, obs:op.obs, obsLimpa:obsL, areaCad:op.areaCad||0, producaoDia:0, equipe:op.equipe, insumos:[], historico:hist[kH]||[] };
+            opsAg[k].producaoDia += op.producao;
+            (op.insumos||[]).forEach(function(ins) {
+                var ex = opsAg[k].insumos.find(function(i){ return i.nome===ins.nome; });
+                if (ex) ex.qtd += ins.qtd; else opsAg[k].insumos.push({ nome:ins.nome, qtd:ins.qtd });
+            });
+        });
+        Object.entries(opsAg).forEach(function(entry) {
+            var k = entry[0], op = entry[1];
+            var kH = op.fazenda + '_' + op.talhao + '_' + op.operacao + '_' + (op.obsLimpa||'SEM');
+            if (!acum[kH]) acum[kH]=0;
+            acum[kH] += op.producaoDia;
+            op.acumulado = acum[kH];
+        });
+        dia.ops = Object.values(opsAg);
+    });
+    return datasOrd.sort(function(a,b){ return new Date(b.data)-new Date(a.data); });
+}
+
+// ============================================================
+// RENDERIZAR REPLANTIO
+// ============================================================
+function renderReplantio() {
+    var container = document.getElementById('subProducaoReplantio');
+    if (!container) return;
+    var lista = calcPrazosReplantio();
+    var cnts = { vencido:0, urgente:0, atencao:0, ok:0 };
+    lista.forEach(function(r){ cnts[r.status] = (cnts[r.status]||0) + 1; });
+    var html = '<div class="card"><h1 style="font-size:22px;margin-bottom:6px;">⏰ Prazos de Replantio</h1><p class="text-gray">Talhões que necessitam replantio em até 30 dias após conclusão do plantio</p><div class="stat-grid" style="grid-template-columns:repeat(4,1fr);margin-top:12px;"><div class="stat-box sb-preto"><div class="n">' + (cnts.vencido||0) + '</div><div class="l">Vencidos</div></div><div class="stat-box sb-vermelho"><div class="n">' + (cnts.urgente||0) + '</div><div class="l">Urgentes (≤3d)</div></div><div class="stat-box sb-amarelo"><div class="n">' + (cnts.atencao||0) + '</div><div class="l">Atenção (4-10d)</div></div><div class="stat-box sb-verde"><div class="n">' + (cnts.ok||0) + '</div><div class="l">No Prazo (>10d)</div></div></div><div class="filtros-area" style="grid-template-columns:1fr;margin-top:8px;"><div><label>Filtrar por Fazenda</label><select onchange="state.filtros.rep.fazenda=this.value;renderReplantio()"><option value="">Todas</option>' + [...new Set(state.dadosProducao.map(function(d){ return d.fazenda; }))].filter(Boolean).sort().map(function(f){ return '<option value="' + f + '" ' + (f===state.filtros.rep.fazenda?'selected':'') + '>' + f + '</option>'; }).join('') + '</select></div></div></div>';
+    if (lista.length===0) { html += '<div class="empty"><div class="ico">✅</div><p>Nenhum talhão aguardando replantio</p></div>'; }
+    lista.forEach(function(item) {
+        var borderCls = item.status==='vencido'?'#111827':item.status==='urgente'?'#dc2626':item.status==='atencao'?'#ca8a04':'#16a34a';
+        html += '<div class="rep-card" style="border-left:6px solid ' + borderCls + ';"><div class="rep-body"><div class="rep-info"><div class="field"><label>Fazenda</label><div class="val">' + item.fazenda + '</div></div><div class="field"><label>Talhão</label><div class="val text-blue">' + item.talhao + '</div></div><div class="field"><label>Operação</label><div style="font-size:12px;">' + item.operacao + '</div></div><div class="field"><label>Concluído em</label><div class="bold">' + item.ultimaData.toLocaleDateString('pt-BR') + '</div><div class="text-xs text-gray">há ' + item.diasDecorridos + ' dias</div></div><div class="field"><label>Prazo Limite</label><div class="bold text-orange">' + item.dataLimite.toLocaleDateString('pt-BR') + '</div><div class="text-xs bold ' + (item.diasRestantes<0?'text-red':item.diasRestantes<=3?'text-red':item.diasRestantes<=10?'':'text-green') + '">' + (item.diasRestantes<0?'VENCIDO há ' + Math.abs(item.diasRestantes) + ' dias':item.diasRestantes + ' dias restantes') + '</div></div><div class="field"><label>Status</label><span class="prazo-badge ' + item.statusCls + '">' + (item.status==='vencido'?'⚫':item.status==='urgente'?'🔴':item.status==='atencao'?'🟡':'🟢') + ' ' + item.statusTexto + '</span></div></div><button class="btn btn-verde" onclick="marcarRepFeito(\'' + item.fazenda + '\',\'' + item.talhao + '\',\'' + item.operacao.replace(/'/g,"\\'") + '\')">✓ Concluído</button></div></div>';
+    });
+    container.innerHTML = html;
+}
+
+function calcPrazosReplantio() {
+    var plantios = state.dadosProducao.filter(function(d){ return ehPlantio(d.operacao); });
+    var porTalhao = {};
+    plantios.forEach(function(p) {
+        var k = p.fazenda + '_' + p.talhao + '_' + p.operacao;
+        if (!porTalhao[k]) porTalhao[k]={ fazenda:p.fazenda, talhao:p.talhao, operacao:p.operacao, areaCad:p.areaCad||0, acumulado:0, datas:[] };
+        porTalhao[k].acumulado += p.producao;
+        porTalhao[k].datas.push(p.data);
+    });
+    var resultado=[];
+    Object.values(porTalhao).forEach(function(t) {
+        var perc = t.areaCad>0?(t.acumulado/t.areaCad)*100:0;
+        if (perc>=100) {
+            t.datas.sort(function(a,b){ return new Date(b)-new Date(a); });
+            var ultData = new Date(t.datas[0]);
+            var hoje = new Date();
+            var diasDec = Math.floor((hoje-ultData)/86400000);
+            var diasRest = 30-diasDec;
+            var dataLim = new Date(ultData); dataLim.setDate(dataLim.getDate()+30);
+            var status='ok', sTxt='Dentro do Prazo', sCls='p-ok';
+            if (diasRest<0) { status='vencido'; sTxt='PRAZO VENCIDO'; sCls='p-vencido'; }
+            else if (diasRest<=3) { status='urgente'; sTxt='URGENTE'; sCls='p-urgente'; }
+            else if (diasRest<=10) { status='atencao'; sTxt='ATENÇÃO'; sCls='p-atencao'; }
+            resultado.push({ fazenda:t.fazenda, talhao:t.talhao, operacao:t.operacao, ultimaData:ultData, diasDecorridos:diasDec, diasRestantes:diasRest, dataLimite:dataLim, status:status, statusTexto:sTxt, statusCls:sCls });
+        }
+    });
+    var f = resultado;
+    if (state.filtros.rep.fazenda) f = f.filter(function(r){ return r.fazenda===state.filtros.rep.fazenda; });
+    f = f.filter(function(r){ return !state.replantiosConcluidos.includes(r.fazenda + '_' + r.talhao + '_' + r.operacao); });
+    return f.sort(function(a,b){ return a.diasRestantes - b.diasRestantes; });
+}
+
+function marcarRepFeito(faz,tal,op) {
+    state.replantiosConcluidos.push(faz + '_' + tal + '_' + op);
+    localStorage.setItem('repConc',JSON.stringify(state.replantiosConcluidos));
+    renderReplantio();
+}
+
+// ============================================================
+// RENDERIZAR SOP
+// ============================================================
+function renderSOP() {
+    var container = document.getElementById('subProducaoSop');
+    if (!container) return;
+    var lista = calcSOP();
+    var cnts = { realizado:0, atrasado:0, urgente:0, noPrazo:0, aguardando:0 };
+    lista.forEach(function(c){ c.operacoes.forEach(function(o){ if(cnts[o.status]!==undefined) cnts[o.status]++; }); });
+    var html = '<div class="card"><h1 style="font-size:22px;margin-bottom:6px;">📋 Cronograma SOP</h1><p class="text-gray">Acompanhamento de operações pós-plantio</p><div class="stat-grid" style="grid-template-columns:repeat(5,1fr);margin-top:12px;"><div class="stat-box sb-verde"><div class="n">' + (cnts.realizado||0) + '</div><div class="l">✅ Realizadas</div></div><div class="stat-box sb-vermelho"><div class="n">' + (cnts.atrasado||0) + '</div><div class="l">🔴 Atrasadas</div></div><div class="stat-box sb-amarelo"><div class="n">' + (cnts.urgente||0) + '</div><div class="l">🟡 Urgentes</div></div><div class="stat-box sb-azul"><div class="n">' + (cnts.noPrazo||0) + '</div><div class="l">🟢 No Prazo</div></div><div class="stat-box sb-cinza"><div class="n">' + (cnts.aguardando||0) + '</div><div class="l">⏳ Aguardando</div></div></div><div class="filtros-area" style="grid-template-columns:1fr 1fr;margin-top:8px;"><div><label>Fazenda</label><select onchange="state.filtros.sop.fazenda=this.value;renderSOP()"><option value="">Todas</option>' + [...new Set(state.dadosProducao.map(function(d){ return d.fazenda; }))].filter(Boolean).sort().map(function(f){ return '<option value="' + f + '" ' + (f===state.filtros.sop.fazenda?'selected':'') + '>' + f + '</option>'; }).join('') + '</select></div><div><label>Status</label><select onchange="state.filtros.sop.status=this.value;renderSOP()"><option value="">Todos</option><option value="atrasado">🔴 Atrasadas</option><option value="urgente">🟡 Urgentes</option><option value="noPrazo">🟢 No Prazo</option><option value="aguardando">⏳ Aguardando</option><option value="realizado">✅ Realizadas</option></select></div></div></div>';
+    if (lista.length===0) { html += '<div class="empty"><div class="ico">📭</div><p>Nenhum talhão com Plantio (SERV) encontrado</p></div>'; }
+    lista.forEach(function(item) {
+        html += '<div class="sop-card"><div class="sop-header"><div style="font-size:16px;font-weight:bold;color:#6b21a8">' + item.fazenda + ' — Talhão ' + item.talhao + '</div><div style="font-size:12px;color:#7c3aed;margin-top:3px;">🌱 Plantio realizado em: <strong>' + item.dataPlantio.toLocaleDateString('pt-BR') + '</strong></div></div><div class="sop-ops">';
+        item.operacoes.forEach(function(op) {
+            html += '<div class="sop-op" style="' + op.statusCls + '"><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><div style="font-size:14px;font-weight:bold">' + op.nome + '</div><span style="font-size:11px;font-weight:bold;padding:2px 8px;border-radius:9999px;border:1px solid;">' + op.statusTexto + '</span></div>' + (op.dataMin&&op.dataMax?'<div style="font-size:11px;">Prazo: ' + op.dataMin.toLocaleDateString('pt-BR') + ' a ' + op.dataMax.toLocaleDateString('pt-BR') + '</div>':'') + (op.status==='atrasado'?'<div style="font-size:11px;font-weight:bold;margin-top:3px;">⚠️ Atrasado há ' + op.diasAtraso + ' dias</div>':'') + (op.status==='urgente'?'<div style="font-size:11px;font-weight:bold;margin-top:3px;">⏰ Faltam ' + op.diasRestantes + ' dias</div>':'') + (op.status==='noPrazo'?'<div style="font-size:11px;margin-top:3px;">✓ Faltam ' + op.diasRestantes + ' dias</div>':'') + (op.status==='aguardando'?'<div style="font-size:11px;margin-top:3px;">⏳ Inicia em ' + op.diasAteInicio + ' dias</div>':'') + (op.status==='realizado'&&op.dataRealizacao?'<div style="font-size:11px;font-weight:bold;margin-top:3px;">✅ Realizado em: ' + op.dataRealizacao.toLocaleDateString('pt-BR') + '</div>':'') + '</div>' + (op.status!=='realizado'&&op.status!=='bloqueado'?'<button class="btn btn-verde btn-sm" onclick="sopRealizar(\'' + item.fazenda + '\',\'' + item.talhao + '\',\'' + op.tipo + '\')">✓ Realizado</button>':'') + (op.status==='realizado'?'<button class="btn btn-vermelho btn-sm" onclick="sopDesfazer(\'' + item.fazenda + '\',\'' + item.talhao + '\',\'' + op.tipo + '\')">🗑️ Desfazer</button>':'') + '</div>';
+        });
+        html += '</div></div>';
+    });
+    container.innerHTML = html;
+}
+
+function calcSOP() {
+    var plantios = state.dadosProducao.filter(function(d) {
+        var op = d.operacao.toUpperCase();
+        return (op.includes('PLANTIO')||op.includes('PLANTI')) && op.includes('SERV') && (op.includes('01_MAN')||op.includes('MAN'));
+    });
+    var porTalhao = {};
+    plantios.forEach(function(p) {
+        var k = p.fazenda + '_' + p.talhao;
+        if (!porTalhao[k]) porTalhao[k]={ fazenda:p.fazenda, talhao:p.talhao, datas:[] };
+        porTalhao[k].datas.push(p.data);
+    });
+    var hoje = new Date();
+    var resultado = Object.values(porTalhao).map(function(t) {
+        t.datas.sort(function(a,b){ return new Date(a)-new Date(b); });
+        var dPlantio = new Date(t.datas[0]);
+        var data1Pre = new Date(dPlantio); data1Pre.setDate(data1Pre.getDate()+5);
+        var kT = t.fazenda + '_' + t.talhao;
+        var conc = state.sopConcluidas[kT]||{};
+        var ops = [
+            { nome:'1º Pré Emergente', tipo:'1pre', minDias:5, maxDias:5, base:dPlantio },
+            { nome:'Formiga Repasse', tipo:'formiga', minDias:5, maxDias:30, base:data1Pre },
+            { nome:'2º Pré Emergente', tipo:'2pre', minDias:20, maxDias:40, base:data1Pre },
+            { nome:'3º Pré Emergente', tipo:'3pre', minDias:20, maxDias:40, base:null, dep:'2pre' },
+            { nome:'1ª Barra', tipo:'1barra', minDias:90, maxDias:150, base:data1Pre },
+            { nome:'2ª Barra', tipo:'2barra', minDias:180, maxDias:330, base:data1Pre }
+        ];
+        ops.forEach(function(op) {
+            var base = op.base;
+            if (op.dep && conc[op.dep] && conc[op.dep].dataRealizacao) base = new Date(conc[op.dep].dataRealizacao);
+            if (base) {
+                var dMin = new Date(base); dMin.setDate(dMin.getDate()+op.minDias);
+                var dMax = new Date(base); dMax.setDate(dMax.getDate()+op.maxDias);
+                op.dataMin=dMin; op.dataMax=dMax;
+                var c = conc[op.tipo];
+                if (c) {
+                    op.status='realizado'; op.statusTexto='✅ Realizado';
+                    op.statusCls='background:#dcfce7;border-color:#16a34a;color:#166534;';
+                    op.dataRealizacao=new Date(c.dataRealizacao);
+                } else if (hoje>dMax) {
+                    op.status='atrasado'; op.statusTexto='🔴 Atrasado';
+                    op.statusCls='background:#fee2e2;border-color:#dc2626;color:#991b1b;';
+                    op.diasAtraso=Math.floor((hoje-dMax)/86400000);
+                } else if (hoje>=dMin) {
+                    var dr=Math.floor((dMax-hoje)/86400000);
+                    if (dr<=7) { op.status='urgente'; op.statusTexto='🟡 Urgente'; op.statusCls='background:#fef9c3;border-color:#ca8a04;color:#854d0e;'; op.diasRestantes=dr; }
+                    else { op.status='noPrazo'; op.statusTexto='🟢 No Prazo'; op.statusCls='background:#dbeafe;border-color:#2563eb;color:#1e40af;'; op.diasRestantes=dr; }
+                } else {
+                    op.status='aguardando'; op.statusTexto='⏳ Aguardando';
+                    op.statusCls='background:#f3f4f6;border-color:#9ca3af;color:#374151;';
+                    op.diasAteInicio=Math.floor((dMin-hoje)/86400000);
+                }
+            } else {
+                op.status='bloqueado'; op.statusTexto='🔒 Aguardando anterior';
+                op.statusCls='background:#f3f4f6;border-color:#9ca3af;color:#374151;';
+            }
+        });
+        return { fazenda:t.fazenda, talhao:t.talhao, dataPlantio:dPlantio, operacoes:ops };
+    });
+    var f = resultado;
+    if (state.filtros.sop.fazenda) f = f.filter(function(r){ return r.fazenda===state.filtros.sop.fazenda; });
+    if (state.filtros.sop.status) f = f.filter(function(r){ return r.operacoes.some(function(o){ return o.status===state.filtros.sop.status; }); });
+    return f.sort(function(a,b){ return new Date(a.dataPlantio)-new Date(b.dataPlantio); });
+}
+
+function sopRealizar(faz,tal,tipo) {
+    var k = faz + '_' + tal;
+    if (!state.sopConcluidas[k]) state.sopConcluidas[k]={};
+    state.sopConcluidas[k][tipo]={ dataRealizacao:new Date().toISOString() };
+    localStorage.setItem('sopConc',JSON.stringify(state.sopConcluidas));
+    renderSOP();
+}
+
+function sopDesfazer(faz,tal,tipo) {
+    var k = faz + '_' + tal;
+    if (state.sopConcluidas[k]) { delete state.sopConcluidas[k][tipo]; if(Object.keys(state.sopConcluidas[k]).length===0) delete state.sopConcluidas[k]; }
+    localStorage.setItem('sopConc',JSON.stringify(state.sopConcluidas));
+    renderSOP();
+}
+
+// ============================================================
+// RENDERIZAR FINALIZADAS
+// ============================================================
+function renderFinalizadas() {
+    var container = document.getElementById('subProducaoFinalizadas');
+    if (!container) return;
+    var lista = calcFinalizadas();
+    var html = '<div class="card"><h1 style="font-size:22px;margin-bottom:6px;">✅ Operações Finalizadas</h1><p class="text-gray">Plantios e Irrigações com 100% da área concluída</p><div class="stat-grid" style="grid-template-columns:1fr;margin-top:12px;"><div class="stat-box sb-verde"><div class="n">' + lista.length + '</div><div class="l">Operações Finalizadas</div></div></div><div style="margin-top:10px;display:flex;gap:6px;"><button class="btn btn-azul" onclick="imprimirFinalizadas()">🖨️ Imprimir Relatório</button></div></div>';
+    if (lista.length===0) { html += '<div class="empty"><div class="ico">🎯</div><p>Nenhuma operação finalizada</p></div>'; }
+    lista.forEach(function(op) {
+        html += '<div class="fin-card"><div class="fin-header" style="grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 16px;"><div><label>TALHÃO</label><div style="font-size:20px;font-weight:bold;color:#059669">' + op.talhao + '</div></div><div><label>FAZENDA</label><div style="font-size:14px;font-weight:bold">' + op.fazenda + '</div></div><div><label>OPERAÇÃO</label><div style="font-size:12px;font-weight:bold">' + op.operacao + (op.obs?' — ' + op.obs:'') + '</div></div><div><label>TOTAL</label><div style="font-size:20px;font-weight:bold;color:#16a34a">' + safe(op.total) + ' ha</div><div class="text-xs text-gray">em ' + op.historico.length + ' ' + (op.historico.length===1?'dia':'dias') + '</div><div class="text-xs text-gray">' + op.historico[0].dataStr + ' → ' + op.historico[op.historico.length-1].dataStr + '</div></div></div><div class="fin-body"><div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Data</th><th>Qtd (ha)</th><th>Equipe</th><th>Insumos</th><th>Observações</th></tr></thead><tbody>';
+        op.historico.forEach(function(dia,i) {
+            html += '<tr><td style="text-align:center">' + (i+1) + '</td><td class="bold text-blue">' + dia.dataStr + '</td><td style="text-align:center;font-weight:bold;color:#16a34a">' + safe(dia.producao) + '</td><td>' + (dia.equipe||'-') + '</td><td style="font-size:10px;">' + (dia.insumos&&dia.insumos.length>0?dia.insumos.map(function(ins){ return '<div class="text-purple bold">' + ins.nome + ': ' + safe(ins.qtd) + '</div>'; }).join(''):'<span class="text-gray">-</span>') + '</td><td class="text-xs text-gray">' + (dia.obs||'-') + '</td></tr>';
+        });
+        html += '<tr class="total-row"><td colspan="2" style="text-align:right">TOTAL:</td><td style="text-align:center;color:#16a34a">' + safe(op.total) + ' ha</td><td colspan="3" style="text-align:right;color:#16a34a">em ' + op.historico.length + ' ' + (op.historico.length===1?'dia':'dias') + '</td></tr></tbody></table></div></div></div>';
+    });
+    container.innerHTML = html;
+}
+
+function calcFinalizadas() {
+    var porTalhaoOp = {};
+    state.dadosProducao.forEach(function(d) {
+        var obsL = limparDesc(d.obs,d.operacao);
+        var k = d.fazenda + '_' + d.talhao + '_' + d.operacao + '_' + (obsL||'SEM');
+        if (!porTalhaoOp[k]) porTalhaoOp[k]={ fazenda:d.fazenda, talhao:d.talhao, operacao:d.operacao, obs:d.obs, areaCad:d.areaCad||0, historico:[] };
+        porTalhaoOp[k].historico.push({ data:d.data, dataStr:fmtData(d.data), producao:d.producao, equipe:d.equipe, insumos:d.insumos||[], obs:d.obs });
+    });
+    var fin = [];
+    Object.values(porTalhaoOp).forEach(function(op) {
+        var ehOK = ehIrr(op.operacao)||ehPlantio(op.operacao);
+        if (ehOK && op.historico.length>0) {
+            var total = op.historico.reduce(function(s,h){ return s+h.producao; }, 0);
+            var perc = op.areaCad>0?(total/op.areaCad)*100:0;
+            if (perc>=100) {
+                op.historico.sort(function(a,b){ return new Date(a.data)-new Date(b.data); });
+                fin.push({ fazenda:op.fazenda, talhao:op.talhao, operacao:op.operacao, obs:op.obs, historico:op.historico, total:total, perc:perc });
+            }
+        }
+    });
+    return fin.sort(function(a,b){ var cf=a.fazenda.localeCompare(b.fazenda); return cf!==0?cf:a.talhao.localeCompare(b.talhao); });
+}
+
+// ============================================================
+// IMPRESSÃO (PRODUÇÃO)
+// ============================================================
+function imprimirDia(diaId, dataStr) {
+    var el = document.getElementById(diaId);
+    if (!el) return;
+    var win = window.open('','','width=1200,height=800');
+    win.document.write('<!DOCTYPE html><html><head><title>Relatório ' + dataStr + '</title><style>@page{size:landscape;margin:.5cm}body{font-family:Arial,sans-serif;font-size:9px}table{width:100%;border-collapse:collapse}th{background:#e5e7eb;padding:6px;text-align:left;border:1px solid #000;font-size:8px}td{padding:5px;border:1px solid #000;font-size:8px}h1{color:#1e40af;border-bottom:3px solid #1e40af;padding-bottom:8px;font-size:16px}</style></head><body><h1>Relatório de Operações — ' + dataStr + '</h1>' + el.innerHTML + '</body></html>');
+    win.document.close();
+    setTimeout(function() { win.print(); win.close(); }, 300);
+}
+
+function imprimirFinalizadas() {
+    var lista = calcFinalizadas();
+    var win = window.open('','','width=1200,height=800');
+    var rows = lista.map(function(op) {
+        return '<h2 style="background:#059669;color:#fff;padding:8px;margin:12px 0 6px;font-size:14px;">Talhão ' + op.talhao + ' • ' + op.fazenda + ' • ' + op.operacao + ' • ' + safe(op.total) + ' ha</h2><table><thead><tr><th>#</th><th>Data</th><th>Qtd (ha)</th><th>Equipe</th><th>Insumos</th><th>Obs</th></tr></thead><tbody>' + op.historico.map(function(d,i) { return '<tr><td>' + (i+1) + '</td><td>' + d.dataStr + '</td><td style="text-align:center">' + safe(d.producao) + '</td><td>' + (d.equipe||'-') + '</td><td>' + (d.insumos&&d.insumos.length>0?d.insumos.map(function(ins){ return ins.nome + ': ' + safe(ins.qtd); }).join('<br>'):'—') + '</td><td>' + (d.obs||'-') + '</td></tr>'; }).join('') + '<tr style="background:#dcfce7;font-weight:bold"><td colspan="2" style="text-align:right">TOTAL:</td><td style="text-align:center">' + safe(op.total) + ' ha</td><td colspan="3">' + op.historico.length + ' dias</td></tr></tbody></table>';
+    }).join('');
+    win.document.write('<!DOCTYPE html><html><head><title>Finalizadas</title><style>@page{size:landscape;margin:.5cm}body{font-family:Arial,sans-serif;font-size:8px}table{width:100%;border-collapse:collapse;margin-bottom:8px}th{background:#d1fae5;padding:5px;text-align:left;border:1px solid #059669;font-size:7px}td{padding:4px;border:1px solid #e5e7eb;font-size:7px}h1{color:#059669;font-size:18px;border-bottom:3px solid #059669;padding-bottom:8px;text-align:center}</style></head><body><h1>✅ RELATÓRIO DE OPERAÇÕES FINALIZADAS</h1><p style="text-align:center;margin:4px 0;font-size:8px">Data: ' + new Date().toLocaleDateString('pt-BR') + ' • Total: ' + lista.length + ' operações</p>' + rows + '</body></html>');
+    win.document.close();
+    setTimeout(function() { win.print(); win.close(); }, 300);
+}
+
+// ============================================================
+// FUNÇÕES DO FATURAMENTO
+// ============================================================
+function calcularTotalOp(index) {
+    var rhaEl = document.getElementById('rha_' + index);
+    var tfEl = document.getElementById('tf_' + index);
+    var maqEl = document.getElementById('maq_' + index);
+    var pipaEl = document.getElementById('pipa_' + index);
+    var apoioEl = document.getElementById('apoio_' + index);
+    var rha = (rhaEl && rhaEl.value) ? parseFloat(rhaEl.value) || 0 : 0;
+    var tf = (tfEl && tfEl.value) ? parseInt(tfEl.value) || 0 : 0;
+    var maq = (maqEl && maqEl.value) ? parseInt(maqEl.value) || 0 : 0;
+    var pipa = (pipaEl && pipaEl.value) ? parseInt(pipaEl.value) || 0 : 0;
+    var apoio = (apoioEl && apoioEl.value) ? parseInt(apoioEl.value) || 0 : 0;
+    var ops = state.operacoesDia;
+    var keys = Object.keys(ops);
+    var key = keys[index];
+    var ha = ops[key].totalHa;
+    var receita = ha * rha;
+    var custo = (tf * state.custos.TF) + (maq * state.custos.MAQ) + (pipa * state.custos.PIPA) + (apoio * state.custos.APOIO);
+    var total = receita;
+    var el = document.getElementById('totalOp_' + index);
+    if (el) { el.textContent = 'R$ ' + formatMoney(total); el.style.color = total > 0 ? '#2563eb' : '#64748b'; }
+    return { valor: total, custo: custo, tf: tf, maq: maq, pipa: pipa, apoio: apoio, ha: ha, rha: rha, receita: receita };
+}
+
 function renderizarFaturamento() {
+    var ops = state.operacoesDia;
     var lancs = state.lancamentosFirebase;
     var totalReceita = 0;
     var totalCusto = 0;
+    var datasDaPlanilha = [];
+    for (var opKey in ops) {
+        var op = ops[opKey];
+        if (op && op.registros) {
+            for (var i = 0; i < op.registros.length; i++) {
+                var reg = op.registros[i];
+                var dataStr = reg.dataStr || '-';
+                if (dataStr !== '-' && dataStr !== 'Invalid Date' && !datasDaPlanilha.includes(dataStr)) {
+                    datasDaPlanilha.push(dataStr);
+                }
+            }
+        }
+    }
+    datasDaPlanilha.sort(function(a, b) {
+        var da = new Date(a.split('/').reverse().join('/'));
+        var db = new Date(b.split('/').reverse().join('/'));
+        return db - da;
+    });
+    var fatDataEl = document.getElementById('fatData');
+    var dataSelecionada = fatDataEl ? fatDataEl.textContent : null;
+    if (!dataSelecionada || dataSelecionada === '-' || !datasDaPlanilha.includes(dataSelecionada)) {
+        if (datasDaPlanilha.length > 0) { dataSelecionada = datasDaPlanilha[0]; }
+        else { dataSelecionada = null; }
+    }
+    if (!dataSelecionada || datasDaPlanilha.length === 0) {
+        if (fatDataEl) fatDataEl.textContent = '-';
+        var fatReceitaEl = document.getElementById('fatReceitaTotal');
+        var fatCustoEl = document.getElementById('fatCustoTotal');
+        var fatResultadoEl = document.getElementById('fatResultado');
+        if (fatReceitaEl) fatReceitaEl.textContent = '0';
+        if (fatCustoEl) fatCustoEl.textContent = '0';
+        if (fatResultadoEl) fatResultadoEl.innerHTML = '<span class="currency">R$</span> 0';
+        var diasContainer = document.getElementById('diasContainer');
+        if (diasContainer) { diasContainer.innerHTML = '<span style="font-size:12px;color:#64748b;">Nenhuma data encontrada. Importe uma planilha.</span>'; }
+        var containerOps = document.getElementById('containerOperacoesFaturamento');
+        if (containerOps) { containerOps.innerHTML = '<div class="empty"><div class="ico">📭</div><p>Nenhuma operação disponível.<br />Importe uma planilha na aba Produção.</p></div>'; }
+        var containerVisao = document.getElementById('containerVisaoDia');
+        if (containerVisao) { containerVisao.innerHTML = '<div class="empty"><div class="ico">📅</div><p>Nenhum dado disponível.</p></div>'; }
+        var containerLanc = document.getElementById('containerLancamentosHoje');
+        if (containerLanc) { containerLanc.innerHTML = '<div class="empty"><div class="ico">📋</div><p>Nenhum lançamento financeiro realizado.</p></div>'; }
+        return;
+    }
+    if (fatDataEl) fatDataEl.textContent = dataSelecionada;
     for (var key in lancs) {
         totalReceita += lancs[key].valor || 0;
         totalCusto += lancs[key].custo || 0;
@@ -2289,134 +2834,716 @@ function renderizarFaturamento() {
     var sinal = resultado >= 0 ? '+' : '';
     var fatResultadoEl = document.getElementById('fatResultado');
     if (fatResultadoEl) { fatResultadoEl.innerHTML = '<span class="currency">R$</span> <span style="color:' + cor + ';">' + sinal + formatMoney(resultado) + '</span>'; }
-    
-    // Operações prontas
+    renderizarDias();
+    renderizarOperacoesProntas(dataSelecionada);
+    if (visaoFaturamentoAtual === 'dia') { renderizarVisaoDia(); }
+    else { renderizarVisaoOperacao(); }
+    renderizarLancamentosHoje();
+}
+
+function renderizarDias() {
+    var container = document.getElementById('diasContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'diasContainer';
+        container.className = 'dias-navegacao';
+        var pageFat = document.getElementById('pageFaturamento');
+        if (pageFat) {
+            var statsGrid = pageFat.querySelector('.stats-grid');
+            if (statsGrid && statsGrid.nextSibling) {
+                pageFat.insertBefore(container, statsGrid.nextSibling);
+            } else {
+                pageFat.insertBefore(container, pageFat.firstChild);
+            }
+        } else {
+            document.body.appendChild(container);
+        }
+    }
     var ops = state.operacoesDia;
-    var container = document.getElementById('containerOperacoesFaturamento');
-    var keys = Object.keys(ops);
+    var datasDaPlanilha = [];
+    for (var opKey in ops) {
+        var op = ops[opKey];
+        if (op && op.registros) {
+            for (var i = 0; i < op.registros.length; i++) {
+                var reg = op.registros[i];
+                var dataStr = reg.dataStr || '-';
+                if (dataStr !== '-' && dataStr !== 'Invalid Date' && !datasDaPlanilha.includes(dataStr)) {
+                    datasDaPlanilha.push(dataStr);
+                }
+            }
+        }
+    }
+    datasDaPlanilha.sort(function(a, b) {
+        var da = new Date(a.split('/').reverse().join('/'));
+        var db = new Date(b.split('/').reverse().join('/'));
+        return db - da;
+    });
+    if (datasDaPlanilha.length === 0) {
+        container.innerHTML = '<span style="font-size:12px;color:#64748b;">Nenhuma data encontrada. Importe uma planilha.</span>';
+        return;
+    }
+    var fatDataEl = document.getElementById('fatData');
+    var dataAtual = fatDataEl ? fatDataEl.textContent : null;
+    if (!dataAtual || dataAtual === '-' || !datasDaPlanilha.includes(dataAtual)) {
+        dataAtual = datasDaPlanilha[0];
+        if (fatDataEl) fatDataEl.textContent = dataAtual;
+    }
+    container.innerHTML = '';
+    for (var i = 0; i < datasDaPlanilha.length; i++) {
+        var dataStr = datasDaPlanilha[i];
+        var btn = document.createElement('button');
+        btn.textContent = dataStr;
+        var temLanc = false;
+        for (var key in state.lancamentosFirebase) {
+            if (state.lancamentosFirebase[key].dataReferencia === dataStr) {
+                temLanc = true;
+                break;
+            }
+        }
+        if (temLanc) btn.classList.add('dia-com-lancamento');
+        if (dataStr === dataAtual) btn.classList.add('active');
+        btn.addEventListener('click', function(d) {
+            return function() {
+                var fatData = document.getElementById('fatData');
+                if (fatData) fatData.textContent = d;
+                state.currentDia = getDiaNumero();
+                salvarConfiguracoes();
+                renderizarFaturamento();
+            };
+        }(dataStr));
+        container.appendChild(btn);
+    }
+}
+
+function renderizarOperacoesProntas(dataSelecionada) {
+    var lancs = state.lancamentosFirebase;
+    var containerOps = document.getElementById('containerOperacoesFaturamento');
+    if (!containerOps) return;
+    if (!dataSelecionada) {
+        var fatDataEl = document.getElementById('fatData');
+        dataSelecionada = fatDataEl ? fatDataEl.textContent : null;
+        if (!dataSelecionada || dataSelecionada === '-') {
+            var ops = state.operacoesDia;
+            var datas = [];
+            for (var opKey in ops) {
+                var op = ops[opKey];
+                if (op && op.registros) {
+                    for (var i = 0; i < op.registros.length; i++) {
+                        var reg = op.registros[i];
+                        var dataStr = reg.dataStr || '-';
+                        if (dataStr !== '-' && dataStr !== 'Invalid Date' && !datas.includes(dataStr)) {
+                            datas.push(dataStr);
+                        }
+                    }
+                }
+            }
+            datas.sort(function(a, b) {
+                var da = new Date(a.split('/').reverse().join('/'));
+                var db = new Date(b.split('/').reverse().join('/'));
+                return db - da;
+            });
+            dataSelecionada = datas.length > 0 ? datas[0] : '-';
+            if (fatDataEl) fatDataEl.textContent = dataSelecionada;
+        }
+    }
+    var ops = state.operacoesDia;
+    var operacoesDoDia = {};
+    for (var key in ops) {
+        var op = ops[key];
+        if (op && op.registros) {
+            var temRegistroHoje = false;
+            var haTotalDia = 0;
+            var registrosDoDia = [];
+            for (var i = 0; i < op.registros.length; i++) {
+                var reg = op.registros[i];
+                var regDataStr = reg.dataStr || '-';
+                if (regDataStr === dataSelecionada) {
+                    temRegistroHoje = true;
+                    haTotalDia += reg.ha || 0;
+                    registrosDoDia.push(reg);
+                }
+            }
+            if (temRegistroHoje) {
+                operacoesDoDia[key] = {
+                    nome: key,
+                    totalHa: haTotalDia,
+                    registros: registrosDoDia,
+                    isManual: op.isManual || false,
+                    id: op.id || key
+                };
+            }
+        }
+    }
+    var keys = Object.keys(operacoesDoDia);
     if (keys.length === 0) {
-        container.innerHTML = '<div class="empty"><div class="ico">📭</div><p>Nenhuma operação disponível.</p></div>';
+        containerOps.innerHTML = '<div class="empty"><div class="ico">📭</div><p>Nenhuma operação para o dia ' + dataSelecionada + '.<br />Importe uma planilha ou adicione uma operação manual.</p></div>';
         return;
     }
     var html = '';
-    keys.forEach(function(key, idx) {
-        var op = ops[key];
+    var index = 0;
+    for (var key in operacoesDoDia) {
+        var op = operacoesDoDia[key];
         var jaLancado = lancs[key];
+        var ha = op.totalHa || 0;
+        var valor = jaLancado ? jaLancado.valor : 0;
+        var tf = jaLancado ? jaLancado.tf : 0;
+        var maq = jaLancado ? jaLancado.maq : 0;
+        var pipa = jaLancado ? jaLancado.pipa : 0;
+        var apoio = jaLancado ? jaLancado.apoio : 0;
+        var rha = ha > 0 ? valor / ha : 0;
         var valorConfig = state.valoresAtividades[key] || 0;
-        html += '<div class="operacao-pronta" style="border-left-color:' + (jaLancado ? '#16a34a' : '#2563eb') + ';">';
+        var idx = index;
+        var isManual = op.isManual || false;
+        var opId = op.id || key;
+        html += '<div class="operacao-pronta" id="op_' + idx + '" style="border-left-color:' + (isManual ? '#7c3aed' : '#2563eb') + ';">';
         html += '<div class="info">';
-        html += '<span class="nome">' + key + '</span>';
-        html += '<span class="qtd">' + safe(op.totalHa) + ' ha</span>';
+        html += '<span class="nome" style="font-weight:700;font-size:13px;word-wrap:break-word;max-width:350px;">' + key + (isManual ? ' <span style="font-size:10px;color:#7c3aed;font-weight:400;">(Manual)</span>' : '') + '</span>';
+        html += '<span class="qtd" style="font-weight:700;color:#2563eb;font-size:14px;">' + safe(ha) + ' ha</span>';
         html += jaLancado ? '<span class="badge-status completo">✅ Lançado</span>' : '<span class="badge-status aguardando">⏳ Aguardando</span>';
+        if (valorConfig > 0 && !jaLancado) {
+            html += '<span style="font-size:11px;color:#64748b;">(R$ ' + formatMoney(valorConfig) + '/ha configurado)</span>';
+        } else if (valorConfig === 0 && !jaLancado) {
+            html += '<span style="font-size:11px;color:#dc3545;">⚠️ Sem valor configurado</span>';
+        }
         html += '</div>';
         html += '<div class="campos">';
-        html += '<label>R$/ha:</label><input type="number" id="rha_' + idx + '" step="0.01" value="' + (jaLancado ? safe(jaLancado.valor / op.totalHa) : safe(valorConfig)) + '" oninput="calcularTotalOp(' + idx + ')">';
-        html += '<label>TF:</label><input type="number" id="tf_' + idx + '" step="1" value="' + (jaLancado ? jaLancado.tf || 0 : 0) + '">';
-        html += '<label>Máq:</label><input type="number" id="maq_' + idx + '" step="1" value="' + (jaLancado ? jaLancado.maq || 0 : 0) + '">';
-        html += '<label>Pipa:</label><input type="number" id="pipa_' + idx + '" step="1" value="' + (jaLancado ? jaLancado.pipa || 0 : 0) + '">';
-        html += '<label>Apoio:</label><input type="number" id="apoio_' + idx + '" step="1" value="' + (jaLancado ? jaLancado.apoio || 0 : 0) + '">';
-        html += '<span style="font-weight:700;color:#2563eb;min-width:80px;" id="totalOp_' + idx + '">R$ ' + (jaLancado ? formatMoney(jaLancado.valor || 0) : '0.00') + '</span>';
-        html += '<button class="btn-primary-custom" onclick="lancarOperacao(' + idx + ',\'' + key + '\')">✅ Lançar</button>';
-        if (jaLancado) {
-            html += '<button class="btn-danger-custom" onclick="excluirLancamento(\'' + key + '\')">🗑️ Excluir</button>';
+        html += '<label>R$/ha:</label><input type="number" id="rha_' + idx + '" step="0.01" value="' + (jaLancado ? safe(rha) : safe(valorConfig)) + '" oninput="calcularTotalOp(' + idx + ')">';
+        html += '<label>TF:</label><input type="number" id="tf_' + idx + '" step="1" value="' + tf + '" oninput="calcularTotalOp(' + idx + ')">';
+        html += '<label>Máq:</label><input type="number" id="maq_' + idx + '" step="1" value="' + maq + '" oninput="calcularTotalOp(' + idx + ')">';
+        html += '<label>Pipa:</label><input type="number" id="pipa_' + idx + '" step="1" value="' + pipa + '" oninput="calcularTotalOp(' + idx + ')">';
+        html += '<label>Apoio:</label><input type="number" id="apoio_' + idx + '" step="1" value="' + apoio + '" oninput="calcularTotalOp(' + idx + ')">';
+        var rhaEl = document.getElementById('rha_' + idx);
+        var rhaVal = (rhaEl && rhaEl.value) ? parseFloat(rhaEl.value) || 0 : valorConfig;
+        var totalExibido = ha * rhaVal;
+        html += '<label>Total:</label><span style="font-weight:700;color:#2563eb;min-width:80px;" id="totalOp_' + idx + '">R$ ' + formatMoney(totalExibido) + '</span>';
+        html += '<button class="btn-primary-custom" onclick="lancarOperacao(' + idx + ',\'' + key + '\',\'' + dataSelecionada + '\')"><i class="fas fa-check"></i> Lançar</button>';
+        html += '<button class="btn-edit-custom" onclick="editarLancamento(\'' + key + '\',\'' + dataSelecionada + '\')" title="Editar lançamento"><i class="fas fa-edit"></i> Editar</button>';
+        if (isManual) {
+            html += '<button class="btn-excluir-custom" onclick="excluirOperacaoFaturamento(\'' + opId + '\',\'' + dataSelecionada + '\')" title="Excluir operação"><i class="fas fa-trash"></i> Excluir</button>';
         }
         html += '</div></div>';
-    });
+        index++;
+    }
+    containerOps.innerHTML = html;
+    for (var j = 0; j < index; j++) { calcularTotalOp(j); }
+}
+
+function lancarOperacao(index, opId, dataSelecionada) {
+    var resultado = calcularTotalOp(index);
+    if (resultado.receita === 0 && resultado.custo === 0) {
+        showToast('⚠️ Preencha pelo menos o R$/ha ou os recursos!', 'warning');
+        return;
+    }
+    var op = state.operacoesDia[opId];
+    if (!dataSelecionada) {
+        var fatDataEl = document.getElementById('fatData');
+        dataSelecionada = fatDataEl ? fatDataEl.textContent : null;
+        if (!dataSelecionada || dataSelecionada === '-') {
+            var datas = [];
+            if (op && op.registros) {
+                for (var i = 0; i < op.registros.length; i++) {
+                    var reg = op.registros[i];
+                    var dataStr = reg.dataStr || '-';
+                    if (dataStr !== '-' && dataStr !== 'Invalid Date' && !datas.includes(dataStr)) {
+                        datas.push(dataStr);
+                    }
+                }
+            }
+            datas.sort(function(a, b) {
+                var da = new Date(a.split('/').reverse().join('/'));
+                var db = new Date(b.split('/').reverse().join('/'));
+                return db - da;
+            });
+            dataSelecionada = datas.length > 0 ? datas[0] : getHoje();
+        }
+    }
+    var haDia = 0;
+    var registroDoDia = null;
+    var dataReferencia = dataSelecionada;
+    if (op && op.registros) {
+        for (var i = 0; i < op.registros.length; i++) {
+            if (op.registros[i].dataStr === dataSelecionada && op.registros[i].ha > 0) {
+                registroDoDia = op.registros[i];
+                haDia += op.registros[i].ha;
+            }
+        }
+    }
+    if (haDia === 0 || !registroDoDia) {
+        showToast('⚠️ Nenhuma produção para ' + dataSelecionada + ' nesta operação!', 'warning');
+        return;
+    }
+    var dia = getDiaNumero();
+    var jaLancado = state.lancamentosFirebase[opId];
+    if (jaLancado) {
+        if (!confirm('Esta operação já foi lançada. Deseja atualizar?')) return;
+    }
+    var receita = resultado.receita;
+    var custo = resultado.custo;
+    var ref = db.collection('lancamentos').doc();
+    if (jaLancado && jaLancado.docId) {
+        ref = db.collection('lancamentos').doc(jaLancado.docId);
+        ref.update({
+            dia: dia,
+            opId: opId,
+            ha: haDia,
+            valor: receita,
+            tf: resultado.tf,
+            maq: resultado.maq,
+            pipa: resultado.pipa,
+            apoio: resultado.apoio,
+            custo: custo,
+            dataReferencia: dataReferencia,
+            fazenda: registroDoDia.fazenda || '',
+            talhao: registroDoDia.talhao || '',
+            updatedAt: new Date()
+        }).then(function() {
+            state.lancamentosFirebase[opId] = {
+                ha: haDia,
+                valor: receita,
+                custo: custo,
+                tf: resultado.tf,
+                maq: resultado.maq,
+                pipa: resultado.pipa,
+                apoio: resultado.apoio,
+                docId: ref.id,
+                dataReferencia: dataReferencia,
+                fazenda: registroDoDia.fazenda || '',
+                talhao: registroDoDia.talhao || ''
+            };
+            showToast('✅ Operação atualizada para ' + dataReferencia + '!', 'success');
+            renderizarFaturamento();
+            renderizarDashboard();
+            renderizarResultado();
+        }).catch(function(error) {
+            showToast('❌ Erro ao atualizar: ' + error.message, 'error');
+        });
+    } else {
+        ref.set({
+            dia: dia,
+            opId: opId,
+            ha: haDia,
+            valor: receita,
+            tf: resultado.tf,
+            maq: resultado.maq,
+            pipa: resultado.pipa,
+            apoio: resultado.apoio,
+            custo: custo,
+            dataReferencia: dataReferencia,
+            fazenda: registroDoDia.fazenda || '',
+            talhao: registroDoDia.talhao || '',
+            createdAt: new Date()
+        }).then(function() {
+            state.lancamentosFirebase[opId] = {
+                ha: haDia,
+                valor: receita,
+                custo: custo,
+                tf: resultado.tf,
+                maq: resultado.maq,
+                pipa: resultado.pipa,
+                apoio: resultado.apoio,
+                docId: ref.id,
+                dataReferencia: dataReferencia,
+                fazenda: registroDoDia.fazenda || '',
+                talhao: registroDoDia.talhao || ''
+            };
+            var sinal = receita - custo >= 0 ? '+' : '';
+            showToast('✅ ' + safe(haDia) + ' ha × R$ ' + safe(resultado.rha) + ' = R$ ' + formatMoney(receita) + ' | Custo: R$ ' + formatMoney(custo) + ' | ' + sinal + 'R$ ' + formatMoney(receita - custo), 'success');
+            renderizarFaturamento();
+            renderizarDashboard();
+            renderizarResultado();
+        }).catch(function(error) {
+            showToast('❌ Erro ao lançar: ' + error.message, 'error');
+        });
+    }
+}
+
+function editarLancamento(opId, dataSelecionada) {
+    var lanc = state.lancamentosFirebase[opId];
+    if (!lanc) { showToast('⚠️ Lançamento não encontrado.', 'warning'); return; }
+    var fatDataEl = document.getElementById('fatData');
+    if (dataSelecionada && fatDataEl) {
+        fatDataEl.textContent = dataSelecionada;
+        var botoesDia = document.querySelectorAll('#diasContainer button');
+        botoesDia.forEach(function(btn) {
+            btn.classList.remove('active');
+            if (btn.textContent === dataSelecionada) {
+                btn.classList.add('active');
+            }
+        });
+    }
+    var opSelect = document.getElementById('opSelect');
+    if (opSelect) {
+        opSelect.value = opId;
+        var event = new Event('change');
+        opSelect.dispatchEvent(event);
+    }
+    var ha = lanc.ha || 0;
+    var rha = ha > 0 ? (lanc.valor / ha) : 0;
+    var tf = lanc.tf || 0;
+    var maq = lanc.maq || 0;
+    var pipa = lanc.pipa || 0;
+    var apoio = lanc.apoio || 0;
+    var valorHaEl = document.getElementById('valorHa');
+    var valorRhaEl = document.getElementById('valorRha');
+    var tfQtdEl = document.getElementById('tfQtd');
+    var maqQtdEl = document.getElementById('maqQtd');
+    var pipaQtdEl = document.getElementById('pipaQtd');
+    var apoioQtdEl = document.getElementById('apoioQtd');
+    if (valorHaEl) valorHaEl.value = ha.toFixed(2);
+    if (valorRhaEl) valorRhaEl.value = rha.toFixed(2);
+    if (tfQtdEl) tfQtdEl.value = tf;
+    if (maqQtdEl) maqQtdEl.value = maq;
+    if (pipaQtdEl) pipaQtdEl.value = pipa;
+    if (apoioQtdEl) apoioQtdEl.value = apoio;
+    calcularTotal();
+    if (confirm('Os dados foram carregados para edição. Deseja excluir o lançamento antigo para relançar com os novos valores?')) {
+        excluirLancamento(opId);
+    } else {
+        showToast('💡 Mantenha os valores e clique em "Lançar" para atualizar.', 'info');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast('📝 Dados carregados para edição. Ajuste os valores e clique em "Lançar".', 'info');
+}
+
+function renderizarVisaoDia() {
+    var container = document.getElementById('containerVisaoDia');
+    if (!container) return;
+    var ops = state.operacoesDia;
+    var lancs = state.lancamentosFirebase;
+    var fatDataEl = document.getElementById('fatData');
+    var dataSelecionada = fatDataEl ? fatDataEl.textContent : null;
+    if (!dataSelecionada || dataSelecionada === '-') {
+        var datas = [];
+        for (var opKey in ops) {
+            var op = ops[opKey];
+            if (op && op.registros) {
+                for (var i = 0; i < op.registros.length; i++) {
+                    var reg = op.registros[i];
+                    var dataStr = reg.dataStr || '-';
+                    if (dataStr !== '-' && dataStr !== 'Invalid Date' && !datas.includes(dataStr)) {
+                        datas.push(dataStr);
+                    }
+                }
+            }
+        }
+        datas.sort(function(a, b) {
+            var da = new Date(a.split('/').reverse().join('/'));
+            var db = new Date(b.split('/').reverse().join('/'));
+            return db - da;
+        });
+        dataSelecionada = datas.length > 0 ? datas[0] : '-';
+        if (fatDataEl) fatDataEl.textContent = dataSelecionada;
+    }
+    var lancsDoDia = {};
+    for (var key in lancs) {
+        var l = lancs[key];
+        var dataLanc = l.dataReferencia || '-';
+        if (dataLanc === dataSelecionada) {
+            lancsDoDia[key] = l;
+        }
+    }
+    var registrosDoDia = [];
+    for (var opKey in ops) {
+        var op = ops[opKey];
+        if (op && op.registros) {
+            for (var i = 0; i < op.registros.length; i++) {
+                var reg = op.registros[i];
+                var regDataStr = reg.dataStr || '-';
+                if (regDataStr === dataSelecionada) {
+                    registrosDoDia.push({
+                        operacao: opKey,
+                        ha: reg.ha || 0,
+                        fazenda: reg.fazenda || '',
+                        talhao: reg.talhao || '',
+                        equipe: reg.equipe || '',
+                        obs: reg.obsLimpa || '',
+                        dataStr: dataSelecionada,
+                        lancado: lancsDoDia[opKey] ? true : false,
+                        lancamento: lancsDoDia[opKey] || null,
+                        isManual: reg.isManual || false,
+                        id: reg.id || opKey
+                    });
+                }
+            }
+        }
+    }
+    var opsAgrupadas = {};
+    for (var i = 0; i < registrosDoDia.length; i++) {
+        var reg = registrosDoDia[i];
+        var key = reg.operacao;
+        if (!opsAgrupadas[key]) {
+            opsAgrupadas[key] = {
+                operacao: key,
+                ha: 0,
+                lancado: reg.lancado,
+                lancamento: reg.lancamento,
+                fazenda: reg.fazenda,
+                talhao: reg.talhao,
+                equipe: reg.equipe,
+                obs: reg.obs,
+                isManual: reg.isManual,
+                id: reg.id
+            };
+        }
+        opsAgrupadas[key].ha += reg.ha;
+    }
+    var opsKeys = Object.keys(opsAgrupadas);
+    if (opsKeys.length === 0 && Object.keys(lancsDoDia).length === 0) {
+        container.innerHTML = '<div class="empty"><div class="ico">📅</div><p>Nenhuma operação ou lançamento para o dia ' + dataSelecionada + '.</p></div>';
+        return;
+    }
+    var totalHaDia = 0;
+    var totalReceitaDia = 0;
+    var totalCustoDia = 0;
+    for (var key in lancsDoDia) {
+        if (!opsAgrupadas[key]) {
+            opsAgrupadas[key] = {
+                operacao: key,
+                ha: 0,
+                lancado: true,
+                lancamento: lancsDoDia[key],
+                fazenda: lancsDoDia[key].fazenda || '',
+                talhao: lancsDoDia[key].talhao || '',
+                equipe: '',
+                obs: '',
+                isManual: false,
+                id: key
+            };
+        }
+    }
+    var html = '<div style="background:#f8fafc;border-radius:8px;padding:12px 16px;margin-bottom:12px;border:1px solid #e9eef3;">';
+    html += '<div style="font-weight:700;font-size:16px;color:#0a1628;margin-bottom:8px;">📅 ' + dataSelecionada + '</div>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:11px;">';
+    html += '<thead><tr><th style="text-align:left;padding:4px 6px;border-bottom:2px solid #d1d5db;">Operação</th><th style="text-align:right;padding:4px 6px;border-bottom:2px solid #d1d5db;">Produção</th><th style="text-align:right;padding:4px 6px;border-bottom:2px solid #d1d5db;">Receita</th><th style="text-align:right;padding:4px 6px;border-bottom:2px solid #d1d5db;">TF</th><th style="text-align:right;padding:4px 6px;border-bottom:2px solid #d1d5db;">Máq</th><th style="text-align:right;padding:4px 6px;border-bottom:2px solid #d1d5db;">Pipa</th><th style="text-align:right;padding:4px 6px;border-bottom:2px solid #d1d5db;">Apoio</th><th style="text-align:right;padding:4px 6px;border-bottom:2px solid #d1d5db;">Custo</th><th style="text-align:right;padding:4px 6px;border-bottom:2px solid #d1d5db;">Resultado</th><th style="text-align:right;padding:4px 6px;border-bottom:2px solid #d1d5db;">Margem</th><th style="text-align:center;padding:4px 6px;border-bottom:2px solid #d1d5db;">Status</th><th style="text-align:center;padding:4px 6px;border-bottom:2px solid #d1d5db;">Ações</th></tr></thead><tbody>';
+    var sortedKeys = Object.keys(opsAgrupadas).sort();
+    for (var i = 0; i < sortedKeys.length; i++) {
+        var key = sortedKeys[i];
+        var op = opsAgrupadas[key];
+        var ha = op.ha;
+        var lancado = op.lancado;
+        var lanc = op.lancamento;
+        var valor = lanc ? lanc.valor || 0 : 0;
+        var tf = lanc ? lanc.tf || 0 : 0;
+        var maq = lanc ? lanc.maq || 0 : 0;
+        var pipa = lanc ? lanc.pipa || 0 : 0;
+        var apoio = lanc ? lanc.apoio || 0 : 0;
+        var custo = lanc ? lanc.custo || 0 : 0;
+        var resultado = valor - custo;
+        var margem = valor > 0 ? (resultado / valor) * 100 : 0;
+        var cor = resultado >= 0 ? 'text-green' : 'text-red';
+        totalHaDia += ha;
+        totalReceitaDia += valor;
+        totalCustoDia += custo;
+        var statusLabel = lancado ? '✅ Lançado' : '⏳ Aguardando';
+        var statusCls = lancado ? 'completo' : 'aguardando';
+        var isManual = op.isManual || false;
+        var opId = op.id || key;
+        html += '<tr><td style="padding:4px 6px;border-bottom:1px solid #f1f5f9;font-weight:600;">' + key + (isManual ? ' <span style="font-size:9px;color:#7c3aed;">(Manual)</span>' : '') + '</td><td style="padding:4px 6px;border-bottom:1px solid #f1f5f9;text-align:right;">' + safe(ha) + '</td><td style="padding:4px 6px;border-bottom:1px solid #f1f5f9;text-align:right;">' + (lancado ? 'R$ ' + formatMoney(valor) : '-') + '</td><td style="padding:4px 6px;border-bottom:1px solid #f1f5f9;text-align:right;">' + (lancado ? tf : '-') + '</td><td style="padding:4px 6px;border-bottom:1px solid #f1f5f9;text-align:right;">' + (lancado ? maq : '-') + '</td><td style="padding:4px 6px;border-bottom:1px solid #f1f5f9;text-align:right;">' + (lancado ? pipa : '-') + '</td><td style="padding:4px 6px;border-bottom:1px solid #f1f5f9;text-align:right;">' + (lancado ? apoio : '-') + '</td><td style="padding:4px 6px;border-bottom:1px solid #f1f5f9;text-align:right;">' + (lancado ? 'R$ ' + formatMoney(custo) : '-') + '</td><td style="padding:4px 6px;border-bottom:1px solid #f1f5f9;text-align:right;font-weight:700;' + cor + '">' + (lancado ? 'R$ ' + formatMoney(resultado) : '-') + '</td><td style="padding:4px 6px;border-bottom:1px solid #f1f5f9;text-align:right;' + cor + '">' + (lancado ? margem.toFixed(1) + '%' : '-') + '</td><td style="padding:4px 6px;border-bottom:1px solid #f1f5f9;text-align:center;"><span class="badge-status ' + statusCls + '">' + statusLabel + '</span></td><td style="padding:4px 6px;border-bottom:1px solid #f1f5f9;text-align:center;">' + (isManual ? '<button class="btn-excluir-custom btn-sm" onclick="excluirOperacaoFaturamento(\'' + opId + '\',\'' + dataSelecionada + '\')" title="Excluir" style="font-size:10px;padding:2px 8px;"><i class="fas fa-trash"></i></button>' : '<span style="font-size:10px;color:#9ca3af;">—</span>') + '</td></tr>';
+    }
+    var resultadoDia = totalReceitaDia - totalCustoDia;
+    var margemDia = totalReceitaDia > 0 ? (resultadoDia / totalReceitaDia) * 100 : 0;
+    var corDia = resultadoDia >= 0 ? 'text-green' : 'text-red';
+    var temLancamento = totalReceitaDia > 0 || totalCustoDia > 0;
+    html += '<tr style="background:#dcfce7;font-weight:700;"><td style="padding:6px 6px;border-top:2px solid #16a34a;"><strong>TOTAL DO DIA</strong></td><td style="padding:6px 6px;border-top:2px solid #16a34a;text-align:right;">' + safe(totalHaDia) + '</td><td style="padding:6px 6px;border-top:2px solid #16a34a;text-align:right;">' + (temLancamento ? 'R$ ' + formatMoney(totalReceitaDia) : '-') + '</td><td style="padding:6px 6px;border-top:2px solid #16a34a;text-align:right;" colspan="4"></td><td style="padding:6px 6px;border-top:2px solid #16a34a;text-align:right;">' + (temLancamento ? 'R$ ' + formatMoney(totalCustoDia) : '-') + '</td><td style="padding:6px 6px;border-top:2px solid #16a34a;text-align:right;' + corDia + '">' + (temLancamento ? 'R$ ' + formatMoney(resultadoDia) : '-') + '</td><td style="padding:6px 6px;border-top:2px solid #16a34a;text-align:right;' + corDia + '">' + (temLancamento ? margemDia.toFixed(1) + '%' : '-') + '</td><td style="padding:6px 6px;border-top:2px solid #16a34a;text-align:center;">' + (temLancamento ? '✅' : '⏳') + '</td><td style="padding:6px 6px;border-top:2px solid #16a34a;text-align:center;"></td></tr>';
+    html += '</tbody></table></div>';
     container.innerHTML = html;
 }
 
-function calcularTotalOp(index) {
-    var rhaEl = document.getElementById('rha_' + index);
+function renderizarVisaoOperacao() {
+    var container = document.getElementById('containerVisaoOperacao');
+    if (!container) return;
+    var lancs = state.lancamentosFirebase;
     var ops = state.operacoesDia;
-    var keys = Object.keys(ops);
-    var ha = ops[keys[index]].totalHa;
-    var rha = (rhaEl && rhaEl.value) ? parseFloat(rhaEl.value) || 0 : 0;
-    var total = ha * rha;
-    var el = document.getElementById('totalOp_' + index);
-    if (el) { el.textContent = 'R$ ' + formatMoney(total); }
-    return { receita: total, ha: ha, rha: rha };
-}
-
-function lancarOperacao(index, opId) {
-    var rhaEl = document.getElementById('rha_' + index);
-    var tfEl = document.getElementById('tf_' + index);
-    var maqEl = document.getElementById('maq_' + index);
-    var pipaEl = document.getElementById('pipa_' + index);
-    var apoioEl = document.getElementById('apoio_' + index);
-    
-    var rha = parseFloat(rhaEl.value) || 0;
-    var tf = parseInt(tfEl.value) || 0;
-    var maq = parseInt(maqEl.value) || 0;
-    var pipa = parseInt(pipaEl.value) || 0;
-    var apoio = parseInt(apoioEl.value) || 0;
-    
-    var ops = state.operacoesDia;
-    var keys = Object.keys(ops);
-    var ha = ops[keys[index]].totalHa;
-    var receita = ha * rha;
-    var custo = (tf * state.custos.TF) + (maq * state.custos.MAQ) + (pipa * state.custos.PIPA) + (apoio * state.custos.APOIO);
-    
-    if (receita === 0 && custo === 0) {
-        showToast('⚠️ Preencha o R$/ha ou os recursos!', 'warning');
+    var periodoEl = document.getElementById('fatPeriodo');
+    var fazendaEl = document.getElementById('fatFazendaOp');
+    var periodo = periodoEl ? periodoEl.value : 'todo';
+    var fazendaFiltro = fazendaEl ? fazendaEl.value : '';
+    var fazendas = [];
+    for (var key in ops) {
+        if (ops[key].registros) {
+            ops[key].registros.forEach(function(reg) {
+                if (reg.fazenda && !fazendas.includes(reg.fazenda)) fazendas.push(reg.fazenda);
+            });
+        }
+    }
+    if (fazendaEl) {
+        fazendaEl.innerHTML = '<option value="">Todas</option>' + fazendas.sort().map(function(f){ return '<option value="' + f + '">' + f + '</option>'; }).join('');
+    }
+    var keys = Object.keys(lancs);
+    if (keys.length === 0) {
+        container.innerHTML = '<div class="empty"><div class="ico">📊</div><p>Nenhum lançamento encontrado.</p></div>';
         return;
     }
-    
-    var dados = {
-        opId: opId,
-        ha: ha,
-        valor: receita,
-        custo: custo,
-        tf: tf,
-        maq: maq,
-        pipa: pipa,
-        apoio: apoio,
-        dataReferencia: getHoje()
-    };
-    
-    var existente = state.lancamentosFirebase[opId];
-    if (existente && existente.id) {
-        atualizarLancamentoFirebase(existente.id, dados)
-            .then(function() {
-                showToast('✅ Operação atualizada!', 'success');
-                renderizarFaturamento();
-                renderizarDashboard();
-                renderizarResultado();
-            })
-            .catch(function(error) {
-                showToast('❌ Erro: ' + error.message, 'error');
-            });
-    } else {
-        salvarLancamentoFirebase(dados)
-            .then(function() {
-                showToast('✅ Operação lançada: R$ ' + formatMoney(receita), 'success');
-                renderizarFaturamento();
-                renderizarDashboard();
-                renderizarResultado();
-            })
-            .catch(function(error) {
-                showToast('❌ Erro: ' + error.message, 'error');
-            });
+    var hoje = new Date();
+    var inicioSemana = new Date(hoje); inicioSemana.setDate(hoje.getDate() - hoje.getDay());
+    var inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+    var filtrados = {};
+    for (var key in lancs) {
+        var l = lancs[key];
+        if (fazendaFiltro) {
+            var temFazenda = false;
+            if (ops[key] && ops[key].registros) {
+                ops[key].registros.forEach(function(reg) {
+                    if (reg.fazenda === fazendaFiltro) temFazenda = true;
+                });
+            }
+            if (!temFazenda) continue;
+        }
+        var dataLanc = new Date();
+        if (l.dataReferencia) {
+            var partes = l.dataReferencia.split('/');
+            if (partes.length === 3) {
+                dataLanc = new Date(partes[2], partes[1] - 1, partes[0]);
+            }
+        }
+        if (periodo === 'hoje') {
+            if (dataLanc.toDateString() !== hoje.toDateString()) continue;
+        } else if (periodo === 'semana') {
+            if (dataLanc < inicioSemana) continue;
+        } else if (periodo === 'mes') {
+            if (dataLanc < inicioMes) continue;
+        }
+        filtrados[key] = l;
     }
+    var keysFiltrados = Object.keys(filtrados);
+    if (keysFiltrados.length === 0) {
+        container.innerHTML = '<div class="empty"><div class="ico">📊</div><p>Nenhum lançamento encontrado para os filtros selecionados.</p></div>';
+        return;
+    }
+    var porOperacao = {};
+    for (var key in filtrados) {
+        var l = filtrados[key];
+        if (!porOperacao[key]) {
+            porOperacao[key] = { ha: 0, valor: 0, custo: 0, tf: 0, maq: 0, pipa: 0, apoio: 0, isManual: false, id: key };
+        }
+        porOperacao[key].ha += l.ha || 0;
+        porOperacao[key].valor += l.valor || 0;
+        porOperacao[key].custo += l.custo || 0;
+        porOperacao[key].tf += l.tf || 0;
+        porOperacao[key].maq += l.maq || 0;
+        porOperacao[key].pipa += l.pipa || 0;
+        porOperacao[key].apoio += l.apoio || 0;
+        if (ops[key] && ops[key].isManual) {
+            porOperacao[key].isManual = true;
+        }
+    }
+    var html = '<table><thead><tr><th>Operação</th><th class="num">HA Total</th><th class="num">Receita Total</th><th class="num">Custo Total</th><th class="num">Resultado</th><th class="num">Margem</th><th>Recursos</th><th class="num">Ações</th></tr></thead><tbody>';
+    var totalHaGeral = 0, totalReceitaGeral = 0, totalCustoGeral = 0;
+    var sortedKeys = Object.keys(porOperacao).sort();
+    for (var i = 0; i < sortedKeys.length; i++) {
+        var key = sortedKeys[i];
+        var op = porOperacao[key];
+        var resultado = op.valor - op.custo;
+        var margem = op.valor > 0 ? (resultado / op.valor) * 100 : 0;
+        var cor = resultado >= 0 ? 'text-green' : 'text-red';
+        totalHaGeral += op.ha;
+        totalReceitaGeral += op.valor;
+        totalCustoGeral += op.custo;
+        var isManual = op.isManual || false;
+        var opId = op.id || key;
+        html += '<tr><td style="font-weight:600;">' + key + (isManual ? ' <span style="font-size:9px;color:#7c3aed;">(Manual)</span>' : '') + '</td><td class="num">' + safe(op.ha) + '</td><td class="num">R$ ' + formatMoney(op.valor) + '</td><td class="num">R$ ' + formatMoney(op.custo) + '</td><td class="num ' + cor + '">R$ ' + formatMoney(resultado) + '</td><td class="num ' + cor + '">' + margem.toFixed(1) + '%</td><td class="text-sm">TF:' + op.tf + ' M:' + op.maq + ' P:' + op.pipa + ' A:' + op.apoio + '</td><td class="num">' + (isManual ? '<button class="btn-excluir-custom btn-sm" onclick="excluirOperacaoFaturamento(\'' + opId + '\',\'' + 'todo' + '\')" title="Excluir" style="font-size:10px;padding:2px 8px;"><i class="fas fa-trash"></i></button>' : '<span style="font-size:10px;color:#9ca3af;">—</span>') + '</td></tr>';
+    }
+    var resultadoGeral = totalReceitaGeral - totalCustoGeral;
+    var corGeral = resultadoGeral >= 0 ? 'text-green' : 'text-red';
+    var margemGeral = totalReceitaGeral > 0 ? (resultadoGeral / totalReceitaGeral) * 100 : 0;
+    html += '<tr class="total-row"><td><strong>TOTAL GERAL</strong></td><td class="num"><strong>' + safe(totalHaGeral) + '</strong></td><td class="num"><strong>R$ ' + formatMoney(totalReceitaGeral) + '</strong></td><td class="num"><strong>R$ ' + formatMoney(totalCustoGeral) + '</strong></td><td class="num ' + corGeral + '"><strong>R$ ' + formatMoney(resultadoGeral) + '</strong></td><td class="num ' + corGeral + '"><strong>' + margemGeral.toFixed(1) + '%</strong></td><td></td><td></td></tr>';
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+function renderizarLancamentosHoje() {
+    var container = document.getElementById('containerLancamentosHoje');
+    if (!container) return;
+    var lancs = state.lancamentosFirebase;
+    var fatDataEl = document.getElementById('fatData');
+    var dataSelecionada = fatDataEl ? fatDataEl.textContent : null;
+    if (!dataSelecionada || dataSelecionada === '-') {
+        var ops = state.operacoesDia;
+        var datas = [];
+        for (var opKey in ops) {
+            var op = ops[opKey];
+            if (op && op.registros) {
+                for (var i = 0; i < op.registros.length; i++) {
+                    var reg = op.registros[i];
+                    var dataStr = reg.dataStr || '-';
+                    if (dataStr !== '-' && dataStr !== 'Invalid Date' && !datas.includes(dataStr)) {
+                        datas.push(dataStr);
+                    }
+                }
+            }
+        }
+        datas.sort(function(a, b) {
+            var da = new Date(a.split('/').reverse().join('/'));
+            var db = new Date(b.split('/').reverse().join('/'));
+            return db - da;
+        });
+        dataSelecionada = datas.length > 0 ? datas[0] : '-';
+    }
+    var lancsDoDia = {};
+    for (var key in lancs) {
+        var l = lancs[key];
+        var dataLanc = l.dataReferencia || '-';
+        if (dataLanc === dataSelecionada) {
+            lancsDoDia[key] = l;
+        }
+    }
+    var keys = Object.keys(lancsDoDia);
+    if (keys.length === 0) {
+        container.innerHTML = '<div class="empty"><div class="ico">📋</div><p>Nenhum lançamento financeiro para o dia ' + dataSelecionada + '.</p></div>';
+        return;
+    }
+    var html = '<table><thead><tr><th>Operação</th><th class="num">Área (ha)</th><th class="num">Valor (R$)</th><th class="num">Custo (R$)</th><th class="num">Resultado</th><th>Recursos</th><th class="num">Ações</th></tr></thead><tbody>';
+    var totalValor = 0, totalCusto = 0;
+    for (var key in lancsDoDia) {
+        var l = lancsDoDia[key];
+        totalValor += l.valor || 0;
+        totalCusto += l.custo || 0;
+        var resultado = (l.valor || 0) - (l.custo || 0);
+        var cor = resultado >= 0 ? 'text-green' : 'text-red';
+        var sinal = resultado >= 0 ? '+' : '';
+        var isManual = (ops[key] && ops[key].isManual) || false;
+        html += '<tr><td>' + key + (isManual ? ' <span style="font-size:9px;color:#7c3aed;">(Manual)</span>' : '') + '<br><span style="font-size:9px;color:#64748b;">' + dataSelecionada + '</span></td><td class="num">' + safe(l.ha) + '</td><td class="num">' + formatMoney(l.valor || 0) + '</td><td class="num">' + formatMoney(l.custo || 0) + '</td><td class="num ' + cor + '">' + sinal + formatMoney(resultado) + '</td><td class="text-sm">TF:' + (l.tf || 0) + ' M:' + (l.maq || 0) + ' P:' + (l.pipa || 0) + ' A:' + (l.apoio || 0) + '</td><td class="num" style="white-space:nowrap;"><button class="btn-edit-custom" onclick="editarLancamento(\'' + key + '\',\'' + dataSelecionada + '\')" title="Editar" style="margin-right:4px;"><i class="fas fa-edit"></i></button><button class="btn-danger-custom" onclick="excluirLancamento(\'' + key + '\')" style="padding:4px 10px;font-size:11px;"><i class="fas fa-trash"></i></button></td></tr>';
+    }
+    var totalResultado = totalValor - totalCusto;
+    var corTotal = totalResultado >= 0 ? 'text-green' : 'text-red';
+    var sinalTotal = totalResultado >= 0 ? '+' : '';
+    html += '<tr class="total-row"><td><strong>TOTAL</strong></td><td class="num"></td><td class="num">R$ ' + formatMoney(totalValor) + '</td><td class="num">R$ ' + formatMoney(totalCusto) + '</td><td class="num ' + corTotal + '">' + sinalTotal + 'R$ ' + formatMoney(totalResultado) + '</td><td colspan="2"></td></tr>';
+    html += '</tbody></table>';
+    container.innerHTML = html;
 }
 
 function excluirLancamento(opId) {
     if (!confirm('Excluir lançamento de "' + opId + '"?')) return;
     var lanc = state.lancamentosFirebase[opId];
-    if (!lanc || !lanc.id) {
+    if (!lanc || !lanc.docId) {
         showToast('⚠️ Lançamento não encontrado.', 'warning');
         return;
     }
-    excluirLancamentoFirebase(lanc.id)
-        .then(function() {
-            delete state.lancamentosFirebase[opId];
-            showToast('🗑️ Lançamento excluído!', 'success');
-            renderizarFaturamento();
-            renderizarDashboard();
-            renderizarResultado();
-        })
-        .catch(function(error) {
-            showToast('❌ Erro: ' + error.message, 'error');
-        });
+    db.collection('lancamentos').doc(lanc.docId).delete().then(function() {
+        delete state.lancamentosFirebase[opId];
+        showToast('🗑️ Lançamento excluído!', 'success');
+        renderizarFaturamento();
+        renderizarDashboard();
+        renderizarResultado();
+        var fatDataEl = document.getElementById('fatData');
+        var dataSelecionada = fatDataEl ? fatDataEl.textContent : getHoje();
+        if (dataSelecionada === '-') dataSelecionada = getHoje();
+        renderizarOperacoesProntas(dataSelecionada);
+    }).catch(function(error) {
+        showToast('❌ Erro ao excluir: ' + error.message, 'error');
+    });
+}
+
+function alternarVisaoFaturamento(visao) {
+    visaoFaturamentoAtual = visao;
+    var visaoDia = document.getElementById('visaoFaturamentoDia');
+    var visaoOperacao = document.getElementById('visaoFaturamentoOperacao');
+    var label = document.getElementById('visaoFaturamentoLabel');
+    if (visaoDia) visaoDia.style.display = visao === 'dia' ? 'block' : 'none';
+    if (visaoOperacao) visaoOperacao.style.display = visao === 'operacao' ? 'block' : 'none';
+    if (label) label.textContent = 'Visualizando: ' + (visao === 'dia' ? 'Por Dia' : 'Por Operação');
+    if (visao === 'dia') { renderizarVisaoDia(); }
+    else { renderizarVisaoOperacao(); }
 }
 
 // ============================================================
@@ -2473,11 +3600,65 @@ function renderizarDashboard() {
 // ============================================================
 function renderizarResultado() {
     var lancs = state.lancamentosFirebase;
-    var totalHa = 0, totalReceita = 0, totalCusto = 0;
+    var periodoEl = document.getElementById('resPeriodo');
+    var fazendaEl = document.getElementById('resFazenda');
+    var atividadeEl = document.getElementById('resAtividade');
+    var periodo = periodoEl ? periodoEl.value : 'todo';
+    var fazendaFiltro = fazendaEl ? fazendaEl.value : '';
+    var atividadeFiltro = atividadeEl ? atividadeEl.value : '';
+    var ops = state.operacoesDia;
+    var fazendas = [], atividades = [];
+    for (var key in ops) {
+        if (!atividades.includes(key)) atividades.push(key);
+        if (ops[key].registros) {
+            ops[key].registros.forEach(function(reg) {
+                if (reg.fazenda && !fazendas.includes(reg.fazenda)) fazendas.push(reg.fazenda);
+            });
+        }
+    }
+    if (fazendaEl) {
+        fazendaEl.innerHTML = '<option value="">Todas</option>' + fazendas.sort().map(function(f){ return '<option value="' + f + '">' + f + '</option>'; }).join('');
+    }
+    if (atividadeEl) {
+        atividadeEl.innerHTML = '<option value="">Todas</option>' + atividades.sort().map(function(a){ return '<option value="' + a + '">' + a + '</option>'; }).join('');
+    }
+    var filtrados = {};
+    var hoje = new Date();
+    var inicioSemana = new Date(hoje); inicioSemana.setDate(hoje.getDate() - hoje.getDay());
+    var inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
     for (var key in lancs) {
-        totalHa += lancs[key].ha || 0;
-        totalReceita += lancs[key].valor || 0;
-        totalCusto += lancs[key].custo || 0;
+        if (!ops[key]) continue;
+        if (atividadeFiltro && key !== atividadeFiltro) continue;
+        if (fazendaFiltro) {
+            var temFazenda = false;
+            if (ops[key].registros) {
+                ops[key].registros.forEach(function(reg) {
+                    if (reg.fazenda === fazendaFiltro) temFazenda = true;
+                });
+            }
+            if (!temFazenda) continue;
+        }
+        var dataLanc = new Date();
+        if (lancs[key].dataReferencia) {
+            var partes = lancs[key].dataReferencia.split('/');
+            if (partes.length === 3) {
+                dataLanc = new Date(partes[2], partes[1] - 1, partes[0]);
+            }
+        }
+        if (periodo === 'hoje') {
+            if (dataLanc.toDateString() !== hoje.toDateString()) continue;
+        } else if (periodo === 'semana') {
+            if (dataLanc < inicioSemana) continue;
+        } else if (periodo === 'mes') {
+            if (dataLanc < inicioMes) continue;
+        }
+        filtrados[key] = lancs[key];
+    }
+    var totalHa = 0, totalReceita = 0, totalCusto = 0;
+    for (var key in filtrados) {
+        totalHa += filtrados[key].ha || 0;
+        totalReceita += filtrados[key].valor || 0;
+        totalCusto += filtrados[key].custo || 0;
     }
     var resTotalHa = document.getElementById('resTotalHa');
     var resFaturamento = document.getElementById('resFaturamento');
@@ -2494,14 +3675,14 @@ function renderizarResultado() {
     if (resMargem) resMargem.textContent = margem.toFixed(1) + '%';
     var container = document.getElementById('resTabela');
     if (!container) return;
-    var keys = Object.keys(lancs);
+    var keys = Object.keys(filtrados);
     if (keys.length === 0) {
-        container.innerHTML = '<div class="empty"><div class="ico">📊</div><p>Nenhum dado disponível.</p></div>';
+        container.innerHTML = '<div class="empty"><div class="ico">📊</div><p>Nenhum dado disponível para os filtros selecionados.</p></div>';
     } else {
         var html = '<table><thead><tr><th>Atividade</th><th class="num">HA</th><th class="num">R$/HA</th><th class="num">Faturamento</th><th class="num">Custo</th><th class="num">Resultado</th><th class="num">Margem</th></tr></thead><tbody>';
         var totalHaGeral = 0, totalFatGeral = 0, totalCustoGeral = 0;
-        for (var key in lancs) {
-            var l = lancs[key];
+        for (var key in filtrados) {
+            var l = filtrados[key];
             var ha = l.ha || 0, valor = l.valor || 0, custo = l.custo || 0;
             var rha = ha > 0 ? valor / ha : 0;
             var resultadoOp = valor - custo;
@@ -2510,7 +3691,7 @@ function renderizarResultado() {
             totalHaGeral += ha;
             totalFatGeral += valor;
             totalCustoGeral += custo;
-            html += '<tr><td>' + key + '</td><td class="num">' + safe(ha) + '</td><td class="num">R$ ' + formatMoney(rha) + '</td><td class="num">R$ ' + formatMoney(valor) + '</td><td class="num">R$ ' + formatMoney(custo) + '</td><td class="num ' + corOp + '">R$ ' + formatMoney(resultadoOp) + '</td><td class="num ' + corOp + '">' + margemOp.toFixed(1) + '%</td></tr>';
+            html += '<tr><td>' + key + (ops[key] && ops[key].isManual ? ' <span style="font-size:9px;color:#7c3aed;">(Manual)</span>' : '') + '</td><td class="num">' + safe(ha) + '</td><td class="num">R$ ' + formatMoney(rha) + '</td><td class="num">R$ ' + formatMoney(valor) + '</td><td class="num">R$ ' + formatMoney(custo) + '</td><td class="num ' + corOp + '">R$ ' + formatMoney(resultadoOp) + '</td><td class="num ' + corOp + '">' + margemOp.toFixed(1) + '%</td></tr>';
         }
         var resultadoGeral = totalFatGeral - totalCustoGeral;
         var corGeral = resultadoGeral >= 0 ? 'text-green' : 'text-red';
@@ -2522,56 +3703,41 @@ function renderizarResultado() {
 }
 
 // ============================================================
-// RENDERIZAR PRODUÇÃO
-// ============================================================
-function renderizarProducao() {
-    var ops = state.operacoesDia;
-    var totalArea = 0;
-    var totalOps = Object.keys(ops).length;
-    for (var key in ops) { totalArea += ops[key].totalHa; }
-    var prodData = document.getElementById('prodData');
-    var prodOps = document.getElementById('prodOps');
-    var prodArea = document.getElementById('prodArea');
-    if (prodData) prodData.textContent = getHoje();
-    if (prodOps) prodOps.textContent = totalOps;
-    if (prodArea) prodArea.innerHTML = totalArea.toFixed(2) + ' <span class="unit">ha</span>';
-    
-    // Limpa sub-abas
-    document.querySelectorAll('.sub-prod-aba').forEach(function(el) {
-        if (el.id !== 'subProducaoIrrigacao') {
-            el.innerHTML = '<div class="empty"><div class="ico">📊</div><p>Selecione uma operação para visualizar.</p></div>';
-        }
-    });
-}
-
-// ============================================================
-// ATUALIZAR INTERFACE
-// ============================================================
-function atualizarInterface() {
-    renderizarDashboard();
-    renderizarFaturamento();
-    renderizarEstoque();
-    renderizarResultado();
-    renderizarProducao();
-}
-
-// ============================================================
 // CONFIGURAÇÕES
 // ============================================================
+function renderizarConfiguracoes() {
+    var configSenhaArea = document.getElementById('configSenhaArea');
+    var configConteudo = document.getElementById('configConteudo');
+    if (state.configSenhaValida) {
+        if (configSenhaArea) configSenhaArea.style.display = 'none';
+        if (configConteudo) configConteudo.style.display = 'block';
+        carregarConfigValores();
+    } else {
+        if (configSenhaArea) configSenhaArea.style.display = 'block';
+        if (configConteudo) configConteudo.style.display = 'none';
+    }
+}
+
 function validarSenhaConfig() {
-    var senha = document.getElementById('configSenhaInput').value;
-    if (senha === 'gerente789') {
-        document.getElementById('configSenhaArea').style.display = 'none';
-        document.getElementById('configConteudo').style.display = 'block';
+    var senhaInput = document.getElementById('configSenhaInput');
+    if (!senhaInput) { showToast('❌ Campo de senha não encontrado!', 'error'); return; }
+    var senha = senhaInput.value;
+    var msgEl = document.getElementById('configSenhaMsg');
+    if (senha === 'gerente789' || (state.usuario === 'gerente' && senha === 'gerente789')) {
+        state.configSenhaValida = true;
+        if (msgEl) { msgEl.textContent = '✅ Acesso liberado!'; msgEl.style.color = '#16a34a'; }
+        renderizarConfiguracoes();
         carregarConfigValores();
         showToast('🔓 Configurações desbloqueadas!', 'success');
     } else {
+        if (msgEl) { msgEl.textContent = '❌ Senha incorreta!'; msgEl.style.color = '#dc3545'; }
         showToast('❌ Senha incorreta!', 'error');
     }
 }
 
 function carregarConfigValores() {
     var container = document.getElementById('configValoresAtividades');
+    if (!container) { console.warn('⚠️ configValoresAtividades não encontrado'); return; }
     var ops = state.operacoesDia;
     var keys = Object.keys(ops);
     if (keys.length === 0) {
@@ -2598,12 +3764,10 @@ function salvarConfigValores() {
         if (input) novosValores[key] = parseFloat(input.value) || 0;
     });
     state.valoresAtividades = novosValores;
-    salvarConfigFirebase('valores_atividades', novosValores)
-        .then(function() {
-            showToast('✅ Valores salvos com sucesso!', 'success');
-            renderizarFaturamento();
-        })
-        .catch(function(error) { showToast('❌ Erro ao salvar valores: ' + error.message, 'error'); });
+    db.collection('config').doc('valores_atividades').set(novosValores).then(function() {
+        showToast('✅ Valores salvos com sucesso!', 'success');
+        renderizarFaturamento();
+    }).catch(function(error) { showToast('❌ Erro ao salvar valores: ' + error.message, 'error'); });
 }
 
 function salvarConfigCustos() {
@@ -2621,48 +3785,10 @@ function salvarConfigCustos() {
         return;
     }
     state.custos = custos;
-    salvarConfigFirebase('custos', custos)
-        .then(function() {
-            showToast('✅ Custos salvos com sucesso!', 'success');
-        })
-        .catch(function(error) { showToast('❌ Erro ao salvar custos: ' + error.message, 'error'); });
+    db.collection('config').doc('custos').set(custos).then(function() {
+        showToast('✅ Custos salvos com sucesso!', 'success');
+    }).catch(function(error) { showToast('❌ Erro ao salvar custos: ' + error.message, 'error'); });
 }
-
-// ============================================================
-// INICIALIZAÇÃO
-// ============================================================
-console.log('🚀 LB Florestal - Sistema Integrado');
-console.log('🔐 Senhas: producao=campo123 | faturamento=financa456 | gerente=gerente789');
-
-visaoFaturamentoAtual = 'dia';
-
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Sistema LB Florestal inicializando...');
-    
-    // Data atual no campo de entrada
-    var entradaData = document.getElementById('entradaData');
-    if (entradaData) {
-        var hoje = new Date();
-        entradaData.value = hoje.getFullYear() + '-' + 
-            String(hoje.getMonth() + 1).padStart(2, '0') + '-' + 
-            String(hoje.getDate()).padStart(2, '0');
-    }
-    var novaOpData = document.getElementById('novaOpData');
-    if (novaOpData) {
-        var hoje = new Date();
-        novaOpData.value = hoje.getFullYear() + '-' + 
-            String(hoje.getMonth() + 1).padStart(2, '0') + '-' + 
-            String(hoje.getDate()).padStart(2, '0');
-    }
-    
-    // Inicia listeners e carrega dados
-    carregarSeletorRF();
-    renderizarDashboard();
-    renderizarFaturamento();
-    renderizarEstoque();
-    renderizarResultado();
-    renderizarProducao();
-});
 
 // ============================================================
 // EXPORTAÇÃO GLOBAL
@@ -2672,25 +3798,124 @@ window.fazerLogout = fazerLogout;
 window.importarPlanilha = importarPlanilha;
 window.mudarAba = mudarAba;
 window.mudarSubAbaProd = mudarSubAbaProd;
+window.calcularTotal = calcularTotal;
+window.calcularTotalOp = calcularTotalOp;
+window.lancarOperacao = lancarOperacao;
+window.excluirLancamento = excluirLancamento;
+window.renderizarDias = renderizarDias;
+window.renderizarOperacoesProntas = renderizarOperacoesProntas;
+window.editarLancamento = editarLancamento;
+window.renderizarVisaoDia = renderizarVisaoDia;
+window.renderizarVisaoOperacao = renderizarVisaoOperacao;
+window.renderizarLancamentosHoje = renderizarLancamentosHoje;
+window.alternarVisaoFaturamento = alternarVisaoFaturamento;
+window.renderizarDashboard = renderizarDashboard;
+window.renderizarResultado = renderizarResultado;
+window.renderizarConfiguracoes = renderizarConfiguracoes;
+window.validarSenhaConfig = validarSenhaConfig;
+window.salvarConfigValores = salvarConfigValores;
+window.salvarConfigCustos = salvarConfigCustos;
+window.imprimirDia = imprimirDia;
+window.imprimirFinalizadas = imprimirFinalizadas;
+window.toggleOpIrr = toggleOpIrr;
+window.toggleRender = toggleRender;
+window.marcarRepFeito = marcarRepFeito;
+window.sopRealizar = sopRealizar;
+window.sopDesfazer = sopDesfazer;
 window.registrarEntrada = registrarEntrada;
 window.renderizarEstoque = renderizarEstoque;
 window.renderizarMovimentacoes = renderizarMovimentacoes;
+window.carregarEstoqueLocal = carregarEstoqueLocal;
 window.abrirModalNovaOperacao = abrirModalNovaOperacao;
 window.fecharModalNovaOperacao = fecharModalNovaOperacao;
 window.salvarNovaOperacao = salvarNovaOperacao;
 window.excluirOperacaoFaturamento = excluirOperacaoFaturamento;
+window.abrirModalEditarEntrada = abrirModalEditarEntrada;
+window.fecharModalEditarEntrada = fecharModalEditarEntrada;
+window.salvarEdicaoEntrada = salvarEdicaoEntrada;
+window.excluirEntrada = excluirEntrada;
+window.limparTudoEstoque = limparTudoEstoque;
+window.toggleAccordion = toggleAccordion;
 window.abrirModalTransferencia = abrirModalTransferencia;
 window.fecharModalTransferencia = fecharModalTransferencia;
 window.confirmarTransferencia = confirmarTransferencia;
-window.toggleAccordion = toggleAccordion;
-window.excluirLancamento = excluirLancamento;
-window.lancarOperacao = lancarOperacao;
-window.calcularTotalOp = calcularTotalOp;
-window.validarSenhaConfig = validarSenhaConfig;
-window.salvarConfigValores = salvarConfigValores;
-window.salvarConfigCustos = salvarConfigCustos;
-window.mudarRF = mudarRF;
-window.carregarSeletorRF = carregarSeletorRF;
+window.limparTransferencias = limparTransferencias;
+window.normalizarMunicipio = normalizarMunicipio;
+window.normalizarInsumo = normalizarInsumo;
+window.recalcularEstoque = recalcularEstoque;
+
+// ============================================================
+// INICIALIZAÇÃO
+// ============================================================
+console.log('🚀 LB Florestal - Sistema Integrado');
+console.log('🔐 Senhas: producao=campo123 | faturamento=financa456 | gerente=gerente789');
+console.log('🔄 Módulo de Transferência entre municípios ativado!');
+console.log('📊 Rastreio de consumo por município ativado!');
+
+visaoFaturamentoAtual = 'dia';
+
+var loginScreen = document.getElementById('loginScreen');
+var app = document.getElementById('app');
+if (loginScreen) loginScreen.style.display = 'flex';
+if (app) app.style.display = 'none';
+
+document.addEventListener('DOMContentLoaded', function() {
+    carregarEstoqueLocal();
+    var btnLancar = document.getElementById('btnLancar');
+    if (btnLancar) {
+        btnLancar.addEventListener('click', function() {
+            var opSelect = document.getElementById('opSelect');
+            if (opSelect && opSelect.value) {
+                var fatDataEl = document.getElementById('fatData');
+                var dataSelecionada = fatDataEl ? fatDataEl.textContent : null;
+                if (!dataSelecionada || dataSelecionada === '-') {
+                    var ops = state.operacoesDia;
+                    var datas = [];
+                    for (var opKey in ops) {
+                        var op = ops[opKey];
+                        if (op && op.registros) {
+                            for (var i = 0; i < op.registros.length; i++) {
+                                var reg = op.registros[i];
+                                var dataStr = reg.dataStr || '-';
+                                if (dataStr !== '-' && dataStr !== 'Invalid Date' && !datas.includes(dataStr)) {
+                                    datas.push(dataStr);
+                                }
+                            }
+                        }
+                    }
+                    datas.sort(function(a, b) {
+                        var da = new Date(a.split('/').reverse().join('/'));
+                        var db = new Date(b.split('/').reverse().join('/'));
+                        return db - da;
+                    });
+                    dataSelecionada = datas.length > 0 ? datas[0] : getHoje();
+                }
+                var ops = state.operacoesDia;
+                var keys = Object.keys(ops);
+                var index = keys.indexOf(opSelect.value);
+                if (index >= 0) lancarOperacao(index, opSelect.value, dataSelecionada);
+            } else {
+                showToast('⚠️ Selecione uma operação para lançar!', 'warning');
+            }
+        });
+    }
+    var entradaData = document.getElementById('entradaData');
+    if (entradaData) {
+        var hoje = new Date();
+        var ano = hoje.getFullYear();
+        var mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        var dia = String(hoje.getDate()).padStart(2, '0');
+        entradaData.value = ano + '-' + mes + '-' + dia;
+    }
+    var novaOpData = document.getElementById('novaOpData');
+    if (novaOpData) {
+        var hoje = new Date();
+        var ano = hoje.getFullYear();
+        var mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        var dia = String(hoje.getDate()).padStart(2, '0');
+        novaOpData.value = ano + '-' + mes + '-' + dia;
+    }
+});
 </script>
 </body>
 </html>
