@@ -1452,27 +1452,28 @@ function processarArquivoExcel(file) {
                     }
                     showToast(msg, result.erros > 0 ? 'warning' : 'success');
                     
-                    atualizarInterface();
-                })
-                .catch(function(error) {
-                    console.error('❌ Erro ao salvar produção:', error);
-                    if (loadingEl) loadingEl.classList.remove('show');
-                    showToast('❌ Erro ao salvar produção: ' + error.message, 'error');
-                });
-            
-        } catch (error) {
-            console.error('❌ Erro ao processar:', error);
-            if (loadingEl) loadingEl.classList.remove('show');
-            showToast('❌ Erro: ' + error.message, 'error');
-        }
-    };
-    reader.onerror = function(error) {
-        console.error('❌ Erro ao ler arquivo:', error);
-        var loadingEl = document.getElementById('loading');
+                   if (typeof atualizarInterface === 'function') {
+        atualizarInterface();
+    }
+    }).catch(function(error) {
+        console.error('❌ Erro ao salvar produção:', error);
         if (loadingEl) loadingEl.classList.remove('show');
-        showToast('❌ Erro ao ler o arquivo.', 'error');
-    };
-    reader.readAsArrayBuffer(file);
+        showToast('❌ Erro ao salvar produção: ' + error.message, 'error');
+    });
+
+} catch (error) {
+    console.error('❌ Erro ao processar:', error);
+    if (loadingEl) loadingEl.classList.remove('show');
+    showToast('❌ Erro: ' + error.message, 'error');
+}
+};
+reader.onerror = function(error) {
+    console.error('❌ Erro ao ler arquivo:', error);
+    var loadingEl = document.getElementById('loading');
+    if (loadingEl) loadingEl.classList.remove('show');
+    showToast('❌ Erro ao ler o arquivo.', 'error');
+};
+reader.readAsArrayBuffer(file);
 }
 
 // ============================================================
