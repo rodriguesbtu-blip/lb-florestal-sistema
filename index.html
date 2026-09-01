@@ -10,7 +10,122 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f9;color:#1e293b;padding:20px}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f9;color:#1e293b;paddiANÁLISE CONCLUÍDA! ✅
+
+Seu código já possui TODOS os listeners em tempo real implementados! Eles estão funcionando, mas com um pequeno problema: a função forcarAtualizacaoInterface() está duplicada e pode estar causando conflitos.
+🔍 DIAGNÓSTICO
+✅ O QUE JÁ EXISTE E ESTÁ FUNCIONANDO:
+Listener	Local	Status
+ouvirLancamentosFirebase	Linhas ~2070	✅ Funcionando
+ouvirEstoqueFirebase	Linhas ~2090	✅ Funcionando
+ouvirProducaoFirebase	Linhas ~2110	✅ Funcionando
+iniciarListenersFirebase	Linhas ~2130	✅ Funcionando
+❌ PROBLEMA IDENTIFICADO:
+
+A função forcarAtualizacaoInterface() está sendo chamada dentro de processarArquivoExcel(), mas ela recria os listeners desnecessariamente, o que pode causar:
+
+    Múltiplas chamadas
+
+    Perda de sincronização
+
+    Consumo desnecessário de recursos
+
+🔧 SOLUÇÃO: REMOVER A CHAMADA DUPLICADA
+
+No seu código, a função forcarAtualizacaoInterface() NÃO É NECESSÁRIA porque os listeners já estão ativos desde o login.
+📍 ONDE REMOVER:
+
+No processarArquivoExcel(), procure por:
+javascript
+
+// ============================================================
+// 🔥 ATUALIZAÇÃO FORÇADA DA INTERFACE
+// ============================================================
+forcarAtualizacaoInterface();
+
+REMOVA ESTA LINHA ou COMENTE:
+javascript
+
+// forcarAtualizacaoInterface();  // REMOVIDO - Listeners já fazem isso automaticamente
+
+📝 CÓDIGO CORRIGIDO PARA O processarArquivoExcel()
+
+Substitua apenas o trecho onde está a chamada forcarAtualizacaoInterface():
+
+ANTES:
+javascript
+
+showToast(msg, result.erros > 0 ? 'warning' : 'success');
+
+// ============================================================
+// 🔥 ATUALIZAÇÃO FORÇADA DA INTERFACE
+// ============================================================
+forcarAtualizacaoInterface();
+
+console.log('✅ Importação concluída e interface atualizada!');
+
+DEPOIS:
+javascript
+
+showToast(msg, result.erros > 0 ? 'warning' : 'success');
+
+// Os listeners já atualizam a interface automaticamente!
+console.log('✅ Importação concluída! Aguardando sincronização automática...');
+
+🎯 O QUE OS LISTENERS JÁ FAZEM:
+1. ouvirProducaoFirebase() (linhas ~2110)
+javascript
+
+db.collection('producao_dia')
+    .orderBy('createdAt', 'desc')
+    .onSnapshot(function(snapshot) {
+        // Atualiza state.operacoesDia automaticamente
+        // Chama renderizarDashboard(), renderizarFaturamentoPorRF(), renderizarProducao()
+    });
+
+2. ouvirEstoqueFirebase() (linhas ~2090)
+javascript
+
+db.collection('estoque_movimentacoes')
+    .orderBy('criadoEm', 'desc')
+    .onSnapshot(function(snapshot) {
+        // Atualiza state.movimentacoes automaticamente
+        // Chama recalcularEstoque() e renderizarEstoque()
+    });
+
+3. ouvirLancamentosFirebase() (linhas ~2070)
+javascript
+
+db.collection('lancamentos')
+    .orderBy('criadoEm', 'desc')
+    .onSnapshot(function(snapshot) {
+        // Atualiza state.lancamentosFirebase automaticamente
+        // Chama renderizarDashboard(), renderizarFaturamento(), renderizarResultado()
+    });
+
+✅ COMO TESTAR:
+
+    Abra o sistema em duas abas diferentes (ou dois computadores)
+
+    Importe uma planilha na primeira aba
+
+    Observe a segunda aba - os dados devem aparecer automaticamente sem F5!
+
+📊 RESULTADO ESPERADO NO CONSOLE:
+
+Após importar a planilha, você verá:
+text
+
+✅ Planilha importada! X operações salvas no Firebase.
+✅ Importação concluída! Aguardando sincronização automática...
+📊 Produção atualizada via listener. Total de operações: X
+📦 Estoque atualizado via listener forçado.
+📊 Lançamentos atualizados via listener forçado.
+🚜 Produção atualizada via listener forçado.
+
+Resumo: Seu código já está 100% pronto para sincronização em tempo real. Basta remover a chamada duplicada da forcarAtualizacaoInterface() e os listeners farão todo o trabalho automaticamente! 🚀
+da parte do codigo inteira pra subistituir que é mais facil do que pedaços
+ng:20px}
 .container{max-width:1400px;margin:0 auto}
 
 .nav-principal{background:#fff;border-radius:12px;padding:10px 20px;margin-bottom:16px;border:1px solid #e9eef3;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
@@ -1405,9 +1520,8 @@ function processarArquivoExcel(file) {
                         msg += ' ⚠️ ' + result.erros + ' erros ocorreram. Verifique o console.';
                     }
                     showToast(msg, result.erros > 0 ? 'warning' : 'success');
-                    
-                    atualizarInterface();
-                })
+            console.log('✅ Importação concluída! Aguardando sincronização automática...');
+        })
                 .catch(function(error) {
                     console.error('❌ Erro ao salvar produção:', error);
                     if (loadingEl) loadingEl.classList.remove('show');
