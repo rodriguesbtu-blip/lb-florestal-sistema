@@ -10,119 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f9;color:#1e293b;paddiANÁLISE CONCLUÍDA! ✅
-
-Seu código já possui TODOS os listeners em tempo real implementados! Eles estão funcionando, mas com um pequeno problema: a função forcarAtualizacaoInterface() está duplicada e pode estar causando conflitos.
-🔍 DIAGNÓSTICO
-✅ O QUE JÁ EXISTE E ESTÁ FUNCIONANDO:
-Listener	Local	Status
-ouvirLancamentosFirebase	Linhas ~2070	✅ Funcionando
-ouvirEstoqueFirebase	Linhas ~2090	✅ Funcionando
-ouvirProducaoFirebase	Linhas ~2110	✅ Funcionando
-iniciarListenersFirebase	Linhas ~2130	✅ Funcionando
-❌ PROBLEMA IDENTIFICADO:
-
-A função forcarAtualizacaoInterface() está sendo chamada dentro de processarArquivoExcel(), mas ela recria os listeners desnecessariamente, o que pode causar:
-
-    Múltiplas chamadas
-
-    Perda de sincronização
-
-    Consumo desnecessário de recursos
-
-🔧 SOLUÇÃO: REMOVER A CHAMADA DUPLICADA
-
-No seu código, a função forcarAtualizacaoInterface() NÃO É NECESSÁRIA porque os listeners já estão ativos desde o login.
-📍 ONDE REMOVER:
-
-No processarArquivoExcel(), procure por:
-javascript
-
-// ============================================================
-// 🔥 ATUALIZAÇÃO FORÇADA DA INTERFACE
-// ============================================================
-forcarAtualizacaoInterface();
-
-REMOVA ESTA LINHA ou COMENTE:
-javascript
-
-// forcarAtualizacaoInterface();  // REMOVIDO - Listeners já fazem isso automaticamente
-
-📝 CÓDIGO CORRIGIDO PARA O processarArquivoExcel()
-
-Substitua apenas o trecho onde está a chamada forcarAtualizacaoInterface():
-
-ANTES:
-javascript
-
-showToast(msg, result.erros > 0 ? 'warning' : 'success');
-
-                    // ============================================================
-                    // 🔥 OS LISTENERS JÁ ATUALIZAM A INTERFACE AUTOMATICAMENTE!
-                    // ============================================================
-                    console.log('✅ Importação concluída! Aguardando sincronização automática dos listeners...');
-DEPOIS:
-javascript
-
-showToast(msg, result.erros > 0 ? 'warning' : 'success');
-
-// Os listeners já atualizam a interface automaticamente!
-console.log('✅ Importação concluída! Aguardando sincronização automática...');
-
-🎯 O QUE OS LISTENERS JÁ FAZEM:
-1. ouvirProducaoFirebase() (linhas ~2110)
-javascript
-
-db.collection('producao_dia')
-    .orderBy('createdAt', 'desc')
-    .onSnapshot(function(snapshot) {
-        // Atualiza state.operacoesDia automaticamente
-        // Chama renderizarDashboard(), renderizarFaturamentoPorRF(), renderizarProducao()
-    });
-
-2. ouvirEstoqueFirebase() (linhas ~2090)
-javascript
-
-db.collection('estoque_movimentacoes')
-    .orderBy('criadoEm', 'desc')
-    .onSnapshot(function(snapshot) {
-        // Atualiza state.movimentacoes automaticamente
-        // Chama recalcularEstoque() e renderizarEstoque()
-    });
-
-3. ouvirLancamentosFirebase() (linhas ~2070)
-javascript
-
-db.collection('lancamentos')
-    .orderBy('criadoEm', 'desc')
-    .onSnapshot(function(snapshot) {
-        // Atualiza state.lancamentosFirebase automaticamente
-        // Chama renderizarDashboard(), renderizarFaturamento(), renderizarResultado()
-    });
-
-✅ COMO TESTAR:
-
-    Abra o sistema em duas abas diferentes (ou dois computadores)
-
-    Importe uma planilha na primeira aba
-
-    Observe a segunda aba - os dados devem aparecer automaticamente sem F5!
-
-📊 RESULTADO ESPERADO NO CONSOLE:
-
-Após importar a planilha, você verá:
-text
-
-✅ Planilha importada! X operações salvas no Firebase.
-✅ Importação concluída! Aguardando sincronização automática...
-📊 Produção atualizada via listener. Total de operações: X
-📦 Estoque atualizado via listener forçado.
-📊 Lançamentos atualizados via listener forçado.
-🚜 Produção atualizada via listener forçado.
-
-Resumo: Seu código já está 100% pronto para sincronização em tempo real. Basta remover a chamada duplicada da forcarAtualizacaoInterface() e os listeners farão todo o trabalho automaticamente! 🚀
-da parte do codigo inteira pra subistituir que é mais facil do que pedaços
-ng:20px}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f9;color:#1e293b;padding:20px}
 .container{max-width:1400px;margin:0 auto}
 
 .nav-principal{background:#fff;border-radius:12px;padding:10px 20px;margin-bottom:16px;border:1px solid #e9eef3;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
@@ -1109,13 +997,64 @@ function normalizarInsumo(insumo) {
     return ins;
 }
 
+// ============================================================
+// SALVAR MOVIMENTAÇÕES - LOCAL + FIREBASE (COMPARTILHAMENTO)
+// ============================================================
 function salvarMovimentacoes() {
+    // 1. Salva localmente (backup)
     localStorage.setItem('estoqueMovimentacoes', JSON.stringify(state.movimentacoes));
+    
+    // 2. Salva no Firebase (compartilhamento)
+    if (typeof db !== 'undefined' && db) {
+        db.collection('estoque_movimentacoes').get().then(function(snapshot) {
+            var batch = db.batch();
+            snapshot.forEach(function(doc) {
+                batch.delete(doc.ref);
+            });
+            return batch.commit();
+        }).then(function() {
+            var promises = [];
+            state.movimentacoes.forEach(function(mov) {
+                promises.push(db.collection('estoque_movimentacoes').doc().set(mov));
+            });
+            return Promise.all(promises);
+        }).then(function() {
+            console.log('✅ Estoque salvo no Firebase');
+        }).catch(function(err) {
+            console.error('❌ Erro ao salvar estoque:', err.message);
+        });
+    }
 }
 
 // ============================================================
-// CALCULAR TOTAL
+// OUVIR ESTOQUE DO FIREBASE EM TEMPO REAL
 // ============================================================
+function ouvirEstoqueFirebase() {
+    if (typeof db === 'undefined' || !db) return;
+    
+    db.collection('estoque_movimentacoes').onSnapshot(function(snapshot) {
+        console.log('📦 Estoque atualizado via listener. Total:', snapshot.size);
+        
+        if (snapshot.size === 0) {
+            carregarEstoqueLocal();
+            return;
+        }
+        
+        var movs = [];
+        snapshot.forEach(function(doc) {
+            movs.push(doc.data());
+        });
+        
+        state.movimentacoes = movs;
+        salvarMovimentacoes();
+        recalcularEstoque();
+        renderizarEstoque();
+    }, function(error) {
+        console.error('❌ Erro ao ouvir estoque:', error.message);
+        carregarEstoqueLocal();
+    });
+}
+
 function calcularTotal() {
     var haEl = document.getElementById('valorHa');
     var rhaEl = document.getElementById('valorRha');
@@ -1436,18 +1375,15 @@ function processarArquivoExcel(file) {
             // ============================================================
             // SALVAMENTO NO FIREBASE - COM PROTEÇÃO CONTRA ERROS
             // ============================================================
-            // VERIFICA SE O FIREBASE ESTÁ DISPONÍVEL
             if (typeof db === 'undefined' || !db) {
                 throw new Error('Firebase não está disponível. Verifique a conexão.');
             }
             
             db.collection('producao_dia').where('dia', '==', dia).get()
                 .then(function(snapshot) {
-                    // VERIFICA SE O SNAPSHOT EXISTE E NÃO É UNDEFINED
                     var batch = db.batch();
                     var countDeleted = 0;
                     
-                    // PROTEÇÃO: verifica se snapshot existe e tem forEach
                     if (snapshot && typeof snapshot.forEach === 'function') {
                         snapshot.forEach(function(doc) {
                             if (doc && doc.ref) {
@@ -1468,7 +1404,6 @@ function processarArquivoExcel(file) {
                     }
                 })
                 .then(function() {
-                    // SALVA NOVAS OPERAÇÕES
                     var promises = [];
                     var salvos = 0;
                     var erros = 0;
@@ -1517,8 +1452,9 @@ function processarArquivoExcel(file) {
                         msg += ' ⚠️ ' + result.erros + ' erros ocorreram. Verifique o console.';
                     }
                     showToast(msg, result.erros > 0 ? 'warning' : 'success');
-            console.log('✅ Importação concluída! Aguardando sincronização automática...');
-        })
+                    
+                    console.log('✅ Importação concluída! Aguardando sincronização automática dos listeners...');
+                })
                 .catch(function(error) {
                     console.error('❌ Erro ao salvar produção:', error);
                     if (loadingEl) loadingEl.classList.remove('show');
@@ -1779,7 +1715,6 @@ function renderizarEstoque() {
         item.saidas.forEach(function(s) {
             var exists = porInsumo[item.insumo].nfs[nfKey].saidas.some(function(saida) { return saida.id === s.id; });
             if (!exists) porInsumo[item.insumo].nfs[nfKey].saidas.push(s);
-            // === RASTREIO DE CONSUMO POR MUNICÍPIO ===
             var munConsumo = s.municipio || 'NÃO INFORMADO';
             if (!porInsumo[item.insumo].consumoPorMunicipio[munConsumo]) {
                 porInsumo[item.insumo].consumoPorMunicipio[munConsumo] = 0;
@@ -1812,7 +1747,6 @@ function renderizarEstoque() {
         html += '</div>';
         html += '<div class="accordion-body" id="body_' + accordionId + '">';
 
-        // === BLOCO: Histórico de Consumo por Município ===
         var consumoKeys = Object.keys(data.consumoPorMunicipio);
         if (consumoKeys.length > 0) {
             html += '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-bottom:12px;">';
@@ -1826,7 +1760,6 @@ function renderizarEstoque() {
                 html += '</div>';
             });
             html += '</div>';
-            // Detalhamento das movimentações que geraram consumo
             html += '<div style="margin-top:8px;font-size:11px;color:#64748b;">';
             html += '<span style="font-weight:600;">🔍 Detalhamento:</span> ';
             var consumoDetalhes = [];
@@ -1851,7 +1784,6 @@ function renderizarEstoque() {
             html += '</div>';
             html += '</div>';
         }
-        // === FIM DO BLOCO ===
 
         var nfsOrdenadas = Object.keys(data.nfs).sort();
         nfsOrdenadas.forEach(function(nfKey) {
@@ -2324,6 +2256,7 @@ function carregarDadosFirebase() {
         state.lancamentosFirebase = lancs;
         state.isLoading = false;
         atualizarInterface();
+        ouvirEstoqueFirebase();
     }).catch(function(error) {
         console.error('Erro ao carregar dados:', error);
         state.isLoading = false;
@@ -3908,6 +3841,8 @@ window.limparTransferencias = limparTransferencias;
 window.normalizarMunicipio = normalizarMunicipio;
 window.normalizarInsumo = normalizarInsumo;
 window.recalcularEstoque = recalcularEstoque;
+window.salvarMovimentacoes = salvarMovimentacoes;
+window.ouvirEstoqueFirebase = ouvirEstoqueFirebase;
 
 // ============================================================
 // INICIALIZAÇÃO
@@ -3916,6 +3851,7 @@ console.log('🚀 LB Florestal - Sistema Integrado');
 console.log('🔐 Senhas: producao=campo123 | faturamento=financa456 | gerente=gerente789');
 console.log('🔄 Módulo de Transferência entre municípios ativado!');
 console.log('📊 Rastreio de consumo por município ativado!');
+console.log('📦 Compartilhamento de estoque ativado!');
 
 visaoFaturamentoAtual = 'dia';
 
