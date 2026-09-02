@@ -2274,7 +2274,33 @@ function excluirOperacaoFaturamento(opId, dataSelecionada) {
         renderizarResultado();
     }
 }
+// ============================================================
+// OUVIR PRODUÇÃO DO FIREBASE EM TEMPO REAL
+// ============================================================
+function ouvirProducaoFirebase() {
+    if (typeof db === 'undefined' || !db) return;
+    db.collection('producao_dia').onSnapshot(function(snapshot) {
+        console.log('📊 Produção atualizada via listener. Total:', snapshot.size);
+        // Recarrega os dados quando houver mudança
+        carregarDadosFirebase();
+    }, function(error) {
+        console.error('❌ Erro ao ouvir produção:', error.message);
+    });
+}
 
+// ============================================================
+// OUVIR LANÇAMENTOS DO FIREBASE EM TEMPO REAL
+// ============================================================
+function ouvirLancamentosFirebase() {
+    if (typeof db === 'undefined' || !db) return;
+    db.collection('lancamentos').onSnapshot(function(snapshot) {
+        console.log('💰 Lançamentos atualizados via listener. Total:', snapshot.size);
+        // Recarrega os dados quando houver mudança
+        carregarDadosFirebase();
+    }, function(error) {
+        console.error('❌ Erro ao ouvir lançamentos:', error.message);
+    });
+}
 // ============================================================
 // CARREGAR DADOS FIREBASE
 // ============================================================
