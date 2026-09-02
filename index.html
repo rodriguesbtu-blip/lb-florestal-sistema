@@ -2302,7 +2302,7 @@ function ouvirLancamentosFirebase() {
     });
 }
 // ============================================================
-// CARREGAR DADOS FIREBASE
+// CARREGAR DADOS FIREBASE - SEM LOOP INFINITO
 // ============================================================
 function carregarDadosFirebase() {
     if (state.isLoading) return;
@@ -2311,82 +2311,95 @@ function carregarDadosFirebase() {
     // Mostra loading na tela
     var loadingEl = document.getElementById('loading');
     if (loadingEl) loadingEl.classList.add('show');
-    loadingEl.querySelector('div').textContent = 'Carregando dados...';
     
-    db.collection('config').doc('custos').get().then(function(doc) {
-        if (doc.exists) {
-            var data = doc.data();
-            state.custos.TF = data.TF || 180;
-            state.custos.MAQ = data.MAQ || 850;
-            state.custos.PIPA = data.PIPA || 650;
-            state.custos.APOIO = data.APOIO || 450;
-            var tfEl = document.getElementById('custo_TF');
-            var maqEl = document.getElementById('custo_MAQ');
-            var pipaEl = document.getElementById('custo_PIPA');
-            var apoioEl = document.getElementById('custo_APOIO');
-            if (tfEl) tfEl.value = state.custos.TF;
-            if (maqEl) maqEl.value = state.custos.MAQ;
-            if (pipaEl) pipaEl.value = state.custos.PIPA;
-            if (apoioEl) apoioEl.value = state.custos.APOIO;
-        }
-        return db.collection('config').doc('valores_atividades').get();
-    }).then(function(doc) {
-        if (doc.exists) state.valoresAtividades = doc.data() || {};
-        return db.collection('lancamentos').where('dia', '==', getDiaNumero()).get();
-    }).then(function(snapshot) {
-        var lancs = {};
-        snapshot.forEach(function(doc) {
-            var data = doc.data();
-            var opId = data.opId;
-            if (!lancs[opId]) lancs[opId] = { ha: 0, valor: 0, custo: 0, tf: 0, maq: 0, pipa: 0, apoio: 0, docId: doc.id };
-            lancs[opId].ha += data.ha || 0;
-            lancs[opId].valor += data.valor || 0;
-            lancs[opId].custo += data.custo || 0;
-            lancs[opId].tf += data.tf || 0;
-            lancs[opId].maq += data.maq || 0;
-            lancs[opId].pipa += data.pipa || 0;
-            lancs[opId].apoio += data.apoio || 0;
-        });
-        state.lancamentosFirebase = lancs;
-        return db.collection('producao_dia').get();
-    }).then(function(snapshot) {
-        var ops = {};
-        snapshot.forEach(function(doc) {
-            var data = doc.data();
-            var opKey = data.operacao;
-            if (!ops[opKey]) {
-                ops[opKey] = {
-                    nome: opKey,
-                    nomeOriginal: data.operacaoOriginal || opKey,
-                    totalHa: 0,
-                    registros: [],
-                    insumos: data.insumos || {},
-                    observacoes: []
-                };
+    console.log('🔄 Carregando dados do Firebase...');
+    
+    // Busca produção
+    db.collection('producao_dia').get()
+        .then(function(snapshot) {
+            console.log('📊 Produção:', snapshot.size, 'documentos');
+            var ops = {};
+            snapshot.forEach(function(doc) {
+                var data = doc.data();
+                var opKey = data.operacao;
+                if (!ops[opKey]) {
+                    ops[opKey] = {
+                        nome: opKey,
+                        nomeOriginal: data.operacaoOriginal || opKey,
+                        totalHa: 0,
+                        registros: [],
+                        insumos: data.insumos || {},
+                        observacoes: []
+                    };
+                }
+                ops[opKey].totalHa += data.totalHa || 0;
+                if (data.registros) {
+                    ops[opKey].registros = ops[opKey].registros.concat(data.registros);
+                }
+            });
+            state.operacoesDia = ops;
+            
+            // Busca lançamentos
+            return db.collection('lancamentos').where('dia', '==', getDiaNumero()).get();
+        })
+        .then(function(snapshot) {
+            console.log('💰 Lançamentos:', snapshot.size, 'documentos');
+            var lancs = {};
+            snapshot.forEach(function(doc) {
+                var data = doc.data();
+                var opId = data.opId;
+                if (!lancs[opId]) lancs[opId] = { ha: 0, valor: 0, custo: 0, tf: 0, maq: 0, pipa: 0, apoio: 0, docId: doc.id };
+                lancs[opId].ha += data.ha || 0;
+                lancs[opId].valor += data.valor || 0;
+                lancs[opId].custo += data.custo || 0;
+                lancs[opId].tf += data.tf || 0;
+                lancs[opId].maq += data.maq || 0;
+                lancs[opId].pipa += data.pipa || 0;
+                lancs[opId].apoio += data.apoio || 0;
+            });
+            state.lancamentosFirebase = lancs;
+            
+            // Busca configurações
+            return db.collection('config').doc('custos').get();
+        })
+        .then(function(doc) {
+            if (doc.exists) {
+                var data = doc.data();
+                state.custos.TF = data.TF || 180;
+                state.custos.MAQ = data.MAQ || 850;
+                state.custos.PIPA = data.PIPA || 650;
+                state.custos.APOIO = data.APOIO || 450;
+                var tfEl = document.getElementById('custo_TF');
+                var maqEl = document.getElementById('custo_MAQ');
+                var pipaEl = document.getElementById('custo_PIPA');
+                var apoioEl = document.getElementById('custo_APOIO');
+                if (tfEl) tfEl.value = state.custos.TF;
+                if (maqEl) maqEl.value = state.custos.MAQ;
+                if (pipaEl) pipaEl.value = state.custos.PIPA;
+                if (apoioEl) apoioEl.value = state.custos.APOIO;
             }
-            ops[opKey].totalHa += data.totalHa || 0;
-            if (data.registros) {
-                ops[opKey].registros = ops[opKey].registros.concat(data.registros);
-            }
+            return db.collection('config').doc('valores_atividades').get();
+        })
+        .then(function(doc) {
+            if (doc.exists) state.valoresAtividades = doc.data() || {};
+            
+            state.isLoading = false;
+            
+            // Esconde loading
+            var loadingEl = document.getElementById('loading');
+            if (loadingEl) loadingEl.classList.remove('show');
+            
+            console.log('✅ Dados carregados com sucesso!');
+            atualizarInterface();
+            showToast('✅ Dados carregados com sucesso!', 'success');
+        })
+        .catch(function(error) {
+            console.error('❌ Erro ao carregar dados:', error);
+            state.isLoading = false;
+            var loadingEl = document.getElementById('loading');
+            if (loadingEl) loadingEl.classList.remove('show');
+            showToast('❌ Erro ao carregar dados', 'error');
         });
-        state.operacoesDia = ops;
-        state.isLoading = false;
-        
-        // Esconde loading
-        if (loadingEl) loadingEl.classList.remove('show');
-        
-        atualizarInterface();
-        ouvirEstoqueFirebase();
-        ouvirProducaoFirebase();
-        ouvirLancamentosFirebase();
-        
-        showToast('✅ Dados carregados com sucesso!', 'success');
-    }).catch(function(error) {
-        console.error('Erro ao carregar dados:', error);
-        state.isLoading = false;
-        if (loadingEl) loadingEl.classList.remove('show');
-        showToast('❌ Erro ao carregar dados', 'error');
-    });
 }
 // ============================================================
 // ATUALIZAR INTERFACE
