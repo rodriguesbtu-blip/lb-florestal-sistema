@@ -2281,6 +2281,12 @@ function excluirOperacaoFaturamento(opId, dataSelecionada) {
 function carregarDadosFirebase() {
     if (state.isLoading) return;
     state.isLoading = true;
+    
+    // Mostra loading na tela
+    var loadingEl = document.getElementById('loading');
+    if (loadingEl) loadingEl.classList.add('show');
+    loadingEl.querySelector('div').textContent = 'Carregando dados...';
+    
     db.collection('config').doc('custos').get().then(function(doc) {
         if (doc.exists) {
             var data = doc.data();
@@ -2316,16 +2322,46 @@ function carregarDadosFirebase() {
             lancs[opId].apoio += data.apoio || 0;
         });
         state.lancamentosFirebase = lancs;
+        return db.collection('producao_dia').get();
+    }).then(function(snapshot) {
+        var ops = {};
+        snapshot.forEach(function(doc) {
+            var data = doc.data();
+            var opKey = data.operacao;
+            if (!ops[opKey]) {
+                ops[opKey] = {
+                    nome: opKey,
+                    nomeOriginal: data.operacaoOriginal || opKey,
+                    totalHa: 0,
+                    registros: [],
+                    insumos: data.insumos || {},
+                    observacoes: []
+                };
+            }
+            ops[opKey].totalHa += data.totalHa || 0;
+            if (data.registros) {
+                ops[opKey].registros = ops[opKey].registros.concat(data.registros);
+            }
+        });
+        state.operacoesDia = ops;
         state.isLoading = false;
+        
+        // Esconde loading
+        if (loadingEl) loadingEl.classList.remove('show');
+        
         atualizarInterface();
         ouvirEstoqueFirebase();
+        ouvirProducaoFirebase();
+        ouvirLancamentosFirebase();
+        
+        showToast('✅ Dados carregados com sucesso!', 'success');
     }).catch(function(error) {
         console.error('Erro ao carregar dados:', error);
         state.isLoading = false;
+        if (loadingEl) loadingEl.classList.remove('show');
         showToast('❌ Erro ao carregar dados', 'error');
     });
 }
-
 // ============================================================
 // ATUALIZAR INTERFACE
 // ============================================================
