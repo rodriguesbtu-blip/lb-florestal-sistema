@@ -1217,34 +1217,47 @@ function importarPlanilha() {
 }
 
 // ============================================================
-// PROCESSAR EXCEL (PRODUÇÃO) - SEM APAGAR DADOS ANTIGOS
+// PROCESSAR EXCEL - VERSÃO ESTÁVEL (SEM TRAVAR)
 // ============================================================
 function processarArquivoExcel(file) {
     var loadingEl = document.getElementById('loading');
     if (loadingEl) loadingEl.classList.add('show');
+    
     var reader = new FileReader();
     reader.onload = function(e) {
         try {
             var data = new Uint8Array(e.target.result);
             var workbook = XLSX.read(data, { type: 'array', cellDates: true });
             var wsName = workbook.SheetNames[0];
+            
+            // Procura a aba correta
             for (var n of workbook.SheetNames) {
                 if (n.toLowerCase().includes('reporte') || n.toLowerCase().includes('diário') || n.toLowerCase().includes('diario')) {
                     wsName = n; break;
                 }
             }
+            
             var ws = workbook.Sheets[wsName];
             if (!ws) { throw new Error('Aba "' + wsName + '" não encontrada!'); }
+            
             var range = XLSX.utils.decode_range(ws['!ref']);
             var hRow = -1;
+            
+            // Encontra o cabeçalho
             for (var r = 0; r <= 10; r++) {
                 for (var c = 0; c <= range.e.c; c++) {
                     var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })];
-                    if (cell && cell.v && String(cell.v).toUpperCase().includes('TALH')) { hRow = r; break; }
+                    if (cell && cell.v && String(cell.v).toUpperCase().includes('TALH')) { 
+                        hRow = r; 
+                        break; 
+                    }
                 }
                 if (hRow >= 0) break;
             }
+            
             if (hRow < 0) { throw new Error('Não encontrei coluna "Talhão" no cabeçalho.'); }
+            
+            // Mapeia as colunas
             var cols = {};
             for (var c = 0; c <= range.e.c; c++) {
                 var cell = ws[XLSX.utils.encode_cell({ r: hRow, c: c })];
@@ -1263,22 +1276,42 @@ function processarArquivoExcel(file) {
                 if (h==='ID'||h.includes('ID FAZENDA')) cols.id = c;
                 if (h.includes('MUNICÍPIO') || h.includes('MUNICIPIO') || h.includes('CIDADE')) cols.municipio = c;
             }
+            
             var resultados = [];
             var insumosAcum = {};
             var opsDia = {};
-            var todosRegistros = [];
             var count = 0;
+            
+            // Processa as linhas
             for (var r = hRow + 1; r <= range.e.r; r++) {
                 var tCell = ws[XLSX.utils.encode_cell({ r: r, c: cols.talhao })];
                 var oCell = ws[XLSX.utils.encode_cell({ r: r, c: cols.op })];
                 if (!tCell || !tCell.v || !oCell || !oCell.v) continue;
+                
                 var tal = String(tCell.v).trim();
                 var op = String(oCell.v).trim();
                 if (!tal || !op) continue;
                 count++;
-                var gv = function(c, def) { if (c === undefined || c === null) return def || ''; var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; return cell && cell.v !== undefined ? String(cell.v).trim() : (def || ''); };
-                var gn = function(c) { if (c === undefined || c === null) return 0; var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; if (!cell) return 0; var v = parseFloat(String(cell.v).replace(',', '.')); return isNaN(v) ? 0 : v; };
-                var gd = function(c) { if (c === undefined || c === null) return null; var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; return cell ? cell.v : null; };
+                
+                // Funções auxiliares
+                var gv = function(c, def) { 
+                    if (c === undefined || c === null) return def || ''; 
+                    var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; 
+                    return cell && cell.v !== undefined ? String(cell.v).trim() : (def || ''); 
+                };
+                var gn = function(c) { 
+                    if (c === undefined || c === null) return 0; 
+                    var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; 
+                    if (!cell) return 0; 
+                    var v = parseFloat(String(cell.v).replace(',', '.')); 
+                    return isNaN(v) ? 0 : v; 
+                };
+                var gd = function(c) { 
+                    if (c === undefined || c === null) return null; 
+                    var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; 
+                    return cell ? cell.v : null; 
+                };
+                
                 var dataRaw = gd(cols.data);
                 var dataStr = dataRaw ? fmtData(dataRaw) : getHoje();
                 var fazenda = gv(cols.faz, '');
@@ -1288,6 +1321,7 @@ function processarArquivoExcel(file) {
                 var obs = gv(cols.obs, '');
                 var areaCadastro = gn(cols.area);
                 var idRegistro = gv(cols.id, '');
+                
                 var insumos = [];
                 if (cols.insumos && cols.quantidades) {
                     for (var i = 0; i < Math.min(cols.insumos.length, cols.quantidades.length); i++) {
@@ -1300,27 +1334,10 @@ function processarArquivoExcel(file) {
                         }
                     }
                 }
+                
                 var idOp = extrairIdOperacao(op);
                 var nomeOperacao = op;
-                var obsLimpa = limparObservacao(obs);
-                todosRegistros.push({
-                    id: idRegistro || idOp,
-                    idOp: idOp,
-                    operacao: nomeOperacao,
-                    operacaoOriginal: op,
-                    fazenda: fazenda,
-                    municipio: municipio,
-                    talhao: tal,
-                    areaRealizada: producao,
-                    areaCadastro: areaCadastro,
-                    equipe: equipe,
-                    observacao: obs,
-                    observacaoLimpa: obsLimpa,
-                    data: dataRaw,
-                    dataStr: dataStr,
-                    insumos: insumos,
-                    insumosStr: insumos.map(i => extrairInsumoLimpo(i.nome) + ' ' + safe(i.qtd)).join(', ')
-                });
+                
                 if (!opsDia[nomeOperacao]) {
                     opsDia[nomeOperacao] = {
                         nome: nomeOperacao,
@@ -1331,6 +1348,7 @@ function processarArquivoExcel(file) {
                         observacoes: []
                     };
                 }
+                
                 opsDia[nomeOperacao].totalHa += producao;
                 opsDia[nomeOperacao].registros.push({
                     id: idRegistro || idOp,
@@ -1339,114 +1357,110 @@ function processarArquivoExcel(file) {
                     ha: producao,
                     equipe: equipe,
                     obs: obs,
-                    obsLimpa: obsLimpa,
+                    obsLimpa: limparObservacao(obs),
                     areaCadastro: areaCadastro,
                     fazenda: fazenda,
                     municipio: municipio,
                     talhao: tal
                 });
-                if (obsLimpa && !opsDia[nomeOperacao].observacoes.includes(obsLimpa)) {
-                    opsDia[nomeOperacao].observacoes.push(obsLimpa);
-                }
                 opsDia[nomeOperacao].insumos = insumosAcum;
-                resultados.push({
-                    talhao: tal,
-                    operacao: op,
-                    data: dataRaw,
-                    fazenda: fazenda,
-                    municipio: municipio,
-                    producao: producao,
-                    equipe: equipe,
-                    obs: obs,
-                    insumos: insumos,
-                    areaCad: areaCadastro,
-                    id: idRegistro || idOp
-                });
-            }
-            if (count === 0) { throw new Error('Nenhuma linha de dados encontrada.'); }
-            
-            // Atualiza o estado com os dados da planilha (mesclando com os existentes)
-            for (var opKey in opsDia) {
-                if (state.operacoesDia[opKey]) {
-                    // Se a operação já existe, soma as áreas
-                    state.operacoesDia[opKey].totalHa += opsDia[opKey].totalHa;
-                    state.operacoesDia[opKey].registros = state.operacoesDia[opKey].registros.concat(opsDia[opKey].registros);
-                } else {
-                    // Se é nova, adiciona
-                    state.operacoesDia[opKey] = opsDia[opKey];
-                }
             }
             
-            // Atualiza insumos
-            for (var insKey in insumosAcum) {
-                if (state.insumosDia[insKey]) {
-                    state.insumosDia[insKey] += insumosAcum[insKey];
-                } else {
-                    state.insumosDia[insKey] = insumosAcum[insKey];
-                }
+            if (count === 0) { 
+                throw new Error('Nenhuma linha de dados encontrada.'); 
             }
             
-            state.dadosProducao = state.dadosProducao.concat(resultados);
-            state.todosRegistros = state.todosRegistros.concat(todosRegistros);
+            // Atualiza o estado
+            state.dadosProducao = resultados;
+            state.operacoesDia = opsDia;
+            state.insumosDia = insumosAcum;
             
             // Processa saídas de insumos
             processarSaidasInsumos(resultados);
             
-            var dia = getDiaNumero();
-            var dataHoje = getHoje();
+            // SALVA NO FIREBASE (sem loop)
+            salvarProducaoFirebase(opsDia, insumosAcum);
             
-            // ============================================================
-            // SALVAMENTO NO FIREBASE - SEM APAGAR OS DADOS ANTIGOS
-            // ============================================================
-            if (typeof db === 'undefined' || !db) {
-                throw new Error('Firebase não está disponível. Verifique a conexão.');
+            // Esconde o loading
+            if (loadingEl) loadingEl.classList.remove('show');
+            
+            // Atualiza a interface
+            atualizarInterface();
+            
+            var infoEl = document.getElementById('infoArquivo');
+            if (infoEl) infoEl.textContent = '✅ ' + file.name + ' importado! (' + count + ' linhas, ' + Object.keys(opsDia).length + ' operações)';
+            
+            showToast('✅ Planilha importada! ' + Object.keys(opsDia).length + ' operações.', 'success');
+            
+        } catch (error) {
+            console.error('❌ Erro ao processar:', error);
+            if (loadingEl) loadingEl.classList.remove('show');
+            showToast('❌ Erro: ' + error.message, 'error');
+        }
+    };
+    
+    reader.onerror = function(error) {
+        console.error('❌ Erro ao ler arquivo:', error);
+        var loadingEl = document.getElementById('loading');
+        if (loadingEl) loadingEl.classList.remove('show');
+        showToast('❌ Erro ao ler o arquivo.', 'error');
+    };
+    
+    reader.readAsArrayBuffer(file);
+}
+
+// ============================================================
+// SALVAR PRODUÇÃO NO FIREBASE (SEM LOOP)
+// ============================================================
+function salvarProducaoFirebase(opsDia, insumosAcum) {
+    var dia = getDiaNumero();
+    var dataHoje = getHoje();
+    
+    // Busca documentos existentes
+    db.collection('producao_dia').where('dia', '==', dia).get()
+        .then(function(snapshot) {
+            var batch = db.batch();
+            var countDeleted = 0;
+            
+            // Remove apenas os documentos ANTIGOS que serão substituídos
+            snapshot.forEach(function(doc) {
+                batch.delete(doc.ref);
+                countDeleted++;
+            });
+            
+            if (countDeleted > 0) {
+                console.log('🗑️ Removendo ' + countDeleted + ' documentos antigos');
+                return batch.commit();
             }
-            
-            // Verifica se já existem dados para hoje
-            db.collection('producao_dia').where('dia', '==', dia).get()
-                .then(function(snapshot) {
-                    var promises = [];
-                    var salvos = 0;
-                    var erros = 0;
-                    var jaExiste = snapshot.size > 0;
-                    
-                    if (jaExiste) {
-                        console.log('📋 Já existem dados para hoje. Atualizando...');
-                    }
-                    
-                    // Para cada operação, salva ou atualiza
-                    for (var opKey in opsDia) {
-                        var op = opsDia[opKey];
-                        var ref;
-                        
-                        if (jaExiste) {
-                            // Se já existe, tenta encontrar o documento existente para esta operação
-                            var docExistente = null;
-                            snapshot.forEach(function(doc) {
-                                if (doc.data().operacao === opKey) {
-                                    docExistente = doc;
-                                }
-                            });
-                            
-                            if (docExistente) {
-                                // Atualiza o documento existente
-                                ref = db.collection('producao_dia').doc(docExistente.id);
-                                var promise = ref.update({
-                                    totalHa: state.operacoesDia[opKey].totalHa,
-                                    registros: state.operacoesDia[opKey].registros,
-                                    insumos: state.insumosDia,
-                                    updatedAt: new Date()
-                                })
-                                .then(function() {
-                                    salvos++;
-                                    console.log('✅ Operação atualizada no Firebase:', opKey);
-                                })
-                                .catch(function(error) {
-                                    erros++;
-                                    console.error('❌ Erro ao atualizar operação:', error.message);
-                                });
-                                promises.push(promise);
-                            } else {
+            return Promise.resolve();
+        })
+        .then(function() {
+            // Salva as novas operações
+            var promises = [];
+            for (var opKey in opsDia) {
+                var op = opsDia[opKey];
+                var ref = db.collection('producao_dia').doc();
+                var promise = ref.set({
+                    dia: dia,
+                    data: dataHoje,
+                    operacao: opKey,
+                    operacaoOriginal: op.nomeOriginal,
+                    totalHa: op.totalHa,
+                    registros: op.registros,
+                    insumos: insumosAcum,
+                    createdAt: new Date()
+                });
+                promises.push(promise);
+            }
+            return Promise.all(promises);
+        })
+        .then(function() {
+            console.log('✅ Produção salva no Firebase');
+        })
+        .catch(function(error) {
+            console.error('❌ Erro ao salvar produção:', error);
+        });
+} else {
                                 // Cria novo documento
                                 ref = db.collection('producao_dia').doc();
                                 var promise = ref.set({
