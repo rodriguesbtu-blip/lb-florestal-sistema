@@ -2304,17 +2304,24 @@ function ouvirLancamentosFirebase() {
 // ============================================================
 // CARREGAR DADOS FIREBASE - SEM LOOP INFINITO
 // ============================================================
+var carregandoDados = false;
+
 function carregarDadosFirebase() {
+    // PREVINE LOOP INFINITO
+    if (carregandoDados) {
+        console.log('⏳ Já está carregando, ignorando nova chamada...');
+        return;
+    }
+    carregandoDados = true;
+    
     if (state.isLoading) return;
     state.isLoading = true;
     
-    // Mostra loading na tela
     var loadingEl = document.getElementById('loading');
     if (loadingEl) loadingEl.classList.add('show');
     
     console.log('🔄 Carregando dados do Firebase...');
     
-    // Busca produção
     db.collection('producao_dia').get()
         .then(function(snapshot) {
             console.log('📊 Produção:', snapshot.size, 'documentos');
@@ -2338,8 +2345,6 @@ function carregarDadosFirebase() {
                 }
             });
             state.operacoesDia = ops;
-            
-            // Busca lançamentos
             return db.collection('lancamentos').where('dia', '==', getDiaNumero()).get();
         })
         .then(function(snapshot) {
@@ -2359,7 +2364,6 @@ function carregarDadosFirebase() {
             });
             state.lancamentosFirebase = lancs;
             
-            // Busca configurações
             return db.collection('config').doc('custos').get();
         })
         .then(function(doc) {
@@ -2369,14 +2373,6 @@ function carregarDadosFirebase() {
                 state.custos.MAQ = data.MAQ || 850;
                 state.custos.PIPA = data.PIPA || 650;
                 state.custos.APOIO = data.APOIO || 450;
-                var tfEl = document.getElementById('custo_TF');
-                var maqEl = document.getElementById('custo_MAQ');
-                var pipaEl = document.getElementById('custo_PIPA');
-                var apoioEl = document.getElementById('custo_APOIO');
-                if (tfEl) tfEl.value = state.custos.TF;
-                if (maqEl) maqEl.value = state.custos.MAQ;
-                if (pipaEl) pipaEl.value = state.custos.PIPA;
-                if (apoioEl) apoioEl.value = state.custos.APOIO;
             }
             return db.collection('config').doc('valores_atividades').get();
         })
@@ -2384,9 +2380,7 @@ function carregarDadosFirebase() {
             if (doc.exists) state.valoresAtividades = doc.data() || {};
             
             state.isLoading = false;
-            
-            // Esconde loading
-            var loadingEl = document.getElementById('loading');
+            carregandoDados = false; // LIBERA O CONTROLE
             if (loadingEl) loadingEl.classList.remove('show');
             
             console.log('✅ Dados carregados com sucesso!');
@@ -2396,7 +2390,7 @@ function carregarDadosFirebase() {
         .catch(function(error) {
             console.error('❌ Erro ao carregar dados:', error);
             state.isLoading = false;
-            var loadingEl = document.getElementById('loading');
+            carregandoDados = false;
             if (loadingEl) loadingEl.classList.remove('show');
             showToast('❌ Erro ao carregar dados', 'error');
         });
