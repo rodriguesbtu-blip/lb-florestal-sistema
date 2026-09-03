@@ -702,15 +702,24 @@ function normalizarInsumo(insumo) {
 }
 
 // ============================================================
-// SALVAR MOVIMENTAÇÕES - SEM DUPLICAÇÃO (CORREÇÃO PRINCIPAL!)
+// SALVAR MOVIMENTAÇÕES - SEM DUPLICAÇÃO
 // ============================================================
+var salvandoMovimentacoes = false;
+
 function salvarMovimentacoes() {
+    // Evita execução simultânea
+    if (salvandoMovimentacoes) {
+        console.log('⏳ Já está salvando, ignorando...');
+        return;
+    }
+    
     // 1. Salva localmente (backup)
     localStorage.setItem('estoqueMovimentacoes', JSON.stringify(state.movimentacoes));
     
     // 2. Salva no Firebase (compartilhamento) - SEM DUPLICAR
     if (typeof db !== 'undefined' && db) {
-        // Busca os IDs existentes no Firebase
+        salvandoMovimentacoes = true;
+        
         db.collection('estoque_movimentacoes').get()
             .then(function(snapshot) {
                 var idsExistentes = new Set();
@@ -726,6 +735,7 @@ function salvarMovimentacoes() {
                 
                 if (novasMovs.length === 0) {
                     console.log('ℹ️ Nenhuma movimentação nova.');
+                    salvandoMovimentacoes = false;
                     return Promise.resolve();
                 }
                 
@@ -738,9 +748,11 @@ function salvarMovimentacoes() {
             })
             .then(function() {
                 console.log('✅ Novas movimentações salvas no Firebase');
+                salvandoMovimentacoes = false;
             })
             .catch(function(err) {
                 console.error('❌ Erro ao salvar estoque:', err.message);
+                salvandoMovimentacoes = false;
             });
     }
 }
@@ -1401,20 +1413,24 @@ function registrarEntrada() {
     var insumoEl = document.getElementById('entradaInsumo');
     var municipioEl = document.getElementById('entradaMunicipio');
     var qtdEl = document.getElementById('entradaQtd');
+    
     if (!dataEl || !nfEl || !insumoEl || !municipioEl || !qtdEl) {
         showToast('❌ Erro: elementos do formulário não encontrados!', 'error');
         return;
     }
+    
     var data = dataEl.value;
     var nf = nfEl.value.trim();
     var insumo = normalizarInsumo(insumoEl.value.trim());
     var municipio = normalizarMunicipio(municipioEl.value.trim());
     var qtd = parseFloat(qtdEl.value);
+    
     if (!data) { showToast('⚠️ Selecione uma data!', 'warning'); return; }
     if (!nf) { showToast('⚠️ Informe o número da NF!', 'warning'); return; }
     if (!insumo || insumo === 'INSUMO NÃO IDENTIFICADO') { showToast('⚠️ Informe um insumo válido!', 'warning'); return; }
     if (!municipio || municipio === 'NÃO INFORMADO') { showToast('⚠️ Informe o município de destino!', 'warning'); return; }
     if (!qtd || qtd <= 0) { showToast('⚠️ Informe uma quantidade válida!', 'warning'); return; }
+    
     var dataFormatada = new Date(data).toLocaleDateString('pt-BR');
     var novoId = 'entrada_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
     
@@ -1436,17 +1452,20 @@ function registrarEntrada() {
         origem: 'NF ' + nf,
         createdAt: new Date().toISOString()
     };
+    
     state.movimentacoes.push(movimentacao);
     salvarMovimentacoes();
     recalcularEstoque();
     renderizarEstoque();
+    
+    // Limpa o formulário
     nfEl.value = '';
     insumoEl.value = '';
     municipioEl.value = '';
     qtdEl.value = '';
+    
     showToast('✅ Entrada registrada: ' + qtd + ' kg de ' + insumo + ' para ' + municipio + ' (NF ' + nf + ')', 'success');
 }
-
 // ============================================================
 // RENDERIZAR ESTOQUE
 // ============================================================
