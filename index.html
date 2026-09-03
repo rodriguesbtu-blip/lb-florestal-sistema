@@ -2285,15 +2285,32 @@ function renderData() {
     if (!container) return;
     var diasData = calcDadosPorData();
     var html = '';
-    if (diasData.length===0) { html = '<div class="empty"><div class="ico">📭</div><p>Nenhuma operação encontrada</p></div>'; }
+    if (diasData.length===0) { 
+        html = '<div class="empty"><div class="ico">📭</div><p>Nenhuma operação encontrada</p></div>'; 
+        container.innerHTML = html; 
+        return; 
+    }
+    
     diasData.forEach(function(dia) {
         var totalDia = dia.ops.reduce(function(s,o){ return s+o.producaoDia; }, 0);
-        var ds = dia.dataStr;
+        
+        // CORREÇÃO: Usa dataStr em vez de tentar criar nova data
+        var ds = dia.dataStr || 'Data não informada';
         var diaId = 'dia_'+ds.replace(/\//g,'-');
         var open = isOpen(diaId);
-        var diasemana = new Date(dia.data).toLocaleDateString('pt-BR',{weekday:'long'});
+        
+        // CORREÇÃO: Verifica se a data é válida
+        var dataObj = dia.data ? new Date(dia.data) : null;
+        var diasemana = (dataObj && !isNaN(dataObj.getTime())) ? dataObj.toLocaleDateString('pt-BR',{weekday:'long'}) : 'Data inválida';
+        
         var insDia = {};
-        dia.ops.forEach(function(op){ (op.insumos||[]).forEach(function(ins){ if(!insDia[ins.nome]) insDia[ins.nome]=0; insDia[ins.nome]+=ins.qtd; }); });
+        dia.ops.forEach(function(op){ 
+            (op.insumos||[]).forEach(function(ins){ 
+                if(!insDia[ins.nome]) insDia[ins.nome]=0; 
+                insDia[ins.nome]+=ins.qtd; 
+            }); 
+        });
+        
         var insumosHtml = '';
         if (Object.keys(insDia).length > 0) {
             insumosHtml = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0 0;">';
@@ -2303,7 +2320,9 @@ function renderData() {
             });
             insumosHtml += '</div>';
         }
+        
         html += '<div class="dia-block"><div class="dia-header" onclick="toggleRender(\'' + diaId + '\',\'data\')"><div><div style="font-size:18px;font-weight:bold">' + ds + '</div><div style="font-size:12px;opacity:.85;text-transform:capitalize">' + diasemana + ' • ' + dia.ops.length + ' operações • ' + safe(totalDia) + ' ha</div></div><div style="display:flex;gap:6px;align-items:center"><button class="btn btn-azul btn-sm" onclick="event.stopPropagation();imprimirDia(\'' + diaId + '\',\'' + ds + '\')">🖨️ Imprimir</button><div class="arrow ' + (open?'open':'') + '">▼</div></div></div><div class="dia-body ' + (open?'open':'') + '" id="' + diaId + '">' + insumosHtml + '<div style="overflow-x:auto;margin-top:10px;"><table><thead><tr><th>#</th><th>ID</th><th>Operação</th><th>Fazenda</th><th>Talhão</th><th>Realizado / Total (ha)</th><th>Status</th><th>Insumos</th><th>Equipe</th><th>Observações</th></tr></thead><tbody>';
+        
         dia.ops.forEach(function(op,idx) {
             var perc = op.areaCad>0?(op.acumulado/op.areaCad)*100:0;
             var ehIOP = ehIrr(op.operacao)||ehPlantio(op.operacao);
@@ -2312,9 +2331,11 @@ function renderData() {
             else if (perc>=100) { sCls='s-completo'; sTxt='✅ COMPLETO'; }
             else if (perc>=50) { sCls='s-parcial-alt'; sTxt='⚠️ PARCIAL'; }
             else { sCls='s-parcial'; sTxt='🔵 PARCIAL'; }
+            
             var histId = 'hist_' + diaId + '_' + idx;
             var histOpen = isOpen(histId);
             var nHist = op.historico?op.historico.length:0;
+            
             var prazoBadge = '';
             if (perc>=100 && perc<=110 && ehPlantio(op.operacao) && op.historico && op.historico.length>0) {
                 var ultData = new Date(Math.max.apply(null, op.historico.map(function(h){ return new Date(h.data); })));
@@ -2324,18 +2345,21 @@ function renderData() {
                 var pcls = diasRest<0?'p-vencido':diasRest<=3?'p-urgente':diasRest<=10?'p-atencao':'p-ok';
                 prazoBadge = '<div style="margin-top:3px;"><span class="prazo-badge ' + pcls + '" style="font-size:10px;padding:2px 8px;">' + (diasRest<0?'⚫ VENCIDO há ' + Math.abs(diasRest) + 'd':'⏰ Replantio: ' + limDate.toLocaleDateString('pt-BR') + ' (' + diasRest + 'd)') + '</span></div>';
             }
+            
             html += '<tr><td><div style="display:flex;align-items:center;gap:4px"><span>' + (idx+1) + '</span>' + (nHist>0?'<button class="hist-expand" onclick="toggleRender(\'' + histId + '\',\'data\')">' + (histOpen?'▼':'▶') + ' ' + nHist + ' ' + (nHist===1?'dia':'dias') + '</button>':'') + '</div></td><td class="bold text-blue">' + (op.id||'-') + '</td><td class="bold text-blue" style="font-size:11px;">' + op.operacao + (op.obsLimpa?' — ' + op.obsLimpa:'') + '</td><td>' + op.fazenda + '</td><td class="bold">' + op.talhao + '</td><td><div><span class="bold text-green">' + safe(op.acumulado) + '</span><span class="text-gray"> / </span><span class="bold">' + safe(op.areaCad) + '</span><span class="text-gray text-xs"> (' + safe(perc,0) + '%)</span></div><div class="text-xs text-gray">Hoje: ' + safe(op.producaoDia) + ' ha</div>' + (nHist>0?'<div class="text-xs" style="color:#2563eb;margin-top:2px;">📅 ' + op.historico.map(function(h){ return h.dataStr + '(' + safe(h.producao) + 'ha)'; }).join(' + ') + '</div>':'') + '</td><td><span class="badge-status ' + sCls + '">' + sTxt + '</span>' + (ehIOP&&perc>110?'<div style="margin-top:3px;font-size:10px;font-weight:bold;color:#991b1b;">⚠️ +' + safe(perc-100,0) + '% da área</div>':'') + prazoBadge + '</td><td style="font-size:11px;">' + (op.insumos&&op.insumos.length>0?op.insumos.map(function(i){ return '<div><span class="bold text-purple">' + i.nome + '</span> • <span>' + safe(i.qtd) + '</span></div>'; }).join(''):'<span class="text-gray">-</span>') + '</td><td>' + (op.equipe||'-') + '</td><td class="text-xs text-gray">' + (op.obs||'-') + '</td></tr>';
+            
             if (histOpen && op.historico && op.historico.length>0) {
                 html += '<tr><td colspan="10" style="padding:0"><div style="background:#eff6ff;padding:12px;border-left:4px solid #2563eb;"><div class="bold text-blue" style="margin-bottom:8px;font-size:12px;">📅 Histórico Completo — ' + op.talhao + ' — ' + op.operacao + '</div><div style="display:grid;gap:4px;">';
                 var acumH=0;
                 op.historico.forEach(function(h,i) {
                     acumH += h.producao;
                     var percH = op.areaCad>0?(acumH/op.areaCad)*100:0;
-                    html += '<div style="background:#fff;border:1px solid #bfdbfe;border-radius:6px;padding:8px;display:grid;grid-template-columns:1fr 1fr 2fr 1fr 1fr;gap:6px;font-size:11px;"><div><div class="text-gray text-xs">Data</div><div class="bold">' + h.dataStr + '</div></div><div><div class="text-gray text-xs">Realizado</div><div class="bold text-green">' + safe(h.producao) + ' ha</div></div><div><div class="text-gray text-xs">Acumulado</div><div class="bold text-blue">' + safe(acumH) + ' / ' + safe(op.areaCad) + ' ha (' + safe(percH,0) + '%)</div></div><div><div class="text-gray text-xs">Equipe</div><div>' + (h.equipe||'-') + '</div></div><div><div class="text-gray text-xs">Insumos</div>' + (h.insumos&&h.insumos.length>0?h.insumos.map(function(ins){ return '<div class="text-purple bold" style="font-size:10px;">' + ins.nome + ': ' + safe(ins.qtd) + '</div>'; }).join(''):'<span class="text-gray">-</span>') + '</div></div>';
+                    html += '<div style="background:#fff;border:1px solid #bfdbfe;border-radius:6px;padding:8px;display:grid;grid-template-columns:1fr 1fr 2fr 1fr 1fr;gap:6px;font-size:11px;"><div><div class="text-gray text-xs">Data</div><div class="bold">' + (h.dataStr || 'Data inválida') + '</div></div><div><div class="text-gray text-xs">Realizado</div><div class="bold text-green">' + safe(h.producao) + ' ha</div></div><div><div class="text-gray text-xs">Acumulado</div><div class="bold text-blue">' + safe(acumH) + ' / ' + safe(op.areaCad) + ' ha (' + safe(percH,0) + '%)</div></div><div><div class="text-gray text-xs">Equipe</div><div>' + (h.equipe||'-') + '</div></div><div><div class="text-gray text-xs">Insumos</div>' + (h.insumos&&h.insumos.length>0?h.insumos.map(function(ins){ return '<div class="text-purple bold" style="font-size:10px;">' + ins.nome + ': ' + safe(ins.qtd) + '</div>'; }).join(''):'<span class="text-gray">-</span>') + '</div></div>';
                 });
                 html += '</div></div></td></tr>';
             }
         });
+        
         html += '<tr class="total-row"><td colspan="5" style="text-align:right">TOTAL DO DIA:</td><td class="text-green" style="font-size:14px;">' + safe(totalDia) + ' ha</td><td colspan="4"></td></tr>';
         html += '</tbody></table></div></div></div>';
     });
