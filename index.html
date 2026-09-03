@@ -2310,53 +2310,116 @@ function renderData() {
     container.innerHTML = html;
 }
 function calcDadosPorData() {
+    // Usa state.dadosProducao que já está populado
     var filtrados = state.dadosProducao.slice();
+    
+    // Se não tiver dados, tenta usar state.operacoesDia como fallback
+    if (filtrados.length === 0) {
+        console.log('⚠️ dadosProducao vazio, tentando operacoesDia...');
+        Object.keys(state.operacoesDia).forEach(function(opKey) {
+            var op = state.operacoesDia[opKey];
+            if (op.registros) {
+                op.registros.forEach(function(reg) {
+                    filtrados.push({
+                        talhao: reg.talhao || '',
+                        operacao: opKey,
+                        operacaoOriginal: op.nomeOriginal || opKey,
+                        data: reg.data || null,
+                        dataStr: reg.dataStr || '',
+                        fazenda: reg.fazenda || '',
+                        municipio: reg.municipio || '',
+                        producao: reg.ha || 0,
+                        equipe: reg.equipe || '',
+                        obs: reg.obs || '',
+                        obsLimpa: reg.obsLimpa || '',
+                        insumos: reg.insumos || [],
+                        areaCad: reg.areaCadastro || 0,
+                        id: reg.id || ''
+                    });
+                });
+            }
+        });
+        console.log('📊 fallback: ' + filtrados.length + ' registros de operacoesDia');
+    }
+    
+    if (filtrados.length === 0) {
+        return [];
+    }
+    
     var f = state.filtros.data;
-    if (f.inicio) { var d=new Date(f.inicio); filtrados = filtrados.filter(function(x){ return x.data && new Date(x.data) >= d; }); }
-    if (f.fim) { var d=new Date(f.fim); d.setHours(23,59,59); filtrados = filtrados.filter(function(x){ return x.data && new Date(x.data) <= d; }); }
+    if (f.inicio) { var d = new Date(f.inicio); filtrados = filtrados.filter(function(x){ return x.data && new Date(x.data) >= d; }); }
+    if (f.fim) { var d = new Date(f.fim); d.setHours(23,59,59); filtrados = filtrados.filter(function(x){ return x.data && new Date(x.data) <= d; }); }
     if (f.fazenda) filtrados = filtrados.filter(function(x){ return x.fazenda === f.fazenda; });
     if (f.op) filtrados = filtrados.filter(function(x){ return x.operacao === f.op; });
+    
     var hist = {};
     filtrados.forEach(function(d) {
         if (!d.data) return;
-        var obsL = limparDesc(d.obs,d.operacao);
+        var obsL = limparDesc(d.obs, d.operacao);
         var k = d.fazenda + '_' + d.talhao + '_' + d.operacao + '_' + (obsL||'SEM');
-        if (!hist[k]) hist[k]=[];
-        hist[k].push({ data:d.data, dataStr:fmtData(d.data), producao:d.producao, insumos:d.insumos||[], equipe:d.equipe, obs:d.obs });
+        if (!hist[k]) hist[k] = [];
+        hist[k].push({ 
+            data: d.data, 
+            dataStr: d.dataStr || fmtData(d.data), 
+            producao: d.producao, 
+            insumos: d.insumos || [], 
+            equipe: d.equipe, 
+            obs: d.obs 
+        });
     });
-    Object.values(hist).forEach(function(h){ h.sort(function(a,b){ return new Date(a.data)-new Date(b.data); }); });
+    Object.values(hist).forEach(function(h){ h.sort(function(a,b){ return new Date(a.data) - new Date(b.data); }); });
+    
     var porData = {};
     filtrados.forEach(function(d) {
         if (!d.data) return;
-        var ds = fmtData(d.data);
-        if (!porData[ds]) porData[ds]={ data:d.data, dataStr:ds, opsOriginais:[] };
+        var ds = d.dataStr || fmtData(d.data);
+        if (!porData[ds]) porData[ds] = { data: d.data, dataStr: ds, opsOriginais: [] };
         porData[ds].opsOriginais.push(d);
     });
-    var datasOrd = Object.values(porData).sort(function(a,b){ return new Date(a.data)-new Date(b.data); });
+    
+    var datasOrd = Object.values(porData).sort(function(a,b){ return new Date(a.data) - new Date(b.data); });
     var acum = {};
+    
     datasOrd.forEach(function(dia) {
         var opsAg = {};
         dia.opsOriginais.forEach(function(op) {
-            var obsL = limparDesc(op.obs,op.operacao);
+            var obsL = limparDesc(op.obs, op.operacao);
             var k = op.fazenda + '_' + op.talhao + '_' + op.operacao + '_' + obsL;
             var kH = op.fazenda + '_' + op.talhao + '_' + op.operacao + '_' + (obsL||'SEM');
-            if (!opsAg[k]) opsAg[k]={ id:op.id, fazenda:op.fazenda, talhao:op.talhao, operacao:op.operacao, obs:op.obs, obsLimpa:obsL, areaCad:op.areaCad||0, producaoDia:0, equipe:op.equipe, insumos:[], historico:hist[kH]||[] };
+            if (!opsAg[k]) {
+                opsAg[k] = { 
+                    id: op.id, 
+                    fazenda: op.fazenda, 
+                    talhao: op.talhao, 
+                    operacao: op.operacao, 
+                    obs: op.obs, 
+                    obsLimpa: obsL, 
+                    areaCad: op.areaCad || 0, 
+                    producaoDia: 0, 
+                    equipe: op.equipe, 
+                    insumos: [], 
+                    historico: hist[kH] || [] 
+                };
+            }
             opsAg[k].producaoDia += op.producao;
-            (op.insumos||[]).forEach(function(ins) {
-                var ex = opsAg[k].insumos.find(function(i){ return i.nome===ins.nome; });
-                if (ex) ex.qtd += ins.qtd; else opsAg[k].insumos.push({ nome:ins.nome, qtd:ins.qtd });
+            (op.insumos || []).forEach(function(ins) {
+                var ex = opsAg[k].insumos.find(function(i){ return i.nome === ins.nome; });
+                if (ex) ex.qtd += ins.qtd; 
+                else opsAg[k].insumos.push({ nome: ins.nome, qtd: ins.qtd });
             });
         });
+        
         Object.entries(opsAg).forEach(function(entry) {
             var k = entry[0], op = entry[1];
             var kH = op.fazenda + '_' + op.talhao + '_' + op.operacao + '_' + (op.obsLimpa||'SEM');
-            if (!acum[kH]) acum[kH]=0;
+            if (!acum[kH]) acum[kH] = 0;
             acum[kH] += op.producaoDia;
             op.acumulado = acum[kH];
         });
         dia.ops = Object.values(opsAg);
     });
-    return datasOrd.sort(function(a,b){ return new Date(b.data)-new Date(a.data); });
+    
+    return datasOrd.sort(function(a,b){ return new Date(b.data) - new Date(a.data); });
 }
 
 // ============================================================
