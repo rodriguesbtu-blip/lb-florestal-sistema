@@ -1986,7 +1986,7 @@ function ouvirLancamentosFirebase() {
 }
 
 // ============================================================
-// CARREGAR DADOS FIREBASE - SEM LOOP INFINITO
+// CARREGAR DADOS FIREBASE - VERSÃO COMPLETA E CORRIGIDA
 // ============================================================
 function carregarDadosFirebase() {
     if (state.isLoading) return;
@@ -1997,6 +1997,7 @@ function carregarDadosFirebase() {
     
     console.log('🔄 Carregando dados do Firebase...');
     
+    // Busca produção
     db.collection('producao_dia').get()
         .then(function(snapshot) {
             console.log('📊 Produção:', snapshot.size, 'documentos');
@@ -2020,6 +2021,39 @@ function carregarDadosFirebase() {
                 }
             });
             state.operacoesDia = ops;
+            
+            // ============================================================
+            // POPULA dadosProducao A PARTIR DAS OPERAÇÕES
+            // ============================================================
+            var dados = [];
+            Object.keys(ops).forEach(function(opKey) {
+                var op = ops[opKey];
+                if (op.registros) {
+                    op.registros.forEach(function(reg) {
+                        dados.push({
+                            talhao: reg.talhao || '',
+                            operacao: opKey,
+                            operacaoOriginal: op.nomeOriginal || opKey,
+                            data: reg.data || '',
+                            dataStr: reg.dataStr || '',
+                            fazenda: reg.fazenda || '',
+                            municipio: reg.municipio || '',
+                            producao: reg.ha || 0,
+                            equipe: reg.equipe || '',
+                            obs: reg.obs || '',
+                            obsLimpa: reg.obsLimpa || '',
+                            insumos: reg.insumos || [],
+                            areaCad: reg.areaCadastro || 0,
+                            id: reg.id || ''
+                        });
+                    });
+                }
+            });
+            state.dadosProducao = dados;
+            state.todosRegistros = dados;
+            console.log('✅ dadosProducao populado com:', state.dadosProducao.length, 'registros');
+            
+            // Busca lançamentos
             return db.collection('lancamentos').where('dia', '==', getDiaNumero()).get();
         })
         .then(function(snapshot) {
@@ -2038,6 +2072,8 @@ function carregarDadosFirebase() {
                 lancs[opId].apoio += data.apoio || 0;
             });
             state.lancamentosFirebase = lancs;
+            
+            // Busca configurações
             return db.collection('config').doc('custos').get();
         })
         .then(function(doc) {
@@ -2060,8 +2096,10 @@ function carregarDadosFirebase() {
         })
         .then(function(doc) {
             if (doc.exists) state.valoresAtividades = doc.data() || {};
+            
             state.isLoading = false;
             if (loadingEl) loadingEl.classList.remove('show');
+            
             console.log('✅ Dados carregados com sucesso!');
             atualizarInterface();
             showToast('✅ Dados carregados com sucesso!', 'success');
@@ -2073,7 +2111,6 @@ function carregarDadosFirebase() {
             showToast('❌ Erro ao carregar dados', 'error');
         });
 }
-
 // ============================================================
 // ATUALIZAR INTERFACE
 // ============================================================
