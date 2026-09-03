@@ -705,8 +705,38 @@ function normalizarInsumo(insumo) {
 // SALVAR MOVIMENTAÇÕES - SEM DUPLICAÇÃO (CORREÇÃO PRINCIPAL!)
 // ============================================================
 function salvarMovimentacoes() {
-    // 1. Salva localmente (backup)
     localStorage.setItem('estoqueMovimentacoes', JSON.stringify(state.movimentacoes));
+    
+    if (typeof db !== 'undefined' && db) {
+        db.collection('estoque_movimentacoes').get()
+            .then(function(snapshot) {
+                var idsExistentes = new Set();
+                snapshot.forEach(function(doc) {
+                    var data = doc.data();
+                    if (data.id) idsExistentes.add(data.id);
+                });
+                var novasMovs = state.movimentacoes.filter(function(mov) {
+                    return !idsExistentes.has(mov.id);
+                });
+                if (novasMovs.length === 0) {
+                    console.log('ℹ️ Nenhuma movimentação nova.');
+                    return Promise.resolve();
+                }
+                console.log('📤 Salvando ' + novasMovs.length + ' novas movimentações...');
+                var promises = [];
+                novasMovs.forEach(function(mov) {
+                    promises.push(db.collection('estoque_movimentacoes').doc().set(mov));
+                });
+                return Promise.all(promises);
+            })
+            .then(function() {
+                console.log('✅ Novas movimentações salvas no Firebase');
+            })
+            .catch(function(err) {
+                console.error('❌ Erro ao salvar estoque:', err.message);
+            });
+    }
+}
     
     // 2. Salva no Firebase (compartilhamento) - SEM DUPLICAR
     if (typeof db !== 'undefined' && db) {
@@ -1252,11 +1282,62 @@ function processarSaidasInsumos(resultados) {
 // ============================================================
 // FUNÇÕES DE ESTOQUE
 // ============================================================
+// ============================================================
+// CARREGAR ESTOQUE - PRIORIZA FIREBASE
+// ============================================================
 function carregarEstoqueLocal() {
+    // 1. PRIMEIRO: Tenta carregar do Firebase
+    if (typeof db !== 'undefined' && db) {
+        console.log('📦 Buscando estoque do Firebase...');
+        db.collection('estoque_movimentacoes').get()
+            .then(function(snapshot) {
+                if (snapshot.size > 0) {
+                    var movs = [];
+                    snapshot.forEach(function(doc) {
+                        movs.push(doc.data());
+                    });
+                    state.movimentacoes = movs;
+                    localStorage.setItem('estoqueMovimentacoes', JSON.stringify(movs));
+                    console.log('✅ Estoque carregado do Firebase: ' + movs.length + ' movimentações');
+                    processarEstoqueCarregado();
+                    return;
+                }
+                console.log('ℹ️ Firebase vazio, tentando localStorage...');
+                carregarDoLocalStorage();
+            })
+            .catch(function(err) {
+                console.error('❌ Erro ao carregar do Firebase:', err.message);
+                carregarDoLocalStorage();
+            });
+    } else {
+        carregarDoLocalStorage();
+    }
+}
+
+// ============================================================
+// CARREGAR DO LOCALSTORAGE (FALLBACK)
+// ============================================================
+function carregarDoLocalStorage() {
     try {
         var movs = localStorage.getItem('estoqueMovimentacoes');
-        if (movs) { state.movimentacoes = JSON.parse(movs); } else { state.movimentacoes = []; }
-    } catch(e) { console.warn('Erro ao carregar movimentações:', e); state.movimentacoes = []; }
+        if (movs) { 
+            state.movimentacoes = JSON.parse(movs); 
+            console.log('📦 Carregado do localStorage: ' + state.movimentacoes.length + ' movimentações');
+        } else { 
+            state.movimentacoes = []; 
+            console.log('ℹ️ Nenhum dado no localStorage');
+        }
+    } catch(e) { 
+        console.warn('Erro ao carregar movimentações:', e); 
+        state.movimentacoes = []; 
+    }
+    processarEstoqueCarregado();
+}
+
+// ============================================================
+// PROCESSAR ESTOQUE CARREGADO
+// ============================================================
+function processarEstoqueCarregado() {
     state.movimentacoes.forEach(function(mov) {
         if (mov.municipio) mov.municipio = normalizarMunicipio(mov.municipio);
         if (mov.insumo) mov.insumo = normalizarInsumo(mov.insumo);
