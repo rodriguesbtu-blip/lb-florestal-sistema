@@ -1732,6 +1732,23 @@ function excluirEntrada(movId) {
     renderizarEstoque();
     showToast('🗑️ Entrada excluída com sucesso!', 'success');
 }
+    // ============================================================
+// EDITAR ENTRADA DE ESTOQUE
+// ============================================================
+function editarEntrada(movId) {
+    var mov = state.movimentacoes.find(function(m) { return m.id === movId; });
+    if (!mov) { showToast('⚠️ Movimentação não encontrada!', 'warning'); return; }
+    if (mov.tipo !== 'entrada') { showToast('⚠️ Apenas entradas podem ser editadas!', 'warning'); return; }
+    
+    // Abre o modal de edição (reutilizando o que já existe)
+    document.getElementById('editMovId').value = movId;
+    document.getElementById('editMovData').value = mov.data;
+    document.getElementById('editMovNF').value = mov.nf || '';
+    document.getElementById('editMovInsumo').value = mov.insumo;
+    document.getElementById('editMovMunicipio').value = mov.municipio;
+    document.getElementById('editMovQtd').value = mov.quantidade;
+    document.getElementById('modalEditarEntrada').classList.add('active');
+}
 
 function limparTudoEstoque() {
     if (!confirm('⚠️ ATENÇÃO: Isso irá apagar TODAS as movimentações de estoque (entradas e saídas). Esta ação não pode ser desfeita!')) return;
