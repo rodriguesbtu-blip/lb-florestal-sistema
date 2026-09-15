@@ -702,94 +702,72 @@ function normalizarInsumo(insumo) {
 }
 
 // ============================================================
-// SALVAR MOVIMENTAÇÕES - SEM DUPLICAÇÃO
+// SALVAR MOVIMENTAÇÕES - SEMPRE SUBSTITUI NO FIREBASE
 // ============================================================
 var salvandoMovimentacoes = false;
 
 function salvarMovimentacoes() {
-    // Evita execução simultânea
-    if (salvandoMovimentacoes) {
-        console.log('⏳ Já está salvando, ignorando...');
+    localStorage.setItem('estoqueMovimentacoes', JSON.stringify(state.movimentacoes));
+    
+    if (typeof db === 'undefined' || !db) return;
+    if (salvandoMovimentacoes) return;
+    
+    salvandoMovimentacoes = true;
+    
+    // Apaga TODOS os documentos antigos e salva os novos
+    db.collection('estoque_movimentacoes').get()
+        .then(function(snapshot) {
+            var batch = db.batch();
+            snapshot.forEach(function(doc) {
+                batch.delete(doc.ref);
+            });
+            return batch.commit();
+        })
+        .then(function() {
+            if (state.movimentacoes.length === 0) {
+                salvandoMovimentacoes = false;
+                return Promise.resolve();
+            }
+            var promises = [];
+            state.movimentacoes.forEach(function(mov) {
+                promises.push(db.collection('estoque_movimentacoes').doc().set(mov));
+            });
+            return Promise.all(promises);
+        })
+        .then(function() {
+            console.log('✅ Estoque salvo no Firebase (' + state.movimentacoes.length + ' movimentações)');
+            salvandoMovimentacoes = false;
+        })
+        .catch(function(err) {
+            console.error('❌ Erro ao salvar estoque:', err.message);
+            salvandoMovimentacoes = false;
+        });
+}// ============================================================
+// CARREGAR ESTOQUE - SEMPRE DO FIREBASE
+// ============================================================
+function carregarEstoqueLocal() {
+    if (typeof db === 'undefined' || !db) {
+        console.log('⚠️ Firebase indisponível');
         return;
     }
     
-    // 1. Salva localmente (backup)
-    localStorage.setItem('estoqueMovimentacoes', JSON.stringify(state.movimentacoes));
+    console.log('📦 Carregando estoque do Firebase...');
     
-    // 2. Salva no Firebase (compartilhamento) - SEM DUPLICAR
-    if (typeof db !== 'undefined' && db) {
-        salvandoMovimentacoes = true;
-        
-        db.collection('estoque_movimentacoes').get()
-            .then(function(snapshot) {
-                var idsExistentes = new Set();
-                snapshot.forEach(function(doc) {
-                    var data = doc.data();
-                    if (data.id) idsExistentes.add(data.id);
-                });
-                
-                // Filtra apenas as movimentações que NÃO existem
-                var novasMovs = state.movimentacoes.filter(function(mov) {
-                    return !idsExistentes.has(mov.id);
-                });
-                
-                if (novasMovs.length === 0) {
-                    console.log('ℹ️ Nenhuma movimentação nova.');
-                    salvandoMovimentacoes = false;
-                    return Promise.resolve();
-                }
-                
-                console.log('📤 Salvando ' + novasMovs.length + ' novas movimentações...');
-                var promises = [];
-                novasMovs.forEach(function(mov) {
-                    promises.push(db.collection('estoque_movimentacoes').doc().set(mov));
-                });
-                return Promise.all(promises);
-            })
-            .then(function() {
-                console.log('✅ Novas movimentações salvas no Firebase');
-                salvandoMovimentacoes = false;
-            })
-            .catch(function(err) {
-                console.error('❌ Erro ao salvar estoque:', err.message);
-                salvandoMovimentacoes = false;
+    db.collection('estoque_movimentacoes').get()
+        .then(function(snapshot) {
+            var movs = [];
+            snapshot.forEach(function(doc) {
+                movs.push(doc.data());
             });
-    }
-}
-
-// ============================================================
-// CARREGAR ESTOQUE - PRIORIZA FIREBASE (CORREÇÃO DO COMPARTILHAMENTO!)
-// ============================================================
-function carregarEstoqueLocal() {
-    // 1. PRIMEIRO: Tenta carregar do Firebase
-    if (typeof db !== 'undefined' && db) {
-        console.log('📦 Buscando estoque do Firebase...');
-        db.collection('estoque_movimentacoes').get()
-            .then(function(snapshot) {
-                if (snapshot.size > 0) {
-                    var movs = [];
-                    snapshot.forEach(function(doc) {
-                        movs.push(doc.data());
-                    });
-                    state.movimentacoes = movs;
-                    // Atualiza o localStorage como cache
-                    localStorage.setItem('estoqueMovimentacoes', JSON.stringify(movs));
-                    console.log('✅ Estoque carregado do Firebase: ' + movs.length + ' movimentações');
-                    processarEstoqueCarregado();
-                    return;
-                }
-                // Se Firebase estiver vazio, vai para localStorage
-                console.log('ℹ️ Firebase vazio, tentando localStorage...');
-                carregarDoLocalStorage();
-            })
-            .catch(function(err) {
-                console.error('❌ Erro ao carregar do Firebase:', err.message);
-                // Fallback para localStorage
-                carregarDoLocalStorage();
-            });
-    } else {
-        carregarDoLocalStorage();
-    }
+            state.movimentacoes = movs;
+            localStorage.setItem('estoqueMovimentacoes', JSON.stringify(movs));
+            console.log('✅ Estoque carregado: ' + movs.length + ' movimentações');
+            recalcularEstoque();
+            renderizarEstoque();
+        })
+        .catch(function(err) {
+            console.error('❌ Erro ao carregar estoque:', err);
+        });
 }
 
 // ============================================================
@@ -826,41 +804,27 @@ function processarEstoqueCarregado() {
 }
 
 // ============================================================
-// OUVIR ESTOQUE DO FIREBASE EM TEMPO REAL
+// OUVIR ESTOQUE DO FIREBASE - NÃO SALVA DE VOLTA
 // ============================================================
 function ouvirEstoqueFirebase() {
     if (typeof db === 'undefined' || !db) return;
+    
     db.collection('estoque_movimentacoes').onSnapshot(function(snapshot) {
         console.log('📦 Estoque atualizado via listener. Total:', snapshot.size);
-        if (snapshot.size === 0) { carregarEstoqueLocal(); return; }
+        
         var movs = [];
-        snapshot.forEach(function(doc) { movs.push(doc.data()); });
+        snapshot.forEach(function(doc) {
+            movs.push(doc.data());
+        });
+        
         state.movimentacoes = movs;
-        salvarMovimentacoes();
+        localStorage.setItem('estoqueMovimentacoes', JSON.stringify(movs));
         recalcularEstoque();
         renderizarEstoque();
     }, function(error) {
         console.error('❌ Erro ao ouvir estoque:', error.message);
-        carregarEstoqueLocal();
     });
 }
-
-function calcularTotal() {
-    var haEl = document.getElementById('valorHa');
-    var rhaEl = document.getElementById('valorRha');
-    var totalDisplay = document.getElementById('totalDisplay');
-    var ha = (haEl && haEl.value) ? parseFloat(haEl.value) || 0 : 0;
-    var rha = (rhaEl && rhaEl.value) ? parseFloat(rhaEl.value) || 0 : 0;
-    var total = ha * rha;
-    if (totalDisplay) totalDisplay.textContent = 'R$ ' + formatMoney(total);
-    return total;
-}
-
-function salvarConfiguracoes() {
-    var ref = db.collection('config').doc('app');
-    return ref.set({ currentDia: state.currentDia || 1, updatedAt: new Date() }, { merge: true });
-}
-
 // ============================================================
 // FUNÇÕES DE LIMPEZA
 // ============================================================
@@ -1425,7 +1389,7 @@ function registrarEntrada() {
     var qtdEl = document.getElementById('entradaQtd');
     
     if (!dataEl || !nfEl || !insumoEl || !municipioEl || !qtdEl) {
-        showToast('❌ Erro: elementos do formulário não encontrados!', 'error');
+        showToast('❌ Erro: elementos não encontrados!', 'error');
         return;
     }
     
@@ -1435,21 +1399,13 @@ function registrarEntrada() {
     var municipio = normalizarMunicipio(municipioEl.value.trim());
     var qtd = parseFloat(qtdEl.value);
     
-    if (!data) { showToast('⚠️ Selecione uma data!', 'warning'); return; }
-    if (!nf) { showToast('⚠️ Informe o número da NF!', 'warning'); return; }
-    if (!insumo || insumo === 'INSUMO NÃO IDENTIFICADO') { showToast('⚠️ Informe um insumo válido!', 'warning'); return; }
-    if (!municipio || municipio === 'NÃO INFORMADO') { showToast('⚠️ Informe o município de destino!', 'warning'); return; }
-    if (!qtd || qtd <= 0) { showToast('⚠️ Informe uma quantidade válida!', 'warning'); return; }
+    if (!data || !nf || !insumo || insumo === 'INSUMO NÃO IDENTIFICADO' || !municipio || municipio === 'NÃO INFORMADO' || !qtd || qtd <= 0) {
+        showToast('⚠️ Preencha todos os campos!', 'warning');
+        return;
+    }
     
     var dataFormatada = new Date(data).toLocaleDateString('pt-BR');
     var novoId = 'entrada_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-    
-    // Verifica se já existe entrada com este ID
-    var existe = state.movimentacoes.some(function(m) { return m.id === novoId; });
-    if (existe) {
-        showToast('⚠️ Esta entrada já foi registrada!', 'warning');
-        return;
-    }
     
     var movimentacao = {
         id: novoId,
@@ -1463,18 +1419,20 @@ function registrarEntrada() {
         createdAt: new Date().toISOString()
     };
     
-    state.movimentacoes.push(movimentacao);
-    salvarMovimentacoes();
-    recalcularEstoque();
-    renderizarEstoque();
-    
-    // Limpa o formulário
-    nfEl.value = '';
-    insumoEl.value = '';
-    municipioEl.value = '';
-    qtdEl.value = '';
-    
-    showToast('✅ Entrada registrada: ' + qtd + ' kg de ' + insumo + ' para ' + municipio + ' (NF ' + nf + ')', 'success');
+    // Adiciona apenas no Firebase (o listener vai atualizar o resto)
+    db.collection('estoque_movimentacoes').doc().set(movimentacao)
+        .then(function() {
+            console.log('✅ Entrada salva no Firebase');
+            nfEl.value = '';
+            insumoEl.value = '';
+            municipioEl.value = '';
+            qtdEl.value = '';
+            showToast('✅ Entrada: ' + qtd + ' kg de ' + insumo + ' para ' + municipio, 'success');
+        })
+        .catch(function(err) {
+            console.error('❌ Erro:', err);
+            showToast('❌ Erro ao registrar entrada', 'error');
+        });
 }
 // ============================================================
 // RENDERIZAR ESTOQUE
