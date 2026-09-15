@@ -1154,13 +1154,37 @@ function processarArquivoExcel(file) {
             }
             if (count === 0) { throw new Error('Nenhuma linha de dados encontrada.'); }
             
-            // Atualiza o estado com os dados da planilha (mesclando com os existentes)
+            // ============================================================
+            // ATUALIZA O ESTADO - SEM DUPLICAR
+            // ============================================================
             for (var opKey in opsDia) {
                 if (state.operacoesDia[opKey]) {
-                    state.operacoesDia[opKey].totalHa += opsDia[opKey].totalHa;
-                    state.operacoesDia[opKey].registros = state.operacoesDia[opKey].registros.concat(opsDia[opKey].registros);
+                    // Verifica quais registros já existem pelo ID único
+                    var idsExistentes = new Set();
+                    state.operacoesDia[opKey].registros.forEach(function(reg) {
+                        // Cria um ID único para cada registro
+                        var idUnico = reg.dataStr + '|' + reg.talhao + '|' + reg.ha + '|' + (reg.id || '');
+                        idsExistentes.add(idUnico);
+                    });
+                    
+                    // Filtra os registros novos que NÃO existem
+                    var registrosNovos = opsDia[opKey].registros.filter(function(reg) {
+                        var idUnico = reg.dataStr + '|' + reg.talhao + '|' + reg.ha + '|' + (reg.id || '');
+                        return !idsExistentes.has(idUnico);
+                    });
+                    
+                    if (registrosNovos.length > 0) {
+                        // Adiciona apenas os novos
+                        state.operacoesDia[opKey].registros = state.operacoesDia[opKey].registros.concat(registrosNovos);
+                        state.operacoesDia[opKey].totalHa += opsDia[opKey].totalHa;
+                        console.log('📊 ' + opKey + ': ' + registrosNovos.length + ' novos registros adicionados');
+                    } else {
+                        console.log('ℹ️ ' + opKey + ': nenhum registro novo');
+                    }
                 } else {
+                    // Nova operação
                     state.operacoesDia[opKey] = opsDia[opKey];
+                    console.log('🆕 ' + opKey + ': nova operação adicionada');
                 }
             }
             
@@ -1179,86 +1203,73 @@ function processarArquivoExcel(file) {
             
             if (typeof db === 'undefined' || !db) { throw new Error('Firebase não está disponível. Verifique a conexão.'); }
             
-            db.collection('producao_dia').where('dia', '==', dia).get()
+            // ============================================================
+            // SALVA NO FIREBASE - SUBSTITUI OS DADOS
+            // ============================================================
+            db.collection('producao_dia').get()
                 .then(function(snapshot) {
+                    var batch = db.batch();
+                    var countDeleted = 0;
+                    
+                    // Apaga TODOS os documentos existentes para reimportar
+                    snapshot.forEach(function(doc) {
+                        batch.delete(doc.ref);
+                        countDeleted++;
+                    });
+                    
+                    if (countDeleted > 0) {
+                        console.log('🗑️ Removendo ' + countDeleted + ' documentos antigos');
+                        return batch.commit();
+                    }
+                    return Promise.resolve();
+                })
+                .then(function() {
+                    // Salva os dados novos
                     var promises = [];
                     var salvos = 0;
                     var erros = 0;
-                    var jaExiste = snapshot.size > 0;
                     
-                    if (jaExiste) { console.log('📋 Já existem dados para hoje. Atualizando...'); }
-                    
-                    for (var opKey in opsDia) {
-                        var op = opsDia[opKey];
-                        var ref;
-                        
-                        if (jaExiste) {
-                            var docExistente = null;
-                            snapshot.forEach(function(doc) {
-                                if (doc.data().operacao === opKey) { docExistente = doc; }
-                            });
-                            
-                            if (docExistente) {
-                                ref = db.collection('producao_dia').doc(docExistente.id);
-                                var promise = ref.update({
-                                    totalHa: state.operacoesDia[opKey].totalHa,
-                                    registros: state.operacoesDia[opKey].registros,
-                                    insumos: state.insumosDia,
-                                    updatedAt: new Date()
-                                })
-                                .then(function() { salvos++; console.log('✅ Operação atualizada no Firebase:', opKey); })
-                                .catch(function(error) { erros++; console.error('❌ Erro ao atualizar operação:', error.message); });
-                                promises.push(promise);
-                            } else {
-                                ref = db.collection('producao_dia').doc();
-                                var promise = ref.set({
-                                    dia: dia,
-                                    data: dataHoje,
-                                    operacao: opKey,
-                                    operacaoOriginal: op.nomeOriginal,
-                                    totalHa: state.operacoesDia[opKey].totalHa,
-                                    registros: state.operacoesDia[opKey].registros,
-                                    insumos: state.insumosDia,
-                                    todosRegistros: todosRegistros,
-                                    createdAt: new Date()
-                                })
-                                .then(function() { salvos++; console.log('✅ Nova operação salva no Firebase:', opKey); })
-                                .catch(function(error) { erros++; console.error('❌ Erro ao salvar operação:', error.message); });
-                                promises.push(promise);
-                            }
-                        } else {
-                            ref = db.collection('producao_dia').doc();
-                            var promise = ref.set({
-                                dia: dia,
-                                data: dataHoje,
-                                operacao: opKey,
-                                operacaoOriginal: op.nomeOriginal,
-                                totalHa: state.operacoesDia[opKey].totalHa,
-                                registros: state.operacoesDia[opKey].registros,
-                                insumos: state.insumosDia,
-                                todosRegistros: todosRegistros,
-                                createdAt: new Date()
-                            })
-                            .then(function() { salvos++; console.log('✅ Operação salva no Firebase:', opKey); })
-                            .catch(function(error) { erros++; console.error('❌ Erro ao salvar operação:', error.message); });
-                            promises.push(promise);
-                        }
+                    for (var opKey in state.operacoesDia) {
+                        var op = state.operacoesDia[opKey];
+                        var ref = db.collection('producao_dia').doc();
+                        var promise = ref.set({
+                            dia: dia,
+                            data: dataHoje,
+                            operacao: opKey,
+                            operacaoOriginal: op.nomeOriginal,
+                            totalHa: op.totalHa,
+                            registros: op.registros,
+                            insumos: state.insumosDia,
+                            todosRegistros: state.todosRegistros,
+                            createdAt: new Date()
+                        })
+                        .then(function() {
+                            salvos++;
+                            console.log('✅ Operação salva no Firebase:', opKey);
+                        })
+                        .catch(function(error) {
+                            erros++;
+                            console.error('❌ Erro ao salvar operação:', error.message);
+                        });
+                        promises.push(promise);
                     }
                     
                     return Promise.all(promises).then(function() {
-                        console.log('✅ ' + salvos + ' operações salvas/atualizadas com sucesso.');
-                        if (erros > 0) { console.warn('⚠️ ' + erros + ' erros durante o salvamento.'); }
+                        console.log('✅ ' + salvos + ' operações salvas com sucesso.');
                         return { salvos: salvos, erros: erros };
                     });
                 })
                 .then(function(result) {
                     if (loadingEl) loadingEl.classList.remove('show');
                     var infoEl = document.getElementById('infoArquivo');
-                    if (infoEl) infoEl.textContent = '✅ ' + file.name + ' importado! (' + count + ' linhas, ' + Object.keys(opsDia).length + ' novas operações)';
-                    var msg = '✅ Planilha importada! ' + Object.keys(opsDia).length + ' operações adicionadas.';
-                    if (result.erros > 0) { msg += ' ⚠️ ' + result.erros + ' erros ocorreram. Verifique o console.'; }
+                    if (infoEl) infoEl.textContent = '✅ ' + file.name + ' importado! (' + count + ' linhas)';
+                    var msg = '✅ Planilha importada! ' + Object.keys(opsDia).length + ' operações.';
+                    if (result.erros > 0) { msg += ' ⚠️ ' + result.erros + ' erros.'; }
                     showToast(msg, result.erros > 0 ? 'warning' : 'success');
-                    console.log('✅ Importação concluída! Dados mesclados com os existentes.');
+                    console.log('✅ Importação concluída!');
+                    
+                    // Renderiza a produção
+                    renderizarProducao();
                 })
                 .catch(function(error) {
                     console.error('❌ Erro ao salvar produção:', error);
@@ -1280,7 +1291,6 @@ function processarArquivoExcel(file) {
     };
     reader.readAsArrayBuffer(file);
 }
-
 // ============================================================
 // PROCESSAR SAÍDAS DE INSUMOS
 // ============================================================
