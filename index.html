@@ -702,72 +702,94 @@ function normalizarInsumo(insumo) {
 }
 
 // ============================================================
-// SALVAR MOVIMENTAÇÕES - SEMPRE SUBSTITUI NO FIREBASE
+// SALVAR MOVIMENTAÇÕES - SEM DUPLICAÇÃO
 // ============================================================
 var salvandoMovimentacoes = false;
 
 function salvarMovimentacoes() {
-    localStorage.setItem('estoqueMovimentacoes', JSON.stringify(state.movimentacoes));
-    
-    if (typeof db === 'undefined' || !db) return;
-    if (salvandoMovimentacoes) return;
-    
-    salvandoMovimentacoes = true;
-    
-    // Apaga TODOS os documentos antigos e salva os novos
-    db.collection('estoque_movimentacoes').get()
-        .then(function(snapshot) {
-            var batch = db.batch();
-            snapshot.forEach(function(doc) {
-                batch.delete(doc.ref);
-            });
-            return batch.commit();
-        })
-        .then(function() {
-            if (state.movimentacoes.length === 0) {
-                salvandoMovimentacoes = false;
-                return Promise.resolve();
-            }
-            var promises = [];
-            state.movimentacoes.forEach(function(mov) {
-                promises.push(db.collection('estoque_movimentacoes').doc().set(mov));
-            });
-            return Promise.all(promises);
-        })
-        .then(function() {
-            console.log('✅ Estoque salvo no Firebase (' + state.movimentacoes.length + ' movimentações)');
-            salvandoMovimentacoes = false;
-        })
-        .catch(function(err) {
-            console.error('❌ Erro ao salvar estoque:', err.message);
-            salvandoMovimentacoes = false;
-        });
-}// ============================================================
-// CARREGAR ESTOQUE - SEMPRE DO FIREBASE
-// ============================================================
-function carregarEstoqueLocal() {
-    if (typeof db === 'undefined' || !db) {
-        console.log('⚠️ Firebase indisponível');
+    // Evita execução simultânea
+    if (salvandoMovimentacoes) {
+        console.log('⏳ Já está salvando, ignorando...');
         return;
     }
     
-    console.log('📦 Carregando estoque do Firebase...');
+    // 1. Salva localmente (backup)
+    localStorage.setItem('estoqueMovimentacoes', JSON.stringify(state.movimentacoes));
     
-    db.collection('estoque_movimentacoes').get()
-        .then(function(snapshot) {
-            var movs = [];
-            snapshot.forEach(function(doc) {
-                movs.push(doc.data());
+    // 2. Salva no Firebase (compartilhamento) - SEM DUPLICAR
+    if (typeof db !== 'undefined' && db) {
+        salvandoMovimentacoes = true;
+        
+        db.collection('estoque_movimentacoes').get()
+            .then(function(snapshot) {
+                var idsExistentes = new Set();
+                snapshot.forEach(function(doc) {
+                    var data = doc.data();
+                    if (data.id) idsExistentes.add(data.id);
+                });
+                
+                // Filtra apenas as movimentações que NÃO existem
+                var novasMovs = state.movimentacoes.filter(function(mov) {
+                    return !idsExistentes.has(mov.id);
+                });
+                
+                if (novasMovs.length === 0) {
+                    console.log('ℹ️ Nenhuma movimentação nova.');
+                    salvandoMovimentacoes = false;
+                    return Promise.resolve();
+                }
+                
+                console.log('📤 Salvando ' + novasMovs.length + ' novas movimentações...');
+                var promises = [];
+                novasMovs.forEach(function(mov) {
+                    promises.push(db.collection('estoque_movimentacoes').doc().set(mov));
+                });
+                return Promise.all(promises);
+            })
+            .then(function() {
+                console.log('✅ Novas movimentações salvas no Firebase');
+                salvandoMovimentacoes = false;
+            })
+            .catch(function(err) {
+                console.error('❌ Erro ao salvar estoque:', err.message);
+                salvandoMovimentacoes = false;
             });
-            state.movimentacoes = movs;
-            localStorage.setItem('estoqueMovimentacoes', JSON.stringify(movs));
-            console.log('✅ Estoque carregado: ' + movs.length + ' movimentações');
-            recalcularEstoque();
-            renderizarEstoque();
-        })
-        .catch(function(err) {
-            console.error('❌ Erro ao carregar estoque:', err);
-        });
+    }
+}
+
+// ============================================================
+// CARREGAR ESTOQUE - PRIORIZA FIREBASE (CORREÇÃO DO COMPARTILHAMENTO!)
+// ============================================================
+function carregarEstoqueLocal() {
+    // 1. PRIMEIRO: Tenta carregar do Firebase
+    if (typeof db !== 'undefined' && db) {
+        console.log('📦 Buscando estoque do Firebase...');
+        db.collection('estoque_movimentacoes').get()
+            .then(function(snapshot) {
+                if (snapshot.size > 0) {
+                    var movs = [];
+                    snapshot.forEach(function(doc) {
+                        movs.push(doc.data());
+                    });
+                    state.movimentacoes = movs;
+                    // Atualiza o localStorage como cache
+                    localStorage.setItem('estoqueMovimentacoes', JSON.stringify(movs));
+                    console.log('✅ Estoque carregado do Firebase: ' + movs.length + ' movimentações');
+                    processarEstoqueCarregado();
+                    return;
+                }
+                // Se Firebase estiver vazio, vai para localStorage
+                console.log('ℹ️ Firebase vazio, tentando localStorage...');
+                carregarDoLocalStorage();
+            })
+            .catch(function(err) {
+                console.error('❌ Erro ao carregar do Firebase:', err.message);
+                // Fallback para localStorage
+                carregarDoLocalStorage();
+            });
+    } else {
+        carregarDoLocalStorage();
+    }
 }
 
 // ============================================================
@@ -804,27 +826,41 @@ function processarEstoqueCarregado() {
 }
 
 // ============================================================
-// OUVIR ESTOQUE DO FIREBASE - NÃO SALVA DE VOLTA
+// OUVIR ESTOQUE DO FIREBASE EM TEMPO REAL
 // ============================================================
 function ouvirEstoqueFirebase() {
     if (typeof db === 'undefined' || !db) return;
-    
     db.collection('estoque_movimentacoes').onSnapshot(function(snapshot) {
         console.log('📦 Estoque atualizado via listener. Total:', snapshot.size);
-        
+        if (snapshot.size === 0) { carregarEstoqueLocal(); return; }
         var movs = [];
-        snapshot.forEach(function(doc) {
-            movs.push(doc.data());
-        });
-        
+        snapshot.forEach(function(doc) { movs.push(doc.data()); });
         state.movimentacoes = movs;
-        localStorage.setItem('estoqueMovimentacoes', JSON.stringify(movs));
+        salvarMovimentacoes();
         recalcularEstoque();
         renderizarEstoque();
     }, function(error) {
         console.error('❌ Erro ao ouvir estoque:', error.message);
+        carregarEstoqueLocal();
     });
 }
+
+function calcularTotal() {
+    var haEl = document.getElementById('valorHa');
+    var rhaEl = document.getElementById('valorRha');
+    var totalDisplay = document.getElementById('totalDisplay');
+    var ha = (haEl && haEl.value) ? parseFloat(haEl.value) || 0 : 0;
+    var rha = (rhaEl && rhaEl.value) ? parseFloat(rhaEl.value) || 0 : 0;
+    var total = ha * rha;
+    if (totalDisplay) totalDisplay.textContent = 'R$ ' + formatMoney(total);
+    return total;
+}
+
+function salvarConfiguracoes() {
+    var ref = db.collection('config').doc('app');
+    return ref.set({ currentDia: state.currentDia || 1, updatedAt: new Date() }, { merge: true });
+}
+
 // ============================================================
 // FUNÇÕES DE LIMPEZA
 // ============================================================
@@ -968,25 +1004,7 @@ function importarPlanilha() {
     if (infoEl) infoEl.textContent = '📄 Carregando: ' + file.name + '...';
     processarArquivoExcel(file);
 }
-// ============================================================
-// GERAR ID ÚNICO E DETERMINÍSTICO PARA CADA REGISTRO
-// ============================================================
-function gerarIdRegistro(row) {
-    var base = [
-        row.talhao || '',
-        row.operacao || '',
-        row.dataStr || '',
-        row.equipe || '',
-        row.producao || 0,
-        row.fazenda || ''
-    ].join('|');
-    var hash = 0;
-    for (var i = 0; i < base.length; i++) {
-        hash = ((hash << 5) - hash) + base.charCodeAt(i);
-        hash = hash & hash;
-    }
-    return 'reg_' + Math.abs(hash).toString(36);
-}
+
 // ============================================================
 // PROCESSAR EXCEL (PRODUÇÃO) - SEM APAGAR DADOS ANTIGOS
 // ============================================================
@@ -1136,82 +1154,23 @@ function processarArquivoExcel(file) {
             }
             if (count === 0) { throw new Error('Nenhuma linha de dados encontrada.'); }
             
-            // ============================================================
-            // ATUALIZA O ESTADO - SEM DUPLICAR
-            // ============================================================
-                      // ============================================================
-            // ATUALIZA O ESTADO - COM DEDUPLICAÇÃO POR ID
-            // ============================================================
-            // 1. Gera IDs únicos para os novos registros
-            todosRegistros.forEach(function(reg) {
-                reg.idUnico = gerarIdRegistro(reg);
-            });
-            
-            resultados.forEach(function(reg) {
-                reg.idUnico = gerarIdRegistro(reg);
-            });
-            
-            // 2. Verifica quais registros JÁ EXISTEM no state
-            var idsExistentes = new Set();
-            state.todosRegistros.forEach(function(reg) {
-                if (reg.idUnico) idsExistentes.add(reg.idUnico);
-            });
-            
-            // 3. Filtra apenas os registros NOVOS
-            var novosTodos = todosRegistros.filter(function(reg) {
-                return !idsExistentes.has(reg.idUnico);
-            });
-            
-            var novosResultados = resultados.filter(function(reg) {
-                return !idsExistentes.has(reg.idUnico);
-            });
-            
-            console.log('📊 Registros novos: ' + novosResultados.length + ' de ' + resultados.length);
-            
-            if (novosResultados.length === 0) {
-                console.log('ℹ️ Nenhum registro novo para adicionar');
-                if (loadingEl) loadingEl.classList.remove('show');
-                showToast('⚠️ Nenhum registro novo (já importado)', 'warning');
-                return;
-            }
-            
-            // 4. Adiciona APENAS os novos
-            state.todosRegistros = state.todosRegistros.concat(novosTodos);
-            state.dadosProducao = state.dadosProducao.concat(novosResultados);
-            
-            // 5. Atualiza operações com APENAS os novos registros
+            // Atualiza o estado com os dados da planilha (mesclando com os existentes)
             for (var opKey in opsDia) {
-                var registrosNovos = opsDia[opKey].registros.filter(function(reg) {
-                    reg.idUnico = gerarIdRegistro(reg);
-                    return !idsExistentes.has(reg.idUnico);
-                });
-                
                 if (state.operacoesDia[opKey]) {
-                    if (registrosNovos.length > 0) {
-                        state.operacoesDia[opKey].registros = state.operacoesDia[opKey].registros.concat(registrosNovos);
-                        // Recalcula total
-                        var totalNovo = 0;
-                        state.operacoesDia[opKey].registros.forEach(function(r) {
-                            totalNovo += r.ha || 0;
-                        });
-                        state.operacoesDia[opKey].totalHa = totalNovo;
-                        console.log('📊 ' + opKey + ': +' + registrosNovos.length + ' registros');
-                    }
+                    state.operacoesDia[opKey].totalHa += opsDia[opKey].totalHa;
+                    state.operacoesDia[opKey].registros = state.operacoesDia[opKey].registros.concat(opsDia[opKey].registros);
                 } else {
                     state.operacoesDia[opKey] = opsDia[opKey];
-                    console.log('🆕 ' + opKey + ': nova operação');
                 }
             }
             
-            // 6. Atualiza insumos (recalcula a partir dos registros)
-            var insumosTotais = {};
-            state.todosRegistros.forEach(function(reg) {
-                (reg.insumos || []).forEach(function(ins) {
-                    if (!insumosTotais[ins.nome]) insumosTotais[ins.nome] = 0;
-                    insumosTotais[ins.nome] += ins.qtd;
-                });
-            });
-            state.insumosDia = insumosTotais;
+            for (var insKey in insumosAcum) {
+                if (state.insumosDia[insKey]) { state.insumosDia[insKey] += insumosAcum[insKey]; } 
+                else { state.insumosDia[insKey] = insumosAcum[insKey]; }
+            }
+            
+            state.dadosProducao = state.dadosProducao.concat(resultados);
+            state.todosRegistros = state.todosRegistros.concat(todosRegistros);
             
             processarSaidasInsumos(resultados);
             
@@ -1220,81 +1179,93 @@ function processarArquivoExcel(file) {
             
             if (typeof db === 'undefined' || !db) { throw new Error('Firebase não está disponível. Verifique a conexão.'); }
             
-                        if (typeof db === 'undefined' || !db) { throw new Error('Firebase não está disponível. Verifique a conexão.'); }
-
-            // ============================================================
-            // SALVA NO FIREBASE - SUBSTITUI OS DADOS (SEM DUPLICAR)
-            // ============================================================
-            db.collection('producao_dia').get()
+            db.collection('producao_dia').where('dia', '==', dia).get()
                 .then(function(snapshot) {
-                    var batch = db.batch();
-                    var countDeleted = 0;
-                    
-                    snapshot.forEach(function(doc) {
-                        batch.delete(doc.ref);
-                        countDeleted++;
-                    });
-                    
-                    if (countDeleted > 0) {
-                        console.log('🗑️ Removendo ' + countDeleted + ' documentos antigos');
-                        return batch.commit();
-                    }
-                    return Promise.resolve();
-                })
-                .then(function() {
                     var promises = [];
                     var salvos = 0;
                     var erros = 0;
+                    var jaExiste = snapshot.size > 0;
                     
-                    for (var opKey in state.operacoesDia) {
-                        var op = state.operacoesDia[opKey];
-                        var ref = db.collection('producao_dia').doc();
-                        var promise = ref.set({
-                            dia: dia,
-                            data: dataHoje,
-                            operacao: opKey,
-                            operacaoOriginal: op.nomeOriginal,
-                            totalHa: op.totalHa,
-                            registros: op.registros,
-                            insumos: state.insumosDia,
-                            todosRegistros: state.todosRegistros,
-                            createdAt: new Date()
-                        })
-                        .then(function() {
-                            salvos++;
-                            console.log('✅ Operação salva no Firebase:', opKey);
-                        })
-                        .catch(function(error) {
-                            erros++;
-                            console.error('❌ Erro ao salvar operação:', error.message);
-                        });
-                        promises.push(promise);
+                    if (jaExiste) { console.log('📋 Já existem dados para hoje. Atualizando...'); }
+                    
+                    for (var opKey in opsDia) {
+                        var op = opsDia[opKey];
+                        var ref;
+                        
+                        if (jaExiste) {
+                            var docExistente = null;
+                            snapshot.forEach(function(doc) {
+                                if (doc.data().operacao === opKey) { docExistente = doc; }
+                            });
+                            
+                            if (docExistente) {
+                                ref = db.collection('producao_dia').doc(docExistente.id);
+                                var promise = ref.update({
+                                    totalHa: state.operacoesDia[opKey].totalHa,
+                                    registros: state.operacoesDia[opKey].registros,
+                                    insumos: state.insumosDia,
+                                    updatedAt: new Date()
+                                })
+                                .then(function() { salvos++; console.log('✅ Operação atualizada no Firebase:', opKey); })
+                                .catch(function(error) { erros++; console.error('❌ Erro ao atualizar operação:', error.message); });
+                                promises.push(promise);
+                            } else {
+                                ref = db.collection('producao_dia').doc();
+                                var promise = ref.set({
+                                    dia: dia,
+                                    data: dataHoje,
+                                    operacao: opKey,
+                                    operacaoOriginal: op.nomeOriginal,
+                                    totalHa: state.operacoesDia[opKey].totalHa,
+                                    registros: state.operacoesDia[opKey].registros,
+                                    insumos: state.insumosDia,
+                                    todosRegistros: todosRegistros,
+                                    createdAt: new Date()
+                                })
+                                .then(function() { salvos++; console.log('✅ Nova operação salva no Firebase:', opKey); })
+                                .catch(function(error) { erros++; console.error('❌ Erro ao salvar operação:', error.message); });
+                                promises.push(promise);
+                            }
+                        } else {
+                            ref = db.collection('producao_dia').doc();
+                            var promise = ref.set({
+                                dia: dia,
+                                data: dataHoje,
+                                operacao: opKey,
+                                operacaoOriginal: op.nomeOriginal,
+                                totalHa: state.operacoesDia[opKey].totalHa,
+                                registros: state.operacoesDia[opKey].registros,
+                                insumos: state.insumosDia,
+                                todosRegistros: todosRegistros,
+                                createdAt: new Date()
+                            })
+                            .then(function() { salvos++; console.log('✅ Operação salva no Firebase:', opKey); })
+                            .catch(function(error) { erros++; console.error('❌ Erro ao salvar operação:', error.message); });
+                            promises.push(promise);
+                        }
                     }
                     
                     return Promise.all(promises).then(function() {
-                        console.log('✅ ' + salvos + ' operações salvas com sucesso.');
+                        console.log('✅ ' + salvos + ' operações salvas/atualizadas com sucesso.');
+                        if (erros > 0) { console.warn('⚠️ ' + erros + ' erros durante o salvamento.'); }
                         return { salvos: salvos, erros: erros };
                     });
                 })
                 .then(function(result) {
                     if (loadingEl) loadingEl.classList.remove('show');
                     var infoEl = document.getElementById('infoArquivo');
-                    if (infoEl) infoEl.textContent = '✅ ' + file.name + ' importado! (' + count + ' linhas)';
-                    
-                    var msg = '✅ Planilha importada! ' + Object.keys(state.operacoesDia).length + ' operações.';
-                    if (result.erros > 0) {
-                        msg += ' ⚠️ ' + result.erros + ' erros.';
-                    }
+                    if (infoEl) infoEl.textContent = '✅ ' + file.name + ' importado! (' + count + ' linhas, ' + Object.keys(opsDia).length + ' novas operações)';
+                    var msg = '✅ Planilha importada! ' + Object.keys(opsDia).length + ' operações adicionadas.';
+                    if (result.erros > 0) { msg += ' ⚠️ ' + result.erros + ' erros ocorreram. Verifique o console.'; }
                     showToast(msg, result.erros > 0 ? 'warning' : 'success');
-                    console.log('✅ Importação concluída!');
-                    
-                    renderizarProducao();
+                    console.log('✅ Importação concluída! Dados mesclados com os existentes.');
                 })
                 .catch(function(error) {
                     console.error('❌ Erro ao salvar produção:', error);
                     if (loadingEl) loadingEl.classList.remove('show');
                     showToast('❌ Erro ao salvar produção: ' + error.message, 'error');
                 });
+            
         } catch (error) {
             console.error('❌ Erro ao processar:', error);
             if (loadingEl) loadingEl.classList.remove('show');
@@ -1309,45 +1280,21 @@ function processarArquivoExcel(file) {
     };
     reader.readAsArrayBuffer(file);
 }
-/// ============================================================
-// PROCESSAR SAÍDAS DE INSUMOS - COM ID DETERMINÍSTICO
+
+// ============================================================
+// PROCESSAR SAÍDAS DE INSUMOS
 // ============================================================
 function processarSaidasInsumos(resultados) {
     if (!resultados || resultados.length === 0) return;
-    
     var saidas = [];
-    var dataHoje = getHoje();
-    
     resultados.forEach(function(row) {
         if (row.insumos && row.insumos.length > 0) {
             var municipio = normalizarMunicipio(row.municipio || row.fazenda || 'NÃO INFORMADO');
             row.insumos.forEach(function(ins) {
                 var insumo = normalizarInsumo(ins.nome);
                 if (insumo && insumo !== 'INSUMO NÃO IDENTIFICADO' && ins.qtd > 0) {
-                    var dataStr = row.data ? fmtData(row.data) : dataHoje;
-                    
-                    // ID DETERMINÍSTICO baseado nos dados da linha
-                    var idBase = [
-                        dataStr,
-                        municipio,
-                        insumo,
-                        row.talhao || '',
-                        row.operacao || '',
-                        row.equipe || '',
-                        row.producao || 0,
-                        ins.qtd
-                    ].join('|');
-                    
-                    var hash = 0;
-                    for (var i = 0; i < idBase.length; i++) {
-                        hash = ((hash << 5) - hash) + idBase.charCodeAt(i);
-                        hash = hash & hash;
-                    }
-                    var idUnico = 'saida_' + Math.abs(hash).toString(36);
-                    
                     saidas.push({
-                        id: idUnico,
-                        data: dataStr,
+                        data: row.data ? fmtData(row.data) : getHoje(),
                         insumo: insumo,
                         municipio: municipio,
                         quantidade: ins.qtd,
@@ -1355,54 +1302,33 @@ function processarSaidasInsumos(resultados) {
                         talhao: row.talhao,
                         tipo: 'saida',
                         nf: 'PRODUÇÃO',
-                        origem: 'Consumo Produção - ' + (row.operacao || 'OPERAÇÃO'),
-                        createdAt: new Date().toISOString()
+                        origem: 'Consumo Produção - ' + (row.operacao || 'OPERAÇÃO')
                     });
                 }
             });
         }
     });
-    
-    if (saidas.length === 0) {
-        console.log('ℹ️ Nenhuma saída de insumo gerada');
-        return;
-    }
-    
-    // Verifica no FIREBASE quais IDs já existem
-    db.collection('estoque_movimentacoes').get()
-        .then(function(snapshot) {
-            var idsExistentes = new Set();
-            snapshot.forEach(function(doc) {
-                var data = doc.data();
-                if (data.id) idsExistentes.add(data.id);
+    if (saidas.length > 0) {
+        saidas.forEach(function(s) {
+            state.movimentacoes.push({
+                id: 'saida_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                data: s.data,
+                tipo: 'saida',
+                insumo: s.insumo,
+                municipio: s.municipio,
+                quantidade: s.quantidade,
+                nf: 'PRODUÇÃO',
+                origem: s.origem,
+                createdAt: new Date().toISOString()
             });
-            
-            var novasSaidas = saidas.filter(function(s) {
-                return !idsExistentes.has(s.id);
-            });
-            
-            if (novasSaidas.length === 0) {
-                console.log('ℹ️ Todas as saídas já existem. Nada a adicionar.');
-                return;
-            }
-            
-            console.log('📤 Adicionando ' + novasSaidas.length + ' novas saídas de insumos...');
-            
-            var promises = [];
-            novasSaidas.forEach(function(s) {
-                promises.push(db.collection('estoque_movimentacoes').doc().set(s));
-            });
-            
-            return Promise.all(promises);
-        })
-        .then(function() {
-            console.log('✅ Saídas de insumos salvas!');
-            carregarEstoqueLocal();
-        })
-        .catch(function(err) {
-            console.error('❌ Erro ao salvar saídas:', err.message);
         });
+        salvarMovimentacoes();
+        recalcularEstoque();
+        renderizarEstoque();
+        showToast('📤 ' + saidas.length + ' saídas de insumos registradas a partir da planilha.', 'info');
+    }
 }
+
 // ============================================================
 // FUNÇÕES DE ESTOQUE
 // ============================================================
@@ -1489,7 +1415,7 @@ function registrarEntrada() {
     var qtdEl = document.getElementById('entradaQtd');
     
     if (!dataEl || !nfEl || !insumoEl || !municipioEl || !qtdEl) {
-        showToast('❌ Erro: elementos não encontrados!', 'error');
+        showToast('❌ Erro: elementos do formulário não encontrados!', 'error');
         return;
     }
     
@@ -1499,13 +1425,21 @@ function registrarEntrada() {
     var municipio = normalizarMunicipio(municipioEl.value.trim());
     var qtd = parseFloat(qtdEl.value);
     
-    if (!data || !nf || !insumo || insumo === 'INSUMO NÃO IDENTIFICADO' || !municipio || municipio === 'NÃO INFORMADO' || !qtd || qtd <= 0) {
-        showToast('⚠️ Preencha todos os campos!', 'warning');
-        return;
-    }
+    if (!data) { showToast('⚠️ Selecione uma data!', 'warning'); return; }
+    if (!nf) { showToast('⚠️ Informe o número da NF!', 'warning'); return; }
+    if (!insumo || insumo === 'INSUMO NÃO IDENTIFICADO') { showToast('⚠️ Informe um insumo válido!', 'warning'); return; }
+    if (!municipio || municipio === 'NÃO INFORMADO') { showToast('⚠️ Informe o município de destino!', 'warning'); return; }
+    if (!qtd || qtd <= 0) { showToast('⚠️ Informe uma quantidade válida!', 'warning'); return; }
     
     var dataFormatada = new Date(data).toLocaleDateString('pt-BR');
     var novoId = 'entrada_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+    
+    // Verifica se já existe entrada com este ID
+    var existe = state.movimentacoes.some(function(m) { return m.id === novoId; });
+    if (existe) {
+        showToast('⚠️ Esta entrada já foi registrada!', 'warning');
+        return;
+    }
     
     var movimentacao = {
         id: novoId,
@@ -1519,20 +1453,18 @@ function registrarEntrada() {
         createdAt: new Date().toISOString()
     };
     
-    // Adiciona apenas no Firebase (o listener vai atualizar o resto)
-    db.collection('estoque_movimentacoes').doc().set(movimentacao)
-        .then(function() {
-            console.log('✅ Entrada salva no Firebase');
-            nfEl.value = '';
-            insumoEl.value = '';
-            municipioEl.value = '';
-            qtdEl.value = '';
-            showToast('✅ Entrada: ' + qtd + ' kg de ' + insumo + ' para ' + municipio, 'success');
-        })
-        .catch(function(err) {
-            console.error('❌ Erro:', err);
-            showToast('❌ Erro ao registrar entrada', 'error');
-        });
+    state.movimentacoes.push(movimentacao);
+    salvarMovimentacoes();
+    recalcularEstoque();
+    renderizarEstoque();
+    
+    // Limpa o formulário
+    nfEl.value = '';
+    insumoEl.value = '';
+    municipioEl.value = '';
+    qtdEl.value = '';
+    
+    showToast('✅ Entrada registrada: ' + qtd + ' kg de ' + insumo + ' para ' + municipio + ' (NF ' + nf + ')', 'success');
 }
 // ============================================================
 // RENDERIZAR ESTOQUE
