@@ -968,7 +968,25 @@ function importarPlanilha() {
     if (infoEl) infoEl.textContent = '📄 Carregando: ' + file.name + '...';
     processarArquivoExcel(file);
 }
-
+// ============================================================
+// GERAR ID ÚNICO E DETERMINÍSTICO PARA CADA REGISTRO
+// ============================================================
+function gerarIdRegistro(row) {
+    var base = [
+        row.talhao || '',
+        row.operacao || '',
+        row.dataStr || '',
+        row.equipe || '',
+        row.producao || 0,
+        row.fazenda || ''
+    ].join('|');
+    var hash = 0;
+    for (var i = 0; i < base.length; i++) {
+        hash = ((hash << 5) - hash) + base.charCodeAt(i);
+        hash = hash & hash;
+    }
+    return 'reg_' + Math.abs(hash).toString(36);
+}
 // ============================================================
 // PROCESSAR EXCEL (PRODUÇÃO) - SEM APAGAR DADOS ANTIGOS
 // ============================================================
@@ -1121,44 +1139,79 @@ function processarArquivoExcel(file) {
             // ============================================================
             // ATUALIZA O ESTADO - SEM DUPLICAR
             // ============================================================
+                      // ============================================================
+            // ATUALIZA O ESTADO - COM DEDUPLICAÇÃO POR ID
+            // ============================================================
+            // 1. Gera IDs únicos para os novos registros
+            todosRegistros.forEach(function(reg) {
+                reg.idUnico = gerarIdRegistro(reg);
+            });
+            
+            resultados.forEach(function(reg) {
+                reg.idUnico = gerarIdRegistro(reg);
+            });
+            
+            // 2. Verifica quais registros JÁ EXISTEM no state
+            var idsExistentes = new Set();
+            state.todosRegistros.forEach(function(reg) {
+                if (reg.idUnico) idsExistentes.add(reg.idUnico);
+            });
+            
+            // 3. Filtra apenas os registros NOVOS
+            var novosTodos = todosRegistros.filter(function(reg) {
+                return !idsExistentes.has(reg.idUnico);
+            });
+            
+            var novosResultados = resultados.filter(function(reg) {
+                return !idsExistentes.has(reg.idUnico);
+            });
+            
+            console.log('📊 Registros novos: ' + novosResultados.length + ' de ' + resultados.length);
+            
+            if (novosResultados.length === 0) {
+                console.log('ℹ️ Nenhum registro novo para adicionar');
+                if (loadingEl) loadingEl.classList.remove('show');
+                showToast('⚠️ Nenhum registro novo (já importado)', 'warning');
+                return;
+            }
+            
+            // 4. Adiciona APENAS os novos
+            state.todosRegistros = state.todosRegistros.concat(novosTodos);
+            state.dadosProducao = state.dadosProducao.concat(novosResultados);
+            
+            // 5. Atualiza operações com APENAS os novos registros
             for (var opKey in opsDia) {
+                var registrosNovos = opsDia[opKey].registros.filter(function(reg) {
+                    reg.idUnico = gerarIdRegistro(reg);
+                    return !idsExistentes.has(reg.idUnico);
+                });
+                
                 if (state.operacoesDia[opKey]) {
-                    // Verifica quais registros já existem pelo ID único
-                    var idsExistentes = new Set();
-                    state.operacoesDia[opKey].registros.forEach(function(reg) {
-                        // Cria um ID único para cada registro
-                        var idUnico = reg.dataStr + '|' + reg.talhao + '|' + reg.ha + '|' + (reg.id || '');
-                        idsExistentes.add(idUnico);
-                    });
-                    
-                    // Filtra os registros novos que NÃO existem
-                    var registrosNovos = opsDia[opKey].registros.filter(function(reg) {
-                        var idUnico = reg.dataStr + '|' + reg.talhao + '|' + reg.ha + '|' + (reg.id || '');
-                        return !idsExistentes.has(idUnico);
-                    });
-                    
                     if (registrosNovos.length > 0) {
-                        // Adiciona apenas os novos
                         state.operacoesDia[opKey].registros = state.operacoesDia[opKey].registros.concat(registrosNovos);
-                        state.operacoesDia[opKey].totalHa += opsDia[opKey].totalHa;
-                        console.log('📊 ' + opKey + ': ' + registrosNovos.length + ' novos registros adicionados');
-                    } else {
-                        console.log('ℹ️ ' + opKey + ': nenhum registro novo');
+                        // Recalcula total
+                        var totalNovo = 0;
+                        state.operacoesDia[opKey].registros.forEach(function(r) {
+                            totalNovo += r.ha || 0;
+                        });
+                        state.operacoesDia[opKey].totalHa = totalNovo;
+                        console.log('📊 ' + opKey + ': +' + registrosNovos.length + ' registros');
                     }
                 } else {
-                    // Nova operação
                     state.operacoesDia[opKey] = opsDia[opKey];
-                    console.log('🆕 ' + opKey + ': nova operação adicionada');
+                    console.log('🆕 ' + opKey + ': nova operação');
                 }
             }
             
-            for (var insKey in insumosAcum) {
-                if (state.insumosDia[insKey]) { state.insumosDia[insKey] += insumosAcum[insKey]; } 
-                else { state.insumosDia[insKey] = insumosAcum[insKey]; }
-            }
-            
-            state.dadosProducao = state.dadosProducao.concat(resultados);
-            state.todosRegistros = state.todosRegistros.concat(todosRegistros);
+            // 6. Atualiza insumos (recalcula a partir dos registros)
+            var insumosTotais = {};
+            state.todosRegistros.forEach(function(reg) {
+                (reg.insumos || []).forEach(function(ins) {
+                    if (!insumosTotais[ins.nome]) insumosTotais[ins.nome] = 0;
+                    insumosTotais[ins.nome] += ins.qtd;
+                });
+            });
+            state.insumosDia = insumosTotais;
             
             processarSaidasInsumos(resultados);
             
@@ -1167,15 +1220,16 @@ function processarArquivoExcel(file) {
             
             if (typeof db === 'undefined' || !db) { throw new Error('Firebase não está disponível. Verifique a conexão.'); }
             
+                        if (typeof db === 'undefined' || !db) { throw new Error('Firebase não está disponível. Verifique a conexão.'); }
+
             // ============================================================
-            // SALVA NO FIREBASE - SUBSTITUI OS DADOS
+            // SALVA NO FIREBASE - SUBSTITUI OS DADOS (SEM DUPLICAR)
             // ============================================================
             db.collection('producao_dia').get()
                 .then(function(snapshot) {
                     var batch = db.batch();
                     var countDeleted = 0;
                     
-                    // Apaga TODOS os documentos existentes para reimportar
                     snapshot.forEach(function(doc) {
                         batch.delete(doc.ref);
                         countDeleted++;
@@ -1188,7 +1242,6 @@ function processarArquivoExcel(file) {
                     return Promise.resolve();
                 })
                 .then(function() {
-                    // Salva os dados novos
                     var promises = [];
                     var salvos = 0;
                     var erros = 0;
@@ -1227,12 +1280,14 @@ function processarArquivoExcel(file) {
                     if (loadingEl) loadingEl.classList.remove('show');
                     var infoEl = document.getElementById('infoArquivo');
                     if (infoEl) infoEl.textContent = '✅ ' + file.name + ' importado! (' + count + ' linhas)';
-                    var msg = '✅ Planilha importada! ' + Object.keys(opsDia).length + ' operações.';
-                    if (result.erros > 0) { msg += ' ⚠️ ' + result.erros + ' erros.'; }
+                    
+                    var msg = '✅ Planilha importada! ' + Object.keys(state.operacoesDia).length + ' operações.';
+                    if (result.erros > 0) {
+                        msg += ' ⚠️ ' + result.erros + ' erros.';
+                    }
                     showToast(msg, result.erros > 0 ? 'warning' : 'success');
                     console.log('✅ Importação concluída!');
                     
-                    // Renderiza a produção
                     renderizarProducao();
                 })
                 .catch(function(error) {
@@ -1240,7 +1295,6 @@ function processarArquivoExcel(file) {
                     if (loadingEl) loadingEl.classList.remove('show');
                     showToast('❌ Erro ao salvar produção: ' + error.message, 'error');
                 });
-            
         } catch (error) {
             console.error('❌ Erro ao processar:', error);
             if (loadingEl) loadingEl.classList.remove('show');
@@ -1255,20 +1309,45 @@ function processarArquivoExcel(file) {
     };
     reader.readAsArrayBuffer(file);
 }
-// ============================================================
-// PROCESSAR SAÍDAS DE INSUMOS
+/// ============================================================
+// PROCESSAR SAÍDAS DE INSUMOS - COM ID DETERMINÍSTICO
 // ============================================================
 function processarSaidasInsumos(resultados) {
     if (!resultados || resultados.length === 0) return;
+    
     var saidas = [];
+    var dataHoje = getHoje();
+    
     resultados.forEach(function(row) {
         if (row.insumos && row.insumos.length > 0) {
             var municipio = normalizarMunicipio(row.municipio || row.fazenda || 'NÃO INFORMADO');
             row.insumos.forEach(function(ins) {
                 var insumo = normalizarInsumo(ins.nome);
                 if (insumo && insumo !== 'INSUMO NÃO IDENTIFICADO' && ins.qtd > 0) {
+                    var dataStr = row.data ? fmtData(row.data) : dataHoje;
+                    
+                    // ID DETERMINÍSTICO baseado nos dados da linha
+                    var idBase = [
+                        dataStr,
+                        municipio,
+                        insumo,
+                        row.talhao || '',
+                        row.operacao || '',
+                        row.equipe || '',
+                        row.producao || 0,
+                        ins.qtd
+                    ].join('|');
+                    
+                    var hash = 0;
+                    for (var i = 0; i < idBase.length; i++) {
+                        hash = ((hash << 5) - hash) + idBase.charCodeAt(i);
+                        hash = hash & hash;
+                    }
+                    var idUnico = 'saida_' + Math.abs(hash).toString(36);
+                    
                     saidas.push({
-                        data: row.data ? fmtData(row.data) : getHoje(),
+                        id: idUnico,
+                        data: dataStr,
                         insumo: insumo,
                         municipio: municipio,
                         quantidade: ins.qtd,
@@ -1276,33 +1355,54 @@ function processarSaidasInsumos(resultados) {
                         talhao: row.talhao,
                         tipo: 'saida',
                         nf: 'PRODUÇÃO',
-                        origem: 'Consumo Produção - ' + (row.operacao || 'OPERAÇÃO')
+                        origem: 'Consumo Produção - ' + (row.operacao || 'OPERAÇÃO'),
+                        createdAt: new Date().toISOString()
                     });
                 }
             });
         }
     });
-    if (saidas.length > 0) {
-        saidas.forEach(function(s) {
-            state.movimentacoes.push({
-                id: 'saida_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-                data: s.data,
-                tipo: 'saida',
-                insumo: s.insumo,
-                municipio: s.municipio,
-                quantidade: s.quantidade,
-                nf: 'PRODUÇÃO',
-                origem: s.origem,
-                createdAt: new Date().toISOString()
-            });
-        });
-        salvarMovimentacoes();
-        recalcularEstoque();
-        renderizarEstoque();
-        showToast('📤 ' + saidas.length + ' saídas de insumos registradas a partir da planilha.', 'info');
+    
+    if (saidas.length === 0) {
+        console.log('ℹ️ Nenhuma saída de insumo gerada');
+        return;
     }
+    
+    // Verifica no FIREBASE quais IDs já existem
+    db.collection('estoque_movimentacoes').get()
+        .then(function(snapshot) {
+            var idsExistentes = new Set();
+            snapshot.forEach(function(doc) {
+                var data = doc.data();
+                if (data.id) idsExistentes.add(data.id);
+            });
+            
+            var novasSaidas = saidas.filter(function(s) {
+                return !idsExistentes.has(s.id);
+            });
+            
+            if (novasSaidas.length === 0) {
+                console.log('ℹ️ Todas as saídas já existem. Nada a adicionar.');
+                return;
+            }
+            
+            console.log('📤 Adicionando ' + novasSaidas.length + ' novas saídas de insumos...');
+            
+            var promises = [];
+            novasSaidas.forEach(function(s) {
+                promises.push(db.collection('estoque_movimentacoes').doc().set(s));
+            });
+            
+            return Promise.all(promises);
+        })
+        .then(function() {
+            console.log('✅ Saídas de insumos salvas!');
+            carregarEstoqueLocal();
+        })
+        .catch(function(err) {
+            console.error('❌ Erro ao salvar saídas:', err.message);
+        });
 }
-
 // ============================================================
 // FUNÇÕES DE ESTOQUE
 // ============================================================
