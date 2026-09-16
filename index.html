@@ -1016,24 +1016,29 @@ function processarArquivoExcel(file) {
         try {
             var data = new Uint8Array(e.target.result);
             var workbook = XLSX.read(data, { type: 'array', cellDates: true });
-            var wsName = workbook.SheetNames[0];
-            for (var n of workbook.SheetNames) {
-                if (n.toLowerCase().includes('reporte') || n.toLowerCase().includes('diário') || n.toLowerCase().includes('diario')) {
-                    wsName = n; break;
-                }
-            }
-            var ws = workbook.Sheets[wsName];
-            if (!ws) { throw new Error('Aba "' + wsName + '" não encontrada!'); }
-            var range = XLSX.utils.decode_range(ws['!ref']);
-            var hRow = -1;
-            for (var r = 0; r <= 10; r++) {
-                for (var c = 0; c <= range.e.c; c++) {
-                    var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })];
-                    if (cell && cell.v && String(cell.v).toUpperCase().includes('TALH')) { hRow = r; break; }
-                }
-                if (hRow >= 0) break;
-            }
-            if (hRow < 0) { throw new Error('Não encontrei coluna "Talhão" no cabeçalho.'); }
+var wsName = null, ws = null, range = null, hRow = -1;
+// Primeiro tenta achar a aba pelo nome (reporte/diário)
+var candidatos = workbook.SheetNames.filter(function(n) {
+    return n.toLowerCase().includes('reporte') || n.toLowerCase().includes('diário') || n.toLowerCase().includes('diario');
+});
+// Testa essas primeiro, depois todas as outras, até achar uma que tenha "Talhão" no cabeçalho
+var ordemBusca = candidatos.concat(workbook.SheetNames.filter(function(n){ return candidatos.indexOf(n) === -1; }));
+for (var si = 0; si < ordemBusca.length; si++) {
+    var nomeTeste = ordemBusca[si];
+    var wsTeste = workbook.Sheets[nomeTeste];
+    if (!wsTeste || !wsTeste['!ref']) continue;
+    var rangeTeste = XLSX.utils.decode_range(wsTeste['!ref']);
+    var hRowTeste = -1;
+    for (var r = 0; r <= 10; r++) {
+        for (var c = 0; c <= rangeTeste.e.c; c++) {
+            var cellTeste = wsTeste[XLSX.utils.encode_cell({ r: r, c: c })];
+            if (cellTeste && cellTeste.v && String(cellTeste.v).toUpperCase().includes('TALH')) { hRowTeste = r; break; }
+        }
+        if (hRowTeste >= 0) break;
+    }
+    if (hRowTeste >= 0) { wsName = nomeTeste; ws = wsTeste; range = rangeTeste; hRow = hRowTeste; break; }
+}
+if (!ws) { throw new Error('Não encontrei nenhuma aba com a coluna "Talhão" no cabeçalho.'); }
             var cols = {};
             for (var c = 0; c <= range.e.c; c++) {
                 var cell = ws[XLSX.utils.encode_cell({ r: hRow, c: c })];
