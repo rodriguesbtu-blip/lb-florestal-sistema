@@ -1052,8 +1052,10 @@ if (!ws) { throw new Error('Não encontrei nenhuma aba com a coluna "Talhão" no
                 if (h.includes('EQUIPE')) cols.eq = c;
                 if (h.includes('ÁREA CADASTRO') || h.includes('AREA CADASTRO')) cols.area = c;
                 if ((h.includes('OBSERV') || h.includes('OBS')) && !h.includes('ID')) cols.obs = c;
-                if (h.includes('INSUMO')) { if (!cols.insumos) cols.insumos = []; cols.insumos.push(c); }
-                if (h.includes('QUANTIDADE')) { if (!cols.quantidades) cols.quantidades = []; cols.quantidades.push(c); }
+               if (/^INSUMO/.test(h)) { if (!cols.insumos) cols.insumos = []; cols.insumos.push(c); }
+if (h.includes('TIPO RECURSO') && cols.tipoRecurso === undefined) cols.tipoRecurso = c;
+if (h.includes('NOME RECURSO') && cols.nomeRecurso === undefined) cols.nomeRecurso = c;
+                if (h.includes('QUANTIDADE')) { if (!cols.quantidades) cols.quantidades = []; cols.quantidades.push(c); if (cols.qtdRecurso === undefined) cols.qtdRecurso = c; }
                 if (h==='ID'||h.includes('ID FAZENDA')) cols.id = c;
                 if (h.includes('MUNICÍPIO') || h.includes('MUNICIPIO') || h.includes('CIDADE')) cols.municipio = c;
             }
