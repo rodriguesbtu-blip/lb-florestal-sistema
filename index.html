@@ -702,146 +702,128 @@ function normalizarInsumo(insumo) {
 }
 
 // ============================================================
-// SALVAR MOVIMENTAÇÕES - SEM DUPLICAÇÃO
+// SALVAR MOVIMENTAÇÕES - CORRIGIDO (SEM LOOP E SEM GET)
 // ============================================================
 var salvandoMovimentacoes = false;
 
 function salvarMovimentacoes() {
-    // Evita execução simultânea
-    if (salvandoMovimentacoes) {
-        console.log('⏳ Já está salvando, ignorando...');
-        return;
-    }
+    // 1. Salva localmente (cache)
+    try {
+        localStorage.setItem('estoqueMovimentacoes', JSON.stringify(state.movimentacoes));
+    } catch(e) { console.warn('Erro ao salvar localStorage:', e); }
     
-    // 1. Salva localmente (backup)
-    localStorage.setItem('estoqueMovimentacoes', JSON.stringify(state.movimentacoes));
-    
-    // 2. Salva no Firebase (compartilhamento) - SEM DUPLICAR
-    if (typeof db !== 'undefined' && db) {
+    // 2. Salva no Firebase - apenas movimentações que ainda não foram sincronizadas
+    if (typeof db !== 'undefined' && db && !salvandoMovimentacoes) {
+        var novas = state.movimentacoes.filter(function(m) { return !m._sync; });
+        if (novas.length === 0) return;
+        
         salvandoMovimentacoes = true;
         
-        db.collection('estoque_movimentacoes').get()
-            .then(function(snapshot) {
-                var idsExistentes = new Set();
-                snapshot.forEach(function(doc) {
-                    var data = doc.data();
-                    if (data.id) idsExistentes.add(data.id);
-                });
-                
-                // Filtra apenas as movimentações que NÃO existem
-                var novasMovs = state.movimentacoes.filter(function(mov) {
-                    return !idsExistentes.has(mov.id);
-                });
-                
-                if (novasMovs.length === 0) {
-                    console.log('ℹ️ Nenhuma movimentação nova.');
-                    salvandoMovimentacoes = false;
-                    return Promise.resolve();
-                }
-                
-                console.log('📤 Salvando ' + novasMovs.length + ' novas movimentações...');
-                var promises = [];
-                novasMovs.forEach(function(mov) {
-                    promises.push(db.collection('estoque_movimentacoes').doc().set(mov));
-                });
-                return Promise.all(promises);
-            })
+        var promises = novas.map(function(mov) {
+            var docRef = db.collection('estoque_movimentacoes').doc(mov.id);
+            return docRef.set(mov).then(function() {
+                mov._sync = true;
+            });
+        });
+        
+        Promise.all(promises)
             .then(function() {
-                console.log('✅ Novas movimentações salvas no Firebase');
+                console.log('✅ ' + novas.length + ' movimentações sincronizadas.');
                 salvandoMovimentacoes = false;
             })
             .catch(function(err) {
-                console.error('❌ Erro ao salvar estoque:', err.message);
+                console.error('❌ Erro ao sincronizar:', err.message);
                 salvandoMovimentacoes = false;
             });
     }
 }
 
 // ============================================================
-// CARREGAR ESTOQUE - PRIORIZA FIREBASE (CORREÇÃO DO COMPARTILHAMENTO!)
+// CARREGAR ESTOQUE - CORRIGIDO (LOCAL + FIREBASE)
 // ============================================================
 function carregarEstoqueLocal() {
-    // 1. PRIMEIRO: Tenta carregar do Firebase
+    // 1. Carrega do localStorage IMEDIATAMENTE (UI rápida)
+    try {
+        var movs = localStorage.getItem('estoqueMovimentacoes');
+        if (movs) {
+            state.movimentacoes = JSON.parse(movs);
+            console.log('📦 Cache local: ' + state.movimentacoes.length + ' movimentações');
+        }
+    } catch(e) {
+        console.warn('Erro ao carregar localStorage:', e);
+        state.movimentacoes = [];
+    }
+    
+    // Marca as que vieram do cache como sincronizadas (já estavam no Firebase)
+    state.movimentacoes.forEach(function(m) { m._sync = true; });
+    processarEstoqueCarregado();
+    
+    // 2. Sincroniza com Firebase (sobrescreve com dados atuais)
     if (typeof db !== 'undefined' && db) {
-        console.log('📦 Buscando estoque do Firebase...');
         db.collection('estoque_movimentacoes').get()
             .then(function(snapshot) {
                 if (snapshot.size > 0) {
                     var movs = [];
                     snapshot.forEach(function(doc) {
-                        movs.push(doc.data());
+                        var data = doc.data();
+                        data._sync = true;
+                        movs.push(data);
                     });
                     state.movimentacoes = movs;
-                    // Atualiza o localStorage como cache
-                    localStorage.setItem('estoqueMovimentacoes', JSON.stringify(movs));
-                    console.log('✅ Estoque carregado do Firebase: ' + movs.length + ' movimentações');
+                    try {
+                        localStorage.setItem('estoqueMovimentacoes', JSON.stringify(movs));
+                    } catch(e) {}
+                    console.log('✅ Estoque carregado do Firebase: ' + movs.length);
                     processarEstoqueCarregado();
-                    return;
+                } else {
+                    console.log('ℹ️ Firebase vazio.');
                 }
-                // Se Firebase estiver vazio, vai para localStorage
-                console.log('ℹ️ Firebase vazio, tentando localStorage...');
-                carregarDoLocalStorage();
             })
             .catch(function(err) {
                 console.error('❌ Erro ao carregar do Firebase:', err.message);
-                // Fallback para localStorage
-                carregarDoLocalStorage();
             });
-    } else {
-        carregarDoLocalStorage();
     }
 }
 
 // ============================================================
-// CARREGAR DO LOCALSTORAGE (FALLBACK)
-// ============================================================
-function carregarDoLocalStorage() {
-    try {
-        var movs = localStorage.getItem('estoqueMovimentacoes');
-        if (movs) { 
-            state.movimentacoes = JSON.parse(movs); 
-            console.log('📦 Carregado do localStorage: ' + state.movimentacoes.length + ' movimentações');
-        } else { 
-            state.movimentacoes = []; 
-            console.log('ℹ️ Nenhum dado no localStorage');
-        }
-    } catch(e) { 
-        console.warn('Erro ao carregar movimentações:', e); 
-        state.movimentacoes = []; 
-    }
-    processarEstoqueCarregado();
-}
-
-// ============================================================
-// PROCESSAR ESTOQUE CARREGADO
+// PROCESSAR ESTOQUE CARREGADO - CORRIGIDO (NÃO SALVA DE VOLTA)
 // ============================================================
 function processarEstoqueCarregado() {
     state.movimentacoes.forEach(function(mov) {
         if (mov.municipio) mov.municipio = normalizarMunicipio(mov.municipio);
         if (mov.insumo) mov.insumo = normalizarInsumo(mov.insumo);
+        mov._sync = true;
     });
-    salvarMovimentacoes();
     recalcularEstoque();
     renderizarEstoque();
 }
 
 // ============================================================
-// OUVIR ESTOQUE DO FIREBASE EM TEMPO REAL
+// OUVIR ESTOQUE DO FIREBASE EM TEMPO REAL - CORRIGIDO (SEM SALVAR)
 // ============================================================
 function ouvirEstoqueFirebase() {
     if (typeof db === 'undefined' || !db) return;
+    
     db.collection('estoque_movimentacoes').onSnapshot(function(snapshot) {
         console.log('📦 Estoque atualizado via listener. Total:', snapshot.size);
-        if (snapshot.size === 0) { carregarEstoqueLocal(); return; }
+        
         var movs = [];
-        snapshot.forEach(function(doc) { movs.push(doc.data()); });
+        snapshot.forEach(function(doc) {
+            var data = doc.data();
+            data._sync = true;
+            movs.push(data);
+        });
+        
         state.movimentacoes = movs;
-        salvarMovimentacoes();
+        
+        try {
+            localStorage.setItem('estoqueMovimentacoes', JSON.stringify(movs));
+        } catch(e) {}
+        
         recalcularEstoque();
         renderizarEstoque();
     }, function(error) {
         console.error('❌ Erro ao ouvir estoque:', error.message);
-        carregarEstoqueLocal();
     });
 }
 
@@ -911,7 +893,7 @@ function limparDesc(obs, op) {
 }
 
 // ============================================================
-// LOGIN / LOGOUT
+// LOGIN / LOGOUT - CORRIGIDO
 // ============================================================
 function fazerLogin() {
     var userEl = document.getElementById('loginUser');
@@ -932,8 +914,12 @@ function fazerLogin() {
         var btnFat = document.getElementById('btnFaturamento');
         if (user === 'producao') { if (btnFat) btnFat.classList.add('oculto'); var pageFat = document.getElementById('pageFaturamento'); if (pageFat && pageFat.classList.contains('ativo')) { mudarAba('dashboard', document.querySelector('.btn-tab.dash')); } } else { if (btnFat) btnFat.classList.remove('oculto'); }
         if (user === 'producao') { mudarAba('producao', document.querySelector('.btn-tab.prod')); } else if (user === 'faturamento') { mudarAba('faturamento', document.querySelector('.btn-tab.fat')); } else { mudarAba('dashboard', document.querySelector('.btn-tab.dash')); }
-        carregarDadosFirebase();
+        
+        // CORREÇÃO: Carrega estoque + ativa listener (SEM duplicar)
         carregarEstoqueLocal();
+        ouvirEstoqueFirebase();
+        carregarDadosFirebase();
+        
         showToast('✅ Bem-vindo, ' + CREDENCIAIS[user].label + '!', 'success');
     } else { if (erroEl) { erroEl.style.display = 'block'; erroEl.textContent = '❌ Senha incorreta!'; } if (passEl) { passEl.value = ''; passEl.focus(); } }
 }
@@ -991,7 +977,7 @@ function mudarSubAbaProd(aba, btn) {
 }
 
 // ============================================================
-// IMPORTAÇÃO (PRODUÇÃO) - VERSÃO ESTÁVEL COM PROTEÇÃO CONTRA ERROS
+// IMPORTAÇÃO (PRODUÇÃO)
 // ============================================================
 function importarPlanilha() {
     var input = document.getElementById('fileInputProducao');
@@ -1006,7 +992,7 @@ function importarPlanilha() {
 }
 
 // ============================================================
-// PROCESSAR EXCEL (PRODUÇÃO) - SEM APAGAR DADOS ANTIGOS
+// PROCESSAR EXCEL (PRODUÇÃO)
 // ============================================================
 function processarArquivoExcel(file) {
     var loadingEl = document.getElementById('loading');
@@ -1016,29 +1002,24 @@ function processarArquivoExcel(file) {
         try {
             var data = new Uint8Array(e.target.result);
             var workbook = XLSX.read(data, { type: 'array', cellDates: true });
-var wsName = null, ws = null, range = null, hRow = -1;
-// Primeiro tenta achar a aba pelo nome (reporte/diário)
-var candidatos = workbook.SheetNames.filter(function(n) {
-    return n.toLowerCase().includes('reporte') || n.toLowerCase().includes('diário') || n.toLowerCase().includes('diario');
-});
-// Testa essas primeiro, depois todas as outras, até achar uma que tenha "Talhão" no cabeçalho
-var ordemBusca = candidatos.concat(workbook.SheetNames.filter(function(n){ return candidatos.indexOf(n) === -1; }));
-for (var si = 0; si < ordemBusca.length; si++) {
-    var nomeTeste = ordemBusca[si];
-    var wsTeste = workbook.Sheets[nomeTeste];
-    if (!wsTeste || !wsTeste['!ref']) continue;
-    var rangeTeste = XLSX.utils.decode_range(wsTeste['!ref']);
-    var hRowTeste = -1;
-    for (var r = 0; r <= 10; r++) {
-        for (var c = 0; c <= rangeTeste.e.c; c++) {
-            var cellTeste = wsTeste[XLSX.utils.encode_cell({ r: r, c: c })];
-            if (cellTeste && cellTeste.v && String(cellTeste.v).toUpperCase().includes('TALH')) { hRowTeste = r; break; }
-        }
-        if (hRowTeste >= 0) break;
-    }
-    if (hRowTeste >= 0) { wsName = nomeTeste; ws = wsTeste; range = rangeTeste; hRow = hRowTeste; break; }
-}
-if (!ws) { throw new Error('Não encontrei nenhuma aba com a coluna "Talhão" no cabeçalho.'); }
+            var wsName = workbook.SheetNames[0];
+            for (var n of workbook.SheetNames) {
+                if (n.toLowerCase().includes('reporte') || n.toLowerCase().includes('diário') || n.toLowerCase().includes('diario')) {
+                    wsName = n; break;
+                }
+            }
+            var ws = workbook.Sheets[wsName];
+            if (!ws) { throw new Error('Aba "' + wsName + '" não encontrada!'); }
+            var range = XLSX.utils.decode_range(ws['!ref']);
+            var hRow = -1;
+            for (var r = 0; r <= 10; r++) {
+                for (var c = 0; c <= range.e.c; c++) {
+                    var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })];
+                    if (cell && cell.v && String(cell.v).toUpperCase().includes('TALH')) { hRow = r; break; }
+                }
+                if (hRow >= 0) break;
+            }
+            if (hRow < 0) { throw new Error('Não encontrei coluna "Talhão" no cabeçalho.'); }
             var cols = {};
             for (var c = 0; c <= range.e.c; c++) {
                 var cell = ws[XLSX.utils.encode_cell({ r: hRow, c: c })];
@@ -1052,10 +1033,8 @@ if (!ws) { throw new Error('Não encontrei nenhuma aba com a coluna "Talhão" no
                 if (h.includes('EQUIPE')) cols.eq = c;
                 if (h.includes('ÁREA CADASTRO') || h.includes('AREA CADASTRO')) cols.area = c;
                 if ((h.includes('OBSERV') || h.includes('OBS')) && !h.includes('ID')) cols.obs = c;
-               if (/^INSUMO/.test(h)) { if (!cols.insumos) cols.insumos = []; cols.insumos.push(c); }
-if (h.includes('TIPO RECURSO') && cols.tipoRecurso === undefined) cols.tipoRecurso = c;
-if (h.includes('NOME RECURSO') && cols.nomeRecurso === undefined) cols.nomeRecurso = c;
-                if (h.includes('QUANTIDADE')) { if (!cols.quantidades) cols.quantidades = []; cols.quantidades.push(c); if (cols.qtdRecurso === undefined) cols.qtdRecurso = c; }
+                if (h.includes('INSUMO')) { if (!cols.insumos) cols.insumos = []; cols.insumos.push(c); }
+                if (h.includes('QUANTIDADE')) { if (!cols.quantidades) cols.quantidades = []; cols.quantidades.push(c); }
                 if (h==='ID'||h.includes('ID FAZENDA')) cols.id = c;
                 if (h.includes('MUNICÍPIO') || h.includes('MUNICIPIO') || h.includes('CIDADE')) cols.municipio = c;
             }
@@ -1161,7 +1140,6 @@ if (h.includes('NOME RECURSO') && cols.nomeRecurso === undefined) cols.nomeRecur
             }
             if (count === 0) { throw new Error('Nenhuma linha de dados encontrada.'); }
             
-            // Atualiza o estado com os dados da planilha (mesclando com os existentes)
             for (var opKey in opsDia) {
                 if (state.operacoesDia[opKey]) {
                     state.operacoesDia[opKey].totalHa += opsDia[opKey].totalHa;
@@ -1289,7 +1267,7 @@ if (h.includes('NOME RECURSO') && cols.nomeRecurso === undefined) cols.nomeRecur
 }
 
 // ============================================================
-// PROCESSAR SAÍDAS DE INSUMOS
+// PROCESSAR SAÍDAS DE INSUMOS - CORRIGIDO (COM _sync FALSE)
 // ============================================================
 function processarSaidasInsumos(resultados) {
     if (!resultados || resultados.length === 0) return;
@@ -1318,7 +1296,7 @@ function processarSaidasInsumos(resultados) {
     if (saidas.length > 0) {
         saidas.forEach(function(s) {
             state.movimentacoes.push({
-                id: 'saida_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                id: 'saida_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
                 data: s.data,
                 tipo: 'saida',
                 insumo: s.insumo,
@@ -1326,7 +1304,8 @@ function processarSaidasInsumos(resultados) {
                 quantidade: s.quantidade,
                 nf: 'PRODUÇÃO',
                 origem: s.origem,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                _sync: false
             });
         });
         salvarMovimentacoes();
@@ -1411,9 +1390,11 @@ function recalcularEstoque() {
         }
     });
     state.estoque = estoque;
-    salvarMovimentacoes();
 }
 
+// ============================================================
+// REGISTRAR ENTRADA - CORRIGIDO (COM _sync FALSE)
+// ============================================================
 function registrarEntrada() {
     var dataEl = document.getElementById('entradaData');
     var nfEl = document.getElementById('entradaNF');
@@ -1441,7 +1422,6 @@ function registrarEntrada() {
     var dataFormatada = new Date(data).toLocaleDateString('pt-BR');
     var novoId = 'entrada_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
     
-    // Verifica se já existe entrada com este ID
     var existe = state.movimentacoes.some(function(m) { return m.id === novoId; });
     if (existe) {
         showToast('⚠️ Esta entrada já foi registrada!', 'warning');
@@ -1457,7 +1437,8 @@ function registrarEntrada() {
         quantidade: qtd,
         nf: nf,
         origem: 'NF ' + nf,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        _sync: false
     };
     
     state.movimentacoes.push(movimentacao);
@@ -1465,7 +1446,6 @@ function registrarEntrada() {
     recalcularEstoque();
     renderizarEstoque();
     
-    // Limpa o formulário
     nfEl.value = '';
     insumoEl.value = '';
     municipioEl.value = '';
@@ -1473,6 +1453,7 @@ function registrarEntrada() {
     
     showToast('✅ Entrada registrada: ' + qtd + ' kg de ' + insumo + ' para ' + municipio + ' (NF ' + nf + ')', 'success');
 }
+
 // ============================================================
 // RENDERIZAR ESTOQUE
 // ============================================================
@@ -1498,6 +1479,7 @@ function renderizarEstoque() {
     var keys = Object.keys(state.estoque);
     if (keys.length === 0) {
         container.innerHTML = '<div class="empty"><div class="ico">📦</div><p>Nenhum insumo registrado. Adicione uma entrada por NF.</p></div>';
+        renderizarMovimentacoes();
         return;
     }
     var porInsumo = {};
@@ -1720,6 +1702,7 @@ function salvarEdicaoEntrada() {
     mov.municipio = municipio;
     mov.quantidade = qtd;
     mov.origem = 'NF ' + (nf || 'EDITADA');
+    mov._sync = false;
     salvarMovimentacoes();
     recalcularEstoque();
     renderizarEstoque();
@@ -1734,32 +1717,37 @@ function excluirEntrada(movId) {
     var mov = state.movimentacoes[index];
     if (mov.tipo !== 'entrada') { showToast('⚠️ Apenas entradas podem ser excluídas!', 'warning'); return; }
     state.movimentacoes.splice(index, 1);
+    // Remove do Firebase também
+    if (typeof db !== 'undefined' && db) {
+        db.collection('estoque_movimentacoes').doc(movId).delete().catch(function(err) {
+            console.warn('Aviso ao excluir do Firebase:', err.message);
+        });
+    }
     salvarMovimentacoes();
     recalcularEstoque();
     renderizarEstoque();
     showToast('🗑️ Entrada excluída com sucesso!', 'success');
 }
-    // ============================================================
-// EDITAR ENTRADA DE ESTOQUE
-// ============================================================
-function editarEntrada(movId) {
-    var mov = state.movimentacoes.find(function(m) { return m.id === movId; });
-    if (!mov) { showToast('⚠️ Movimentação não encontrada!', 'warning'); return; }
-    if (mov.tipo !== 'entrada') { showToast('⚠️ Apenas entradas podem ser editadas!', 'warning'); return; }
-    
-    // Abre o modal de edição (reutilizando o que já existe)
-    document.getElementById('editMovId').value = movId;
-    document.getElementById('editMovData').value = mov.data;
-    document.getElementById('editMovNF').value = mov.nf || '';
-    document.getElementById('editMovInsumo').value = mov.insumo;
-    document.getElementById('editMovMunicipio').value = mov.municipio;
-    document.getElementById('editMovQtd').value = mov.quantidade;
-    document.getElementById('modalEditarEntrada').classList.add('active');
-}
 
 function limparTudoEstoque() {
     if (!confirm('⚠️ ATENÇÃO: Isso irá apagar TODAS as movimentações de estoque (entradas e saídas). Esta ação não pode ser desfeita!')) return;
     if (!confirm('🔄 Confirme novamente: deseja realmente limpar todos os dados de estoque?')) return;
+    
+    // Remove tudo do Firebase
+    if (typeof db !== 'undefined' && db) {
+        db.collection('estoque_movimentacoes').get().then(function(snapshot) {
+            var promises = [];
+            snapshot.forEach(function(doc) {
+                promises.push(doc.ref.delete());
+            });
+            return Promise.all(promises);
+        }).then(function() {
+            console.log('✅ Todas as movimentações removidas do Firebase.');
+        }).catch(function(err) {
+            console.warn('Aviso ao limpar Firebase:', err.message);
+        });
+    }
+    
     state.movimentacoes = [];
     salvarMovimentacoes();
     recalcularEstoque();
@@ -1768,7 +1756,7 @@ function limparTudoEstoque() {
 }
 
 // ============================================================
-// FUNÇÕES DE TRANSFERÊNCIA ENTRE MUNICÍPIOS
+// FUNÇÕES DE TRANSFERÊNCIA ENTRE MUNICÍPIOS - CORRIGIDO (_sync FALSE)
 // ============================================================
 function abrirModalTransferencia(insumo, origem, saldo) {
     var modal = document.getElementById('modalTransferencia');
@@ -1863,7 +1851,7 @@ function confirmarTransferencia() {
     var dataFormatada = new Date(data).toLocaleDateString('pt-BR');
     var timestamp = Date.now();
     var saidaTransferencia = {
-        id: 'transf_saida_' + timestamp + '_' + Math.random().toString(36).substr(2, 4),
+        id: 'transf_saida_' + timestamp + '_' + Math.random().toString(36).substr(2, 6),
         data: dataFormatada,
         tipo: 'saida',
         insumo: insumo,
@@ -1872,10 +1860,11 @@ function confirmarTransferencia() {
         nf: 'TRANSFERENCIA',
         origem: 'Transferência para ' + destino + (obs ? ' - ' + obs : ''),
         transferencia: { destino: destino, obs: obs },
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        _sync: false
     };
     var entradaTransferencia = {
-        id: 'transf_entrada_' + timestamp + '_' + Math.random().toString(36).substr(2, 4),
+        id: 'transf_entrada_' + timestamp + '_' + Math.random().toString(36).substr(2, 6),
         data: dataFormatada,
         tipo: 'entrada',
         insumo: insumo,
@@ -1884,7 +1873,8 @@ function confirmarTransferencia() {
         nf: 'TRANSFERENCIA',
         origem: 'Transferência de ' + origem + (obs ? ' - ' + obs : ''),
         transferencia: { origem: origem, obs: obs },
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        _sync: false
     };
     state.movimentacoes.push(saidaTransferencia);
     state.movimentacoes.push(entradaTransferencia);
@@ -2055,7 +2045,7 @@ function ouvirLancamentosFirebase() {
 }
 
 // ============================================================
-// CARREGAR DADOS FIREBASE - SEM LOOP INFINITO
+// CARREGAR DADOS FIREBASE
 // ============================================================
 function carregarDadosFirebase() {
     if (state.isLoading) return;
@@ -2090,9 +2080,6 @@ function carregarDadosFirebase() {
             });
             state.operacoesDia = ops;
             
-            // ============================================================
-            // POPULA dadosProducao A PARTIR DAS OPERAÇÕES
-            // ============================================================
             var dados = [];
             Object.keys(ops).forEach(function(opKey) {
                 var op = ops[opKey];
@@ -2129,7 +2116,7 @@ function carregarDadosFirebase() {
             snapshot.forEach(function(doc) {
                 var data = doc.data();
                 var opId = data.opId;
-                if (!lancs[opId]) lancs[opId] = { ha: 0, valor: 0, custo: 0, tf: 0, maq: 0, pipa: 0, apoio: 0, docId: doc.id };
+                if (!lancs[opId]) lancs[opId] = { ha: 0, valor: 0, custo: 0, tf: 0, maq: 0, pipa: 0, apoio: 0, docId: doc.id, dataReferencia: data.dataReferencia || '' };
                 lancs[opId].ha += data.ha || 0;
                 lancs[opId].valor += data.valor || 0;
                 lancs[opId].custo += data.custo || 0;
@@ -2137,6 +2124,7 @@ function carregarDadosFirebase() {
                 lancs[opId].maq += data.maq || 0;
                 lancs[opId].pipa += data.pipa || 0;
                 lancs[opId].apoio += data.apoio || 0;
+                if (data.dataReferencia) lancs[opId].dataReferencia = data.dataReferencia;
             });
             state.lancamentosFirebase = lancs;
             return db.collection('config').doc('custos').get();
@@ -2337,12 +2325,10 @@ function renderData() {
     diasData.forEach(function(dia) {
         var totalDia = dia.ops.reduce(function(s,o){ return s+o.producaoDia; }, 0);
         
-        // CORREÇÃO: Usa dataStr em vez de tentar criar nova data
         var ds = dia.dataStr || 'Data não informada';
         var diaId = 'dia_'+ds.replace(/\//g,'-');
         var open = isOpen(diaId);
         
-        // CORREÇÃO: Verifica se a data é válida
         var dataObj = dia.data ? new Date(dia.data) : null;
         var diasemana = (dataObj && !isNaN(dataObj.getTime())) ? dataObj.toLocaleDateString('pt-BR',{weekday:'long'}) : 'Data inválida';
         
@@ -2410,17 +2396,14 @@ function renderData() {
 }
 
 function calcDadosPorData() {
-    // Usa state.dadosProducao que já está populado
     var filtrados = state.dadosProducao.slice();
     
-    // Se não tiver dados, tenta usar state.operacoesDia como fallback
     if (filtrados.length === 0) {
         console.log('⚠️ dadosProducao vazio, tentando operacoesDia...');
         Object.keys(state.operacoesDia).forEach(function(opKey) {
             var op = state.operacoesDia[opKey];
             if (op.registros) {
                 op.registros.forEach(function(reg) {
-                    // Gera dataStr a partir da data
                     var dataStr = '';
                     if (reg.data) {
                         try {
@@ -2463,7 +2446,6 @@ function calcDadosPorData() {
         return [];
     }
     
-    // GARANTE QUE TODOS OS REGISTROS TÊM dataStr
     filtrados.forEach(function(item) {
         if (!item.dataStr || item.dataStr === 'Invalid Date' || item.dataStr === '') {
             if (item.data) {
@@ -2515,7 +2497,6 @@ function calcDadosPorData() {
     });
     
     var datasOrd = Object.values(porData).sort(function(a,b){ 
-        // Tenta ordenar por data, se falhar, ordena por string
         try {
             return new Date(a.data) - new Date(b.data);
         } catch(e) {
@@ -2810,6 +2791,7 @@ function calcularTotalOp(index) {
     var ops = state.operacoesDia;
     var keys = Object.keys(ops);
     var key = keys[index];
+    if (!key) return { valor: 0, custo: 0, tf: 0, maq: 0, pipa: 0, apoio: 0, ha: 0, rha: 0, receita: 0 };
     var ha = ops[key].totalHa;
     var receita = ha * rha;
     var custo = (tf * state.custos.TF) + (maq * state.custos.MAQ) + (pipa * state.custos.PIPA) + (apoio * state.custos.APOIO);
@@ -3547,7 +3529,7 @@ function renderizarLancamentosHoje() {
         var resultado = (l.valor || 0) - (l.custo || 0);
         var cor = resultado >= 0 ? 'text-green' : 'text-red';
         var sinal = resultado >= 0 ? '+' : '';
-        var isManual = (ops[key] && ops[key].isManual) || false;
+        var isManual = (state.operacoesDia[key] && state.operacoesDia[key].isManual) || false;
         html += '<tr><td>' + key + (isManual ? ' <span style="font-size:9px;color:#7c3aed;">(Manual)</span>' : '') + '<br><span style="font-size:9px;color:#64748b;">' + dataSelecionada + '</span></td><td class="num">' + safe(l.ha) + '</td><td class="num">' + formatMoney(l.valor || 0) + '</td><td class="num">' + formatMoney(l.custo || 0) + '</td><td class="num ' + cor + '">' + sinal + formatMoney(resultado) + '</td><td class="text-sm">TF:' + (l.tf || 0) + ' M:' + (l.maq || 0) + ' P:' + (l.pipa || 0) + ' A:' + (l.apoio || 0) + '</td><td class="num" style="white-space:nowrap;"><button class="btn-edit-custom" onclick="editarLancamento(\'' + key + '\',\'' + dataSelecionada + '\')" title="Editar" style="margin-right:4px;"><i class="fas fa-edit"></i></button><button class="btn-danger-custom" onclick="excluirLancamento(\'' + key + '\')" style="padding:4px 10px;font-size:11px;"><i class="fas fa-trash"></i></button></td></tr>';
     }
     var totalResultado = totalValor - totalCusto;
@@ -3901,6 +3883,7 @@ console.log('🔄 Módulo de Transferência entre municípios ativado!');
 console.log('📊 Rastreio de consumo por município ativado!');
 console.log('📦 Compartilhamento de estoque ativado!');
 console.log('✅ CORREÇÃO: Salvar movimentações sem duplicação ativado!');
+console.log('✅ CORREÇÃO: Estoque carrega do Firebase corretamente!');
 
 visaoFaturamentoAtual = 'dia';
 
@@ -3910,7 +3893,6 @@ if (loginScreen) loginScreen.style.display = 'flex';
 if (app) app.style.display = 'none';
 
 document.addEventListener('DOMContentLoaded', function() {
-    carregarEstoqueLocal();
     var btnLancar = document.getElementById('btnLancar');
     if (btnLancar) {
         btnLancar.addEventListener('click', function() {
