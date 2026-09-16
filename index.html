@@ -1293,8 +1293,14 @@ function processarSaidasInsumos(resultados) {
             row.insumos.forEach(function(ins) {
                 var insumo = normalizarInsumo(ins.nome);
                 if (insumo && insumo !== 'INSUMO NÃO IDENTIFICADO' && ins.qtd > 0) {
+                    var dataFmt = row.data ? fmtData(row.data) : getHoje();
+                    // ID determinístico (baseado no conteúdo, não em Date.now()+random):
+                    // a mesma linha da planilha sempre gera o mesmo ID. Isso é o que
+                    // permite detectar e ignorar duplicatas ao reimportar a mesma planilha.
+                    var idSaida = 'saida_' + (row.talhao||'') + '_' + (row.operacao||'') + '_' + dataFmt + '_' + insumo + '_' + ins.qtd;
                     saidas.push({
-                        data: row.data ? fmtData(row.data) : getHoje(),
+                        id: idSaida,
+                        data: dataFmt,
                         insumo: insumo,
                         municipio: municipio,
                         quantidade: ins.qtd,
@@ -1309,9 +1315,12 @@ function processarSaidasInsumos(resultados) {
         }
     });
     if (saidas.length > 0) {
-        saidas.forEach(function(s) {
+        var idsExistentes = {};
+        state.movimentacoes.forEach(function(m) { idsExistentes[m.id] = true; });
+        var novasSaidas = saidas.filter(function(s) { return !idsExistentes[s.id]; });
+        novasSaidas.forEach(function(s) {
             state.movimentacoes.push({
-                id: 'saida_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                id: s.id,
                 data: s.data,
                 tipo: 'saida',
                 insumo: s.insumo,
@@ -1322,13 +1331,14 @@ function processarSaidasInsumos(resultados) {
                 createdAt: new Date().toISOString()
             });
         });
-        salvarMovimentacoes();
-        recalcularEstoque();
-        renderizarEstoque();
-        showToast('📤 ' + saidas.length + ' saídas de insumos registradas a partir da planilha.', 'info');
+        if (novasSaidas.length > 0) {
+            salvarMovimentacoes();
+            recalcularEstoque();
+            renderizarEstoque();
+            showToast('📤 ' + novasSaidas.length + ' saídas de insumos registradas a partir da planilha.', 'info');
+        }
     }
 }
-
 // ============================================================
 // FUNÇÕES DE ESTOQUE
 // ============================================================
