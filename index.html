@@ -702,128 +702,146 @@ function normalizarInsumo(insumo) {
 }
 
 // ============================================================
-// SALVAR MOVIMENTAÇÕES - CORRIGIDO (SEM LOOP E SEM GET)
+// SALVAR MOVIMENTAÇÕES - SEM DUPLICAÇÃO
 // ============================================================
 var salvandoMovimentacoes = false;
 
 function salvarMovimentacoes() {
-    // 1. Salva localmente (cache)
-    try {
-        localStorage.setItem('estoqueMovimentacoes', JSON.stringify(state.movimentacoes));
-    } catch(e) { console.warn('Erro ao salvar localStorage:', e); }
+    // Evita execução simultânea
+    if (salvandoMovimentacoes) {
+        console.log('⏳ Já está salvando, ignorando...');
+        return;
+    }
     
-    // 2. Salva no Firebase - apenas movimentações que ainda não foram sincronizadas
-    if (typeof db !== 'undefined' && db && !salvandoMovimentacoes) {
-        var novas = state.movimentacoes.filter(function(m) { return !m._sync; });
-        if (novas.length === 0) return;
-        
+    // 1. Salva localmente (backup)
+    localStorage.setItem('estoqueMovimentacoes', JSON.stringify(state.movimentacoes));
+    
+    // 2. Salva no Firebase (compartilhamento) - SEM DUPLICAR
+    if (typeof db !== 'undefined' && db) {
         salvandoMovimentacoes = true;
         
-        var promises = novas.map(function(mov) {
-            var docRef = db.collection('estoque_movimentacoes').doc(mov.id);
-            return docRef.set(mov).then(function() {
-                mov._sync = true;
-            });
-        });
-        
-        Promise.all(promises)
+        db.collection('estoque_movimentacoes').get()
+            .then(function(snapshot) {
+                var idsExistentes = new Set();
+                snapshot.forEach(function(doc) {
+                    var data = doc.data();
+                    if (data.id) idsExistentes.add(data.id);
+                });
+                
+                // Filtra apenas as movimentações que NÃO existem
+                var novasMovs = state.movimentacoes.filter(function(mov) {
+                    return !idsExistentes.has(mov.id);
+                });
+                
+                if (novasMovs.length === 0) {
+                    console.log('ℹ️ Nenhuma movimentação nova.');
+                    salvandoMovimentacoes = false;
+                    return Promise.resolve();
+                }
+                
+                console.log('📤 Salvando ' + novasMovs.length + ' novas movimentações...');
+                var promises = [];
+                novasMovs.forEach(function(mov) {
+                    promises.push(db.collection('estoque_movimentacoes').doc().set(mov));
+                });
+                return Promise.all(promises);
+            })
             .then(function() {
-                console.log('✅ ' + novas.length + ' movimentações sincronizadas.');
+                console.log('✅ Novas movimentações salvas no Firebase');
                 salvandoMovimentacoes = false;
             })
             .catch(function(err) {
-                console.error('❌ Erro ao sincronizar:', err.message);
+                console.error('❌ Erro ao salvar estoque:', err.message);
                 salvandoMovimentacoes = false;
             });
     }
 }
 
 // ============================================================
-// CARREGAR ESTOQUE - CORRIGIDO (LOCAL + FIREBASE)
+// CARREGAR ESTOQUE - PRIORIZA FIREBASE (CORREÇÃO DO COMPARTILHAMENTO!)
 // ============================================================
 function carregarEstoqueLocal() {
-    // 1. Carrega do localStorage IMEDIATAMENTE (UI rápida)
-    try {
-        var movs = localStorage.getItem('estoqueMovimentacoes');
-        if (movs) {
-            state.movimentacoes = JSON.parse(movs);
-            console.log('📦 Cache local: ' + state.movimentacoes.length + ' movimentações');
-        }
-    } catch(e) {
-        console.warn('Erro ao carregar localStorage:', e);
-        state.movimentacoes = [];
-    }
-    
-    // Marca as que vieram do cache como sincronizadas (já estavam no Firebase)
-    state.movimentacoes.forEach(function(m) { m._sync = true; });
-    processarEstoqueCarregado();
-    
-    // 2. Sincroniza com Firebase (sobrescreve com dados atuais)
+    // 1. PRIMEIRO: Tenta carregar do Firebase
     if (typeof db !== 'undefined' && db) {
+        console.log('📦 Buscando estoque do Firebase...');
         db.collection('estoque_movimentacoes').get()
             .then(function(snapshot) {
                 if (snapshot.size > 0) {
                     var movs = [];
                     snapshot.forEach(function(doc) {
-                        var data = doc.data();
-                        data._sync = true;
-                        movs.push(data);
+                        movs.push(doc.data());
                     });
                     state.movimentacoes = movs;
-                    try {
-                        localStorage.setItem('estoqueMovimentacoes', JSON.stringify(movs));
-                    } catch(e) {}
-                    console.log('✅ Estoque carregado do Firebase: ' + movs.length);
+                    // Atualiza o localStorage como cache
+                    localStorage.setItem('estoqueMovimentacoes', JSON.stringify(movs));
+                    console.log('✅ Estoque carregado do Firebase: ' + movs.length + ' movimentações');
                     processarEstoqueCarregado();
-                } else {
-                    console.log('ℹ️ Firebase vazio.');
+                    return;
                 }
+                // Se Firebase estiver vazio, vai para localStorage
+                console.log('ℹ️ Firebase vazio, tentando localStorage...');
+                carregarDoLocalStorage();
             })
             .catch(function(err) {
                 console.error('❌ Erro ao carregar do Firebase:', err.message);
+                // Fallback para localStorage
+                carregarDoLocalStorage();
             });
+    } else {
+        carregarDoLocalStorage();
     }
 }
 
 // ============================================================
-// PROCESSAR ESTOQUE CARREGADO - CORRIGIDO (NÃO SALVA DE VOLTA)
+// CARREGAR DO LOCALSTORAGE (FALLBACK)
+// ============================================================
+function carregarDoLocalStorage() {
+    try {
+        var movs = localStorage.getItem('estoqueMovimentacoes');
+        if (movs) { 
+            state.movimentacoes = JSON.parse(movs); 
+            console.log('📦 Carregado do localStorage: ' + state.movimentacoes.length + ' movimentações');
+        } else { 
+            state.movimentacoes = []; 
+            console.log('ℹ️ Nenhum dado no localStorage');
+        }
+    } catch(e) { 
+        console.warn('Erro ao carregar movimentações:', e); 
+        state.movimentacoes = []; 
+    }
+    processarEstoqueCarregado();
+}
+
+// ============================================================
+// PROCESSAR ESTOQUE CARREGADO
 // ============================================================
 function processarEstoqueCarregado() {
     state.movimentacoes.forEach(function(mov) {
         if (mov.municipio) mov.municipio = normalizarMunicipio(mov.municipio);
         if (mov.insumo) mov.insumo = normalizarInsumo(mov.insumo);
-        mov._sync = true;
     });
+    salvarMovimentacoes();
     recalcularEstoque();
     renderizarEstoque();
 }
 
 // ============================================================
-// OUVIR ESTOQUE DO FIREBASE EM TEMPO REAL - CORRIGIDO (SEM SALVAR)
+// OUVIR ESTOQUE DO FIREBASE EM TEMPO REAL
 // ============================================================
 function ouvirEstoqueFirebase() {
     if (typeof db === 'undefined' || !db) return;
-    
     db.collection('estoque_movimentacoes').onSnapshot(function(snapshot) {
         console.log('📦 Estoque atualizado via listener. Total:', snapshot.size);
-        
+        if (snapshot.size === 0) { carregarEstoqueLocal(); return; }
         var movs = [];
-        snapshot.forEach(function(doc) {
-            var data = doc.data();
-            data._sync = true;
-            movs.push(data);
-        });
-        
+        snapshot.forEach(function(doc) { movs.push(doc.data()); });
         state.movimentacoes = movs;
-        
-        try {
-            localStorage.setItem('estoqueMovimentacoes', JSON.stringify(movs));
-        } catch(e) {}
-        
+        salvarMovimentacoes();
         recalcularEstoque();
         renderizarEstoque();
     }, function(error) {
         console.error('❌ Erro ao ouvir estoque:', error.message);
+        carregarEstoqueLocal();
     });
 }
 
@@ -893,7 +911,7 @@ function limparDesc(obs, op) {
 }
 
 // ============================================================
-// LOGIN / LOGOUT - CORRIGIDO
+// LOGIN / LOGOUT
 // ============================================================
 function fazerLogin() {
     var userEl = document.getElementById('loginUser');
@@ -914,12 +932,8 @@ function fazerLogin() {
         var btnFat = document.getElementById('btnFaturamento');
         if (user === 'producao') { if (btnFat) btnFat.classList.add('oculto'); var pageFat = document.getElementById('pageFaturamento'); if (pageFat && pageFat.classList.contains('ativo')) { mudarAba('dashboard', document.querySelector('.btn-tab.dash')); } } else { if (btnFat) btnFat.classList.remove('oculto'); }
         if (user === 'producao') { mudarAba('producao', document.querySelector('.btn-tab.prod')); } else if (user === 'faturamento') { mudarAba('faturamento', document.querySelector('.btn-tab.fat')); } else { mudarAba('dashboard', document.querySelector('.btn-tab.dash')); }
-        
-        // CORREÇÃO: Carrega estoque + ativa listener (SEM duplicar)
-        carregarEstoqueLocal();
-        ouvirEstoqueFirebase();
         carregarDadosFirebase();
-        
+        carregarEstoqueLocal();
         showToast('✅ Bem-vindo, ' + CREDENCIAIS[user].label + '!', 'success');
     } else { if (erroEl) { erroEl.style.display = 'block'; erroEl.textContent = '❌ Senha incorreta!'; } if (passEl) { passEl.value = ''; passEl.focus(); } }
 }
@@ -977,7 +991,7 @@ function mudarSubAbaProd(aba, btn) {
 }
 
 // ============================================================
-// IMPORTAÇÃO (PRODUÇÃO) - COM DETECÇÃO DE DUPLICATA
+// IMPORTAÇÃO (PRODUÇÃO) - VERSÃO ESTÁVEL COM PROTEÇÃO CONTRA ERROS
 // ============================================================
 function importarPlanilha() {
     var input = document.getElementById('fileInputProducao');
@@ -992,7 +1006,7 @@ function importarPlanilha() {
 }
 
 // ============================================================
-// PROCESSAR EXCEL (PRODUÇÃO) - COM DETECÇÃO DE DUPLICATA
+// PROCESSAR EXCEL (PRODUÇÃO) - SEM APAGAR DADOS ANTIGOS
 // ============================================================
 function processarArquivoExcel(file) {
     var loadingEl = document.getElementById('loading');
@@ -1012,320 +1026,14 @@ function processarArquivoExcel(file) {
             if (!ws) { throw new Error('Aba "' + wsName + '" não encontrada!'); }
             var range = XLSX.utils.decode_range(ws['!ref']);
             var hRow = -1;
-            for (var r = 0; r <= 30; r++) {
+            for (var r = 0; r <= 10; r++) {
                 for (var c = 0; c <= range.e.c; c++) {
                     var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })];
-                    if (cell && cell.v) {
-                        var headerText = String(cell.v).toUpperCase()
-                            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                            .trim();
-                        if (headerText.includes('TALHAO') || headerText.includes('TALHA') || headerText.includes('TALH')) {
-                            hRow = r;
-                            break;
-                        }
-                    }
+                    if (cell && cell.v && String(cell.v).toUpperCase().includes('TALH')) { hRow = r; break; }
                 }
                 if (hRow >= 0) break;
             }
             if (hRow < 0) { throw new Error('Não encontrei coluna "Talhão" no cabeçalho.'); }
-            
-            var cols = {};
-            for (var c = 0; c <= range.e.c; c++) {
-                var cell = ws[XLSX.utils.encode_cell({ r: hRow, c: c })];
-                if (!cell || !cell.v) continue;
-                var h = String(cell.v).trim().toUpperCase();
-                if (h.includes('TALHÃO') || h.includes('TALHAO')) cols.talhao = c;
-                if (h.includes('DATA') && !h.includes('ID')) cols.data = c;
-                if (h.includes('OPERAÇ') || h.includes('OPERAC') || h.includes('ATIVIDADE')) cols.op = c;
-                if (h.includes('FAZENDA') && !h.includes('ID')) cols.faz = c;
-                if (h.includes('PRODUÇ') || h.includes('PRODUC')) cols.prod = c;
-                if (h.includes('EQUIPE')) cols.eq = c;
-                if (h.includes('ÁREA CADASTRO') || h.includes('AREA CADASTRO')) cols.area = c;
-                if ((h.includes('OBSERV') || h.includes('OBS')) && !h.includes('ID')) cols.obs = c;
-                if (h.includes('INSUMO')) { if (!cols.insumos) cols.insumos = []; cols.insumos.push(c); }
-                if (h.includes('QUANTIDADE')) { if (!cols.quantidades) cols.quantidades = []; cols.quantidades.push(c); }
-                if (h==='ID'||h.includes('ID FAZENDA')) cols.id = c;
-                if (h.includes('MUNICÍPIO') || h.includes('MUNICIPIO') || h.includes('CIDADE')) cols.municipio = c;
-            }
-            
-            var resultados = [];
-            var insumosAcum = {};
-            var opsDia = {};
-            var todosRegistros = [];
-            var count = 0;
-            
-            // 🔑 CHAVES JÁ EXISTENTES NO SISTEMA (para detectar duplicatas)
-            var chavesExistentes = new Set();
-            state.dadosProducao.forEach(function(d) {
-                var chave = (d.dataStr || '') + '|||' + 
-                            (d.fazenda || '') + '|||' + 
-                            (d.talhao || '') + '|||' + 
-                            (d.operacao || '') + '|||' + 
-                            (d.producao || 0);
-                chavesExistentes.add(chave);
-            });
-            
-            var linhasNovas = 0;
-            var linhasDuplicadas = 0;
-            
-            for (var r = hRow + 1; r <= range.e.r; r++) {
-                var tCell = ws[XLSX.utils.encode_cell({ r: r, c: cols.talhao })];
-                var oCell = ws[XLSX.utils.encode_cell({ r: r, c: cols.op })];
-                if (!tCell || !tCell.v || !oCell || !oCell.v) continue;
-                var tal = String(tCell.v).trim();
-                var op = String(oCell.v).trim();
-                if (!tal || !op) continue;
-                
-                var gv = function(c, def) { if (c === undefined || c === null) return def || ''; var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; return cell && cell.v !== undefined ? String(cell.v).trim() : (def || ''); };
-                var gn = function(c) { if (c === undefined || c === null) return 0; var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; if (!cell) return 0; var v = parseFloat(String(cell.v).replace(',', '.')); return isNaN(v) ? 0 : v; };
-                var gd = function(c) { if (c === undefined || c === null) return null; var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; return cell ? cell.v : null; };
-                
-                var dataRaw = gd(cols.data);
-                var dataStr = dataRaw ? fmtData(dataRaw) : getHoje();
-                var fazenda = gv(cols.faz, '');
-                var municipio = gv(cols.municipio, '');
-                var producao = gn(cols.prod);
-                var equipe = gv(cols.eq, '');
-                var obs = gv(cols.obs, '');
-                var areaCadastro = gn(cols.area);
-                var idRegistro = gv(cols.id, '');
-                
-                // 🔑 VERIFICA SE ESSA LINHA JÁ EXISTE
-                var chaveLinha = dataStr + '|||' + fazenda + '|||' + tal + '|||' + op + '|||' + producao;
-                if (chavesExistentes.has(chaveLinha)) {
-                    linhasDuplicadas++;
-                    continue; // pula esta linha
-                }
-                chavesExistentes.add(chaveLinha); // evita duplicar dentro da própria planilha
-                linhasNovas++;
-                count++;
-                
-                var insumos = [];
-                if (cols.insumos && cols.quantidades) {
-                    for (var i = 0; i < Math.min(cols.insumos.length, cols.quantidades.length); i++) {
-                        var insNome = gv(cols.insumos[i], '');
-                        var insQtd = gn(cols.quantidades[i]);
-                        if (insNome && insQtd > 0) {
-                            insumos.push({ nome: insNome, qtd: insQtd });
-                            if (!insumosAcum[insNome]) insumosAcum[insNome] = 0;
-                            insumosAcum[insNome] += insQtd;
-                        }
-                    }
-                }
-                var idOp = extrairIdOperacao(op);
-                var nomeOperacao = op;
-                var obsLimpa = limparObservacao(obs);
-                todosRegistros.push({
-                    id: idRegistro || idOp,
-                    idOp: idOp,
-                    operacao: nomeOperacao,
-                    operacaoOriginal: op,
-                    fazenda: fazenda,
-                    municipio: municipio,
-                    talhao: tal,
-                    areaRealizada: producao,
-                    areaCadastro: areaCadastro,
-                    equipe: equipe,
-                    observacao: obs,
-                    observacaoLimpa: obsLimpa,
-                    data: dataRaw,
-                    dataStr: dataStr,
-                    insumos: insumos,
-                    insumosStr: insumos.map(i => extrairInsumoLimpo(i.nome) + ' ' + safe(i.qtd)).join(', ')
-                });
-                if (!opsDia[nomeOperacao]) {
-                    opsDia[nomeOperacao] = {
-                        nome: nomeOperacao,
-                        nomeOriginal: op,
-                        totalHa: 0,
-                        registros: [],
-                        insumos: {},
-                        observacoes: []
-                    };
-                }
-                opsDia[nomeOperacao].totalHa += producao;
-                opsDia[nomeOperacao].registros.push({
-                    id: idRegistro || idOp,
-                    data: dataRaw,
-                    dataStr: dataStr,
-                    ha: producao,
-                    equipe: equipe,
-                    obs: obs,
-                    obsLimpa: obsLimpa,
-                    areaCadastro: areaCadastro,
-                    fazenda: fazenda,
-                    municipio: municipio,
-                    talhao: tal
-                });
-                if (obsLimpa && !opsDia[nomeOperacao].observacoes.includes(obsLimpa)) {
-                    opsDia[nomeOperacao].observacoes.push(obsLimpa);
-                }
-                opsDia[nomeOperacao].insumos = insumosAcum;
-                resultados.push({
-                    talhao: tal,
-                    operacao: op,
-                    data: dataRaw,
-                    fazenda: fazenda,
-                    municipio: municipio,
-                    producao: producao,
-                    equipe: equipe,
-                    obs: obs,
-                    insumos: insumos,
-                    areaCad: areaCadastro,
-                    id: idRegistro || idOp
-                });
-            }
-            
-            if (count === 0) {
-                if (linhasDuplicadas > 0) {
-                    if (loadingEl) loadingEl.classList.remove('show');
-                    showToast('ℹ️ Todas as ' + linhasDuplicadas + ' linhas já existiam. Nada novo importado.', 'info');
-                    return;
-                }
-                throw new Error('Nenhuma linha de dados encontrada.');
-            }
-            
-            for (var opKey in opsDia) {
-                if (state.operacoesDia[opKey]) {
-                    state.operacoesDia[opKey].totalHa += opsDia[opKey].totalHa;
-                    state.operacoesDia[opKey].registros = state.operacoesDia[opKey].registros.concat(opsDia[opKey].registros);
-                } else {
-                    state.operacoesDia[opKey] = opsDia[opKey];
-                }
-            }
-            
-            for (var insKey in insumosAcum) {
-                if (state.insumosDia[insKey]) { state.insumosDia[insKey] += insumosAcum[insKey]; } 
-                else { state.insumosDia[insKey] = insumosAcum[insKey]; }
-            }
-            
-            state.dadosProducao = state.dadosProducao.concat(resultados);
-            state.todosRegistros = state.todosRegistros.concat(todosRegistros);
-            
-            // 🔑 PROCESSAR SAÍDAS (agora com verificação de duplicata)
-            processarSaidasInsumos(resultados);
-            
-            var dia = getDiaNumero();
-            var dataHoje = getHoje();
-            
-            if (typeof db === 'undefined' || !db) { throw new Error('Firebase não está disponível. Verifique a conexão.'); }
-            
-            db.collection('producao_dia').where('dia', '==', dia).get()
-                .then(function(snapshot) {
-                    var promises = [];
-                    var salvos = 0;
-                    var erros = 0;
-                    var jaExiste = snapshot.size > 0;
-                    
-                    for (var opKey in opsDia) {
-                        var op = opsDia[opKey];
-                        var ref;
-                        
-                        if (jaExiste) {
-                            var docExistente = null;
-                            snapshot.forEach(function(doc) {
-                                if (doc.data().operacao === opKey) { docExistente = doc; }
-                            });
-                            
-                            if (docExistente) {
-                                ref = db.collection('producao_dia').doc(docExistente.id);
-                                var promise = ref.update({
-                                    totalHa: state.operacoesDia[opKey].totalHa,
-                                    registros: state.operacoesDia[opKey].registros,
-                                    insumos: state.insumosDia,
-                                    updatedAt: new Date()
-                                })
-                                .then(function() { salvos++; })
-                                .catch(function(error) { erros++; console.error('❌', error.message); });
-                                promises.push(promise);
-                            } else {
-                                ref = db.collection('producao_dia').doc();
-                                var promise = ref.set({
-                                    dia: dia, data: dataHoje, operacao: opKey, operacaoOriginal: op.nomeOriginal,
-                                    totalHa: state.operacoesDia[opKey].totalHa,
-                                    registros: state.operacoesDia[opKey].registros,
-                                    insumos: state.insumosDia,
-                                    todosRegistros: todosRegistros,
-                                    createdAt: new Date()
-                                })
-                                .then(function() { salvos++; })
-                                .catch(function(error) { erros++; });
-                                promises.push(promise);
-                            }
-                        } else {
-                            ref = db.collection('producao_dia').doc();
-                            var promise = ref.set({
-                                dia: dia, data: dataHoje, operacao: opKey, operacaoOriginal: op.nomeOriginal,
-                                totalHa: state.operacoesDia[opKey].totalHa,
-                                registros: state.operacoesDia[opKey].registros,
-                                insumos: state.insumosDia,
-                                todosRegistros: todosRegistros,
-                                createdAt: new Date()
-                            })
-                            .then(function() { salvos++; })
-                            .catch(function(error) { erros++; });
-                            promises.push(promise);
-                        }
-                    }
-                    
-                    return Promise.all(promises);
-                })
-                .then(function() {
-                    if (loadingEl) loadingEl.classList.remove('show');
-                    var infoEl = document.getElementById('infoArquivo');
-                    if (infoEl) infoEl.textContent = '✅ ' + file.name + ' importado! (' + count + ' novas linhas)';
-                    
-                    var msg = '✅ ' + count + ' novas linhas importadas!';
-                    if (linhasDuplicadas > 0) msg += ' 🚫 ' + linhasDuplicadas + ' linhas duplicadas ignoradas.';
-                    showToast(msg, linhasDuplicadas > 0 ? 'warning' : 'success');
-                })
-                .catch(function(error) {
-                    console.error('❌ Erro:', error);
-                    if (loadingEl) loadingEl.classList.remove('show');
-                    showToast('❌ Erro: ' + error.message, 'error');
-                });
-            
-        } catch (error) {
-            console.error('❌ Erro ao processar:', error);
-            if (loadingEl) loadingEl.classList.remove('show');
-            showToast('❌ Erro: ' + error.message, 'error');
-        }
-    };
-    reader.onerror = function(error) {
-        console.error('❌ Erro ao ler arquivo:', error);
-        var loadingEl = document.getElementById('loading');
-        if (loadingEl) loadingEl.classList.remove('show');
-        showToast('❌ Erro ao ler o arquivo.', 'error');
-    };
-    reader.readAsArrayBuffer(file);
-}
-// ✅ DIAGNÓSTICO: mostra todos os cabeçalhos no console
-console.log('═══════════════════════════════════════');
-console.log('📋 CABEÇALHOS ENCONTRADOS NA PLANILHA');
-console.log('═══════════════════════════════════════');
-if (hRow >= 0) {
-    console.log('✅ Linha do cabeçalho: ' + hRow);
-    for (var c = 0; c <= range.e.c; c++) {
-        var cell = ws[XLSX.utils.encode_cell({ r: hRow, c: c })];
-        if (cell && cell.v) {
-            console.log('  Coluna ' + c + ': "' + String(cell.v) + '"');
-        }
-    }
-} else {
-    console.log('❌ NÃO encontrei cabeçalho com TALHÃO. Mostrando as primeiras 5 linhas:');
-    for (var r = 0; r <= 5; r++) {
-        console.log('--- LINHA ' + r + ' ---');
-        for (var c = 0; c <= range.e.c; c++) {
-            var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })];
-            if (cell && cell.v) {
-                console.log('  Coluna ' + c + ': "' + String(cell.v) + '"');
-            }
-        }
-    }
-}
-console.log('═══════════════════════════════════════');
-
-if (hRow < 0) { throw new Error('Não encontrei coluna "Talhão" no cabeçalho. Veja o console (F12) para ver os nomes das colunas.'); }
             var cols = {};
             for (var c = 0; c <= range.e.c; c++) {
                 var cell = ws[XLSX.utils.encode_cell({ r: hRow, c: c })];
@@ -1446,6 +1154,7 @@ if (hRow < 0) { throw new Error('Não encontrei coluna "Talhão" no cabeçalho. 
             }
             if (count === 0) { throw new Error('Nenhuma linha de dados encontrada.'); }
             
+            // Atualiza o estado com os dados da planilha (mesclando com os existentes)
             for (var opKey in opsDia) {
                 if (state.operacoesDia[opKey]) {
                     state.operacoesDia[opKey].totalHa += opsDia[opKey].totalHa;
@@ -1573,61 +1282,42 @@ if (hRow < 0) { throw new Error('Não encontrei coluna "Talhão" no cabeçalho. 
 }
 
 // ============================================================
-// PROCESSAR SAÍDAS DE INSUMOS - CORRIGIDO (SEM DUPLICAÇÃO)
+// PROCESSAR SAÍDAS DE INSUMOS
 // ============================================================
 function processarSaidasInsumos(resultados) {
     if (!resultados || resultados.length === 0) return;
     var saidas = [];
-    var duplicadas = 0;
-    
     resultados.forEach(function(row) {
         if (row.insumos && row.insumos.length > 0) {
             var municipio = normalizarMunicipio(row.municipio || row.fazenda || 'NÃO INFORMADO');
             row.insumos.forEach(function(ins) {
                 var insumo = normalizarInsumo(ins.nome);
                 if (insumo && insumo !== 'INSUMO NÃO IDENTIFICADO' && ins.qtd > 0) {
-                    var dataStr = row.data ? fmtData(row.data) : getHoje();
-                    var operacao = row.operacao || 'OPERAÇÃO';
-                    var talhao = row.talhao || '';
-                    
-                    // 🔑 CHAVE ÚNICA para detectar duplicata
-                    // Combina: Data + Insumo + Município + Operação + Talhão + Quantidade
-                    var chaveUnica = dataStr + '|||' + insumo + '|||' + municipio + '|||' + 
-                                     operacao + '|||' + talhao + '|||' + ins.qtd;
-                    
-                    // Verifica se já existe uma saída igual no estoque
-                    var jaExiste = state.movimentacoes.some(function(m) {
-                        if (m.tipo !== 'saida') return false;
-                        if (!m._chaveUnica) return false;
-                        return m._chaveUnica === chaveUnica;
-                    });
-                    
-                    if (jaExiste) {
-                        duplicadas++;
-                        return; // pula esta saída
-                    }
-                    
+                    var dataFmt = row.data ? fmtData(row.data) : getHoje();
+                    var idSaida = 'saida_' + (row.talhao||'') + '_' + (row.operacao||'') + '_' + dataFmt + '_' + insumo + '_' + ins.qtd;
                     saidas.push({
-                        data: dataStr,
+                        id: idSaida,
+                        data: dataFmt,
                         insumo: insumo,
                         municipio: municipio,
                         quantidade: ins.qtd,
-                        operacao: operacao,
-                        talhao: talhao,
+                        operacao: row.operacao,
+                        talhao: row.talhao,
                         tipo: 'saida',
                         nf: 'PRODUÇÃO',
-                        origem: 'Consumo Produção - ' + operacao,
-                        _chaveUnica: chaveUnica  // 🔑 guarda a chave
+                        origem: 'Consumo Produção - ' + (row.operacao || 'OPERAÇÃO')
                     });
                 }
             });
         }
     });
-    
     if (saidas.length > 0) {
-        saidas.forEach(function(s) {
+        var idsExistentes = {};
+        state.movimentacoes.forEach(function(m) { idsExistentes[m.id] = true; });
+        var novasSaidas = saidas.filter(function(s) { return !idsExistentes[s.id]; });
+        novasSaidas.forEach(function(s) {
             state.movimentacoes.push({
-                id: 'saida_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                id: s.id,
                 data: s.data,
                 tipo: 'saida',
                 insumo: s.insumo,
@@ -1635,19 +1325,18 @@ function processarSaidasInsumos(resultados) {
                 quantidade: s.quantidade,
                 nf: 'PRODUÇÃO',
                 origem: s.origem,
-                createdAt: new Date().toISOString(),
-                _sync: false,
-                _chaveUnica: s._chaveUnica  // 🔑 guarda a chave
+                createdAt: new Date().toISOString()
             });
         });
-        salvarMovimentacoes();
-        recalcularEstoque();
-        renderizarEstoque();
-        showToast('📤 ' + saidas.length + ' saídas registradas. ' + (duplicadas > 0 ? '(' + duplicadas + ' duplicadas ignoradas)' : ''), 'info');
-    } else if (duplicadas > 0) {
-        showToast('ℹ️ ' + duplicadas + ' saídas já existiam — nada novo foi adicionado.', 'info');
+        if (novasSaidas.length > 0) {
+            salvarMovimentacoes();
+            recalcularEstoque();
+            renderizarEstoque();
+            showToast('📤 ' + novasSaidas.length + ' saídas de insumos registradas a partir da planilha.', 'info');
+        }
     }
 }
+
 // ============================================================
 // FUNÇÕES DE ESTOQUE
 // ============================================================
@@ -1723,11 +1412,9 @@ function recalcularEstoque() {
         }
     });
     state.estoque = estoque;
+    salvarMovimentacoes();
 }
 
-// ============================================================
-// REGISTRAR ENTRADA - CORRIGIDO (COM _sync FALSE)
-// ============================================================
 function registrarEntrada() {
     var dataEl = document.getElementById('entradaData');
     var nfEl = document.getElementById('entradaNF');
@@ -1755,6 +1442,7 @@ function registrarEntrada() {
     var dataFormatada = new Date(data).toLocaleDateString('pt-BR');
     var novoId = 'entrada_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
     
+    // Verifica se já existe entrada com este ID
     var existe = state.movimentacoes.some(function(m) { return m.id === novoId; });
     if (existe) {
         showToast('⚠️ Esta entrada já foi registrada!', 'warning');
@@ -1770,8 +1458,7 @@ function registrarEntrada() {
         quantidade: qtd,
         nf: nf,
         origem: 'NF ' + nf,
-        createdAt: new Date().toISOString(),
-        _sync: false
+        createdAt: new Date().toISOString()
     };
     
     state.movimentacoes.push(movimentacao);
@@ -1779,6 +1466,7 @@ function registrarEntrada() {
     recalcularEstoque();
     renderizarEstoque();
     
+    // Limpa o formulário
     nfEl.value = '';
     insumoEl.value = '';
     municipioEl.value = '';
@@ -1786,7 +1474,6 @@ function registrarEntrada() {
     
     showToast('✅ Entrada registrada: ' + qtd + ' kg de ' + insumo + ' para ' + municipio + ' (NF ' + nf + ')', 'success');
 }
-
 // ============================================================
 // RENDERIZAR ESTOQUE
 // ============================================================
@@ -1812,7 +1499,6 @@ function renderizarEstoque() {
     var keys = Object.keys(state.estoque);
     if (keys.length === 0) {
         container.innerHTML = '<div class="empty"><div class="ico">📦</div><p>Nenhum insumo registrado. Adicione uma entrada por NF.</p></div>';
-        renderizarMovimentacoes();
         return;
     }
     var porInsumo = {};
@@ -2035,7 +1721,6 @@ function salvarEdicaoEntrada() {
     mov.municipio = municipio;
     mov.quantidade = qtd;
     mov.origem = 'NF ' + (nf || 'EDITADA');
-    mov._sync = false;
     salvarMovimentacoes();
     recalcularEstoque();
     renderizarEstoque();
@@ -2050,37 +1735,32 @@ function excluirEntrada(movId) {
     var mov = state.movimentacoes[index];
     if (mov.tipo !== 'entrada') { showToast('⚠️ Apenas entradas podem ser excluídas!', 'warning'); return; }
     state.movimentacoes.splice(index, 1);
-    // Remove do Firebase também
-    if (typeof db !== 'undefined' && db) {
-        db.collection('estoque_movimentacoes').doc(movId).delete().catch(function(err) {
-            console.warn('Aviso ao excluir do Firebase:', err.message);
-        });
-    }
     salvarMovimentacoes();
     recalcularEstoque();
     renderizarEstoque();
     showToast('🗑️ Entrada excluída com sucesso!', 'success');
 }
+    // ============================================================
+// EDITAR ENTRADA DE ESTOQUE
+// ============================================================
+function editarEntrada(movId) {
+    var mov = state.movimentacoes.find(function(m) { return m.id === movId; });
+    if (!mov) { showToast('⚠️ Movimentação não encontrada!', 'warning'); return; }
+    if (mov.tipo !== 'entrada') { showToast('⚠️ Apenas entradas podem ser editadas!', 'warning'); return; }
+    
+    // Abre o modal de edição (reutilizando o que já existe)
+    document.getElementById('editMovId').value = movId;
+    document.getElementById('editMovData').value = mov.data;
+    document.getElementById('editMovNF').value = mov.nf || '';
+    document.getElementById('editMovInsumo').value = mov.insumo;
+    document.getElementById('editMovMunicipio').value = mov.municipio;
+    document.getElementById('editMovQtd').value = mov.quantidade;
+    document.getElementById('modalEditarEntrada').classList.add('active');
+}
 
 function limparTudoEstoque() {
     if (!confirm('⚠️ ATENÇÃO: Isso irá apagar TODAS as movimentações de estoque (entradas e saídas). Esta ação não pode ser desfeita!')) return;
     if (!confirm('🔄 Confirme novamente: deseja realmente limpar todos os dados de estoque?')) return;
-    
-    // Remove tudo do Firebase
-    if (typeof db !== 'undefined' && db) {
-        db.collection('estoque_movimentacoes').get().then(function(snapshot) {
-            var promises = [];
-            snapshot.forEach(function(doc) {
-                promises.push(doc.ref.delete());
-            });
-            return Promise.all(promises);
-        }).then(function() {
-            console.log('✅ Todas as movimentações removidas do Firebase.');
-        }).catch(function(err) {
-            console.warn('Aviso ao limpar Firebase:', err.message);
-        });
-    }
-    
     state.movimentacoes = [];
     salvarMovimentacoes();
     recalcularEstoque();
@@ -2089,7 +1769,7 @@ function limparTudoEstoque() {
 }
 
 // ============================================================
-// FUNÇÕES DE TRANSFERÊNCIA ENTRE MUNICÍPIOS - CORRIGIDO (_sync FALSE)
+// FUNÇÕES DE TRANSFERÊNCIA ENTRE MUNICÍPIOS
 // ============================================================
 function abrirModalTransferencia(insumo, origem, saldo) {
     var modal = document.getElementById('modalTransferencia');
@@ -2184,7 +1864,7 @@ function confirmarTransferencia() {
     var dataFormatada = new Date(data).toLocaleDateString('pt-BR');
     var timestamp = Date.now();
     var saidaTransferencia = {
-        id: 'transf_saida_' + timestamp + '_' + Math.random().toString(36).substr(2, 6),
+        id: 'transf_saida_' + timestamp + '_' + Math.random().toString(36).substr(2, 4),
         data: dataFormatada,
         tipo: 'saida',
         insumo: insumo,
@@ -2193,11 +1873,10 @@ function confirmarTransferencia() {
         nf: 'TRANSFERENCIA',
         origem: 'Transferência para ' + destino + (obs ? ' - ' + obs : ''),
         transferencia: { destino: destino, obs: obs },
-        createdAt: new Date().toISOString(),
-        _sync: false
+        createdAt: new Date().toISOString()
     };
     var entradaTransferencia = {
-        id: 'transf_entrada_' + timestamp + '_' + Math.random().toString(36).substr(2, 6),
+        id: 'transf_entrada_' + timestamp + '_' + Math.random().toString(36).substr(2, 4),
         data: dataFormatada,
         tipo: 'entrada',
         insumo: insumo,
@@ -2206,8 +1885,7 @@ function confirmarTransferencia() {
         nf: 'TRANSFERENCIA',
         origem: 'Transferência de ' + origem + (obs ? ' - ' + obs : ''),
         transferencia: { origem: origem, obs: obs },
-        createdAt: new Date().toISOString(),
-        _sync: false
+        createdAt: new Date().toISOString()
     };
     state.movimentacoes.push(saidaTransferencia);
     state.movimentacoes.push(entradaTransferencia);
@@ -2378,7 +2056,7 @@ function ouvirLancamentosFirebase() {
 }
 
 // ============================================================
-// CARREGAR DADOS FIREBASE
+// CARREGAR DADOS FIREBASE - SEM LOOP INFINITO
 // ============================================================
 function carregarDadosFirebase() {
     if (state.isLoading) return;
@@ -2413,6 +2091,9 @@ function carregarDadosFirebase() {
             });
             state.operacoesDia = ops;
             
+            // ============================================================
+            // POPULA dadosProducao A PARTIR DAS OPERAÇÕES
+            // ============================================================
             var dados = [];
             Object.keys(ops).forEach(function(opKey) {
                 var op = ops[opKey];
@@ -2449,7 +2130,7 @@ function carregarDadosFirebase() {
             snapshot.forEach(function(doc) {
                 var data = doc.data();
                 var opId = data.opId;
-                if (!lancs[opId]) lancs[opId] = { ha: 0, valor: 0, custo: 0, tf: 0, maq: 0, pipa: 0, apoio: 0, docId: doc.id, dataReferencia: data.dataReferencia || '' };
+                if (!lancs[opId]) lancs[opId] = { ha: 0, valor: 0, custo: 0, tf: 0, maq: 0, pipa: 0, apoio: 0, docId: doc.id };
                 lancs[opId].ha += data.ha || 0;
                 lancs[opId].valor += data.valor || 0;
                 lancs[opId].custo += data.custo || 0;
@@ -2457,7 +2138,6 @@ function carregarDadosFirebase() {
                 lancs[opId].maq += data.maq || 0;
                 lancs[opId].pipa += data.pipa || 0;
                 lancs[opId].apoio += data.apoio || 0;
-                if (data.dataReferencia) lancs[opId].dataReferencia = data.dataReferencia;
             });
             state.lancamentosFirebase = lancs;
             return db.collection('config').doc('custos').get();
@@ -2658,10 +2338,12 @@ function renderData() {
     diasData.forEach(function(dia) {
         var totalDia = dia.ops.reduce(function(s,o){ return s+o.producaoDia; }, 0);
         
+        // CORREÇÃO: Usa dataStr em vez de tentar criar nova data
         var ds = dia.dataStr || 'Data não informada';
         var diaId = 'dia_'+ds.replace(/\//g,'-');
         var open = isOpen(diaId);
         
+        // CORREÇÃO: Verifica se a data é válida
         var dataObj = dia.data ? new Date(dia.data) : null;
         var diasemana = (dataObj && !isNaN(dataObj.getTime())) ? dataObj.toLocaleDateString('pt-BR',{weekday:'long'}) : 'Data inválida';
         
@@ -2729,14 +2411,17 @@ function renderData() {
 }
 
 function calcDadosPorData() {
+    // Usa state.dadosProducao que já está populado
     var filtrados = state.dadosProducao.slice();
     
+    // Se não tiver dados, tenta usar state.operacoesDia como fallback
     if (filtrados.length === 0) {
         console.log('⚠️ dadosProducao vazio, tentando operacoesDia...');
         Object.keys(state.operacoesDia).forEach(function(opKey) {
             var op = state.operacoesDia[opKey];
             if (op.registros) {
                 op.registros.forEach(function(reg) {
+                    // Gera dataStr a partir da data
                     var dataStr = '';
                     if (reg.data) {
                         try {
@@ -2779,6 +2464,7 @@ function calcDadosPorData() {
         return [];
     }
     
+    // GARANTE QUE TODOS OS REGISTROS TÊM dataStr
     filtrados.forEach(function(item) {
         if (!item.dataStr || item.dataStr === 'Invalid Date' || item.dataStr === '') {
             if (item.data) {
@@ -2830,6 +2516,7 @@ function calcDadosPorData() {
     });
     
     var datasOrd = Object.values(porData).sort(function(a,b){ 
+        // Tenta ordenar por data, se falhar, ordena por string
         try {
             return new Date(a.data) - new Date(b.data);
         } catch(e) {
@@ -3124,7 +2811,6 @@ function calcularTotalOp(index) {
     var ops = state.operacoesDia;
     var keys = Object.keys(ops);
     var key = keys[index];
-    if (!key) return { valor: 0, custo: 0, tf: 0, maq: 0, pipa: 0, apoio: 0, ha: 0, rha: 0, receita: 0 };
     var ha = ops[key].totalHa;
     var receita = ha * rha;
     var custo = (tf * state.custos.TF) + (maq * state.custos.MAQ) + (pipa * state.custos.PIPA) + (apoio * state.custos.APOIO);
@@ -3862,7 +3548,7 @@ function renderizarLancamentosHoje() {
         var resultado = (l.valor || 0) - (l.custo || 0);
         var cor = resultado >= 0 ? 'text-green' : 'text-red';
         var sinal = resultado >= 0 ? '+' : '';
-        var isManual = (state.operacoesDia[key] && state.operacoesDia[key].isManual) || false;
+        var isManual = (ops[key] && ops[key].isManual) || false;
         html += '<tr><td>' + key + (isManual ? ' <span style="font-size:9px;color:#7c3aed;">(Manual)</span>' : '') + '<br><span style="font-size:9px;color:#64748b;">' + dataSelecionada + '</span></td><td class="num">' + safe(l.ha) + '</td><td class="num">' + formatMoney(l.valor || 0) + '</td><td class="num">' + formatMoney(l.custo || 0) + '</td><td class="num ' + cor + '">' + sinal + formatMoney(resultado) + '</td><td class="text-sm">TF:' + (l.tf || 0) + ' M:' + (l.maq || 0) + ' P:' + (l.pipa || 0) + ' A:' + (l.apoio || 0) + '</td><td class="num" style="white-space:nowrap;"><button class="btn-edit-custom" onclick="editarLancamento(\'' + key + '\',\'' + dataSelecionada + '\')" title="Editar" style="margin-right:4px;"><i class="fas fa-edit"></i></button><button class="btn-danger-custom" onclick="excluirLancamento(\'' + key + '\')" style="padding:4px 10px;font-size:11px;"><i class="fas fa-trash"></i></button></td></tr>';
     }
     var totalResultado = totalValor - totalCusto;
@@ -4216,7 +3902,6 @@ console.log('🔄 Módulo de Transferência entre municípios ativado!');
 console.log('📊 Rastreio de consumo por município ativado!');
 console.log('📦 Compartilhamento de estoque ativado!');
 console.log('✅ CORREÇÃO: Salvar movimentações sem duplicação ativado!');
-console.log('✅ CORREÇÃO: Estoque carrega do Firebase corretamente!');
 
 visaoFaturamentoAtual = 'dia';
 
@@ -4226,6 +3911,7 @@ if (loginScreen) loginScreen.style.display = 'flex';
 if (app) app.style.display = 'none';
 
 document.addEventListener('DOMContentLoaded', function() {
+    carregarEstoqueLocal();
     var btnLancar = document.getElementById('btnLancar');
     if (btnLancar) {
         btnLancar.addEventListener('click', function() {
