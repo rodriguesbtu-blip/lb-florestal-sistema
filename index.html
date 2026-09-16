@@ -1012,14 +1012,49 @@ function processarArquivoExcel(file) {
             if (!ws) { throw new Error('Aba "' + wsName + '" não encontrada!'); }
             var range = XLSX.utils.decode_range(ws['!ref']);
             var hRow = -1;
-            for (var r = 0; r <= 10; r++) {
-                for (var c = 0; c <= range.e.c; c++) {
-                    var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })];
-                    if (cell && cell.v && String(cell.v).toUpperCase().includes('TALH')) { hRow = r; break; }
-                }
-                if (hRow >= 0) break;
+for (var r = 0; r <= 30; r++) {
+    for (var c = 0; c <= range.e.c; c++) {
+        var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })];
+        if (cell && cell.v) {
+            var headerText = String(cell.v).toUpperCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .trim();
+            if (headerText.includes('TALHAO') || headerText.includes('TALHA') || headerText.includes('TALH')) {
+                hRow = r;
+                break;
             }
-            if (hRow < 0) { throw new Error('Não encontrei coluna "Talhão" no cabeçalho.'); }
+        }
+    }
+    if (hRow >= 0) break;
+}
+
+// ✅ DIAGNÓSTICO: mostra todos os cabeçalhos no console
+console.log('═══════════════════════════════════════');
+console.log('📋 CABEÇALHOS ENCONTRADOS NA PLANILHA');
+console.log('═══════════════════════════════════════');
+if (hRow >= 0) {
+    console.log('✅ Linha do cabeçalho: ' + hRow);
+    for (var c = 0; c <= range.e.c; c++) {
+        var cell = ws[XLSX.utils.encode_cell({ r: hRow, c: c })];
+        if (cell && cell.v) {
+            console.log('  Coluna ' + c + ': "' + String(cell.v) + '"');
+        }
+    }
+} else {
+    console.log('❌ NÃO encontrei cabeçalho com TALHÃO. Mostrando as primeiras 5 linhas:');
+    for (var r = 0; r <= 5; r++) {
+        console.log('--- LINHA ' + r + ' ---');
+        for (var c = 0; c <= range.e.c; c++) {
+            var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })];
+            if (cell && cell.v) {
+                console.log('  Coluna ' + c + ': "' + String(cell.v) + '"');
+            }
+        }
+    }
+}
+console.log('═══════════════════════════════════════');
+
+if (hRow < 0) { throw new Error('Não encontrei coluna "Talhão" no cabeçalho. Veja o console (F12) para ver os nomes das colunas.'); }
             var cols = {};
             for (var c = 0; c <= range.e.c; c++) {
                 var cell = ws[XLSX.utils.encode_cell({ r: hRow, c: c })];
