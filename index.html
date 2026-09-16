@@ -977,7 +977,7 @@ function mudarSubAbaProd(aba, btn) {
 }
 
 // ============================================================
-// IMPORTAÇÃO (PRODUÇÃO)
+// IMPORTAÇÃO (PRODUÇÃO) - COM DETECÇÃO DE DUPLICATA
 // ============================================================
 function importarPlanilha() {
     var input = document.getElementById('fileInputProducao');
@@ -992,7 +992,7 @@ function importarPlanilha() {
 }
 
 // ============================================================
-// PROCESSAR EXCEL (PRODUÇÃO)
+// PROCESSAR EXCEL (PRODUÇÃO) - COM DETECÇÃO DE DUPLICATA
 // ============================================================
 function processarArquivoExcel(file) {
     var loadingEl = document.getElementById('loading');
@@ -1012,22 +1012,293 @@ function processarArquivoExcel(file) {
             if (!ws) { throw new Error('Aba "' + wsName + '" não encontrada!'); }
             var range = XLSX.utils.decode_range(ws['!ref']);
             var hRow = -1;
-for (var r = 0; r <= 30; r++) {
-    for (var c = 0; c <= range.e.c; c++) {
-        var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })];
-        if (cell && cell.v) {
-            var headerText = String(cell.v).toUpperCase()
-                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                .trim();
-            if (headerText.includes('TALHAO') || headerText.includes('TALHA') || headerText.includes('TALH')) {
-                hRow = r;
-                break;
+            for (var r = 0; r <= 30; r++) {
+                for (var c = 0; c <= range.e.c; c++) {
+                    var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })];
+                    if (cell && cell.v) {
+                        var headerText = String(cell.v).toUpperCase()
+                            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                            .trim();
+                        if (headerText.includes('TALHAO') || headerText.includes('TALHA') || headerText.includes('TALH')) {
+                            hRow = r;
+                            break;
+                        }
+                    }
+                }
+                if (hRow >= 0) break;
             }
+            if (hRow < 0) { throw new Error('Não encontrei coluna "Talhão" no cabeçalho.'); }
+            
+            var cols = {};
+            for (var c = 0; c <= range.e.c; c++) {
+                var cell = ws[XLSX.utils.encode_cell({ r: hRow, c: c })];
+                if (!cell || !cell.v) continue;
+                var h = String(cell.v).trim().toUpperCase();
+                if (h.includes('TALHÃO') || h.includes('TALHAO')) cols.talhao = c;
+                if (h.includes('DATA') && !h.includes('ID')) cols.data = c;
+                if (h.includes('OPERAÇ') || h.includes('OPERAC') || h.includes('ATIVIDADE')) cols.op = c;
+                if (h.includes('FAZENDA') && !h.includes('ID')) cols.faz = c;
+                if (h.includes('PRODUÇ') || h.includes('PRODUC')) cols.prod = c;
+                if (h.includes('EQUIPE')) cols.eq = c;
+                if (h.includes('ÁREA CADASTRO') || h.includes('AREA CADASTRO')) cols.area = c;
+                if ((h.includes('OBSERV') || h.includes('OBS')) && !h.includes('ID')) cols.obs = c;
+                if (h.includes('INSUMO')) { if (!cols.insumos) cols.insumos = []; cols.insumos.push(c); }
+                if (h.includes('QUANTIDADE')) { if (!cols.quantidades) cols.quantidades = []; cols.quantidades.push(c); }
+                if (h==='ID'||h.includes('ID FAZENDA')) cols.id = c;
+                if (h.includes('MUNICÍPIO') || h.includes('MUNICIPIO') || h.includes('CIDADE')) cols.municipio = c;
+            }
+            
+            var resultados = [];
+            var insumosAcum = {};
+            var opsDia = {};
+            var todosRegistros = [];
+            var count = 0;
+            
+            // 🔑 CHAVES JÁ EXISTENTES NO SISTEMA (para detectar duplicatas)
+            var chavesExistentes = new Set();
+            state.dadosProducao.forEach(function(d) {
+                var chave = (d.dataStr || '') + '|||' + 
+                            (d.fazenda || '') + '|||' + 
+                            (d.talhao || '') + '|||' + 
+                            (d.operacao || '') + '|||' + 
+                            (d.producao || 0);
+                chavesExistentes.add(chave);
+            });
+            
+            var linhasNovas = 0;
+            var linhasDuplicadas = 0;
+            
+            for (var r = hRow + 1; r <= range.e.r; r++) {
+                var tCell = ws[XLSX.utils.encode_cell({ r: r, c: cols.talhao })];
+                var oCell = ws[XLSX.utils.encode_cell({ r: r, c: cols.op })];
+                if (!tCell || !tCell.v || !oCell || !oCell.v) continue;
+                var tal = String(tCell.v).trim();
+                var op = String(oCell.v).trim();
+                if (!tal || !op) continue;
+                
+                var gv = function(c, def) { if (c === undefined || c === null) return def || ''; var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; return cell && cell.v !== undefined ? String(cell.v).trim() : (def || ''); };
+                var gn = function(c) { if (c === undefined || c === null) return 0; var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; if (!cell) return 0; var v = parseFloat(String(cell.v).replace(',', '.')); return isNaN(v) ? 0 : v; };
+                var gd = function(c) { if (c === undefined || c === null) return null; var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; return cell ? cell.v : null; };
+                
+                var dataRaw = gd(cols.data);
+                var dataStr = dataRaw ? fmtData(dataRaw) : getHoje();
+                var fazenda = gv(cols.faz, '');
+                var municipio = gv(cols.municipio, '');
+                var producao = gn(cols.prod);
+                var equipe = gv(cols.eq, '');
+                var obs = gv(cols.obs, '');
+                var areaCadastro = gn(cols.area);
+                var idRegistro = gv(cols.id, '');
+                
+                // 🔑 VERIFICA SE ESSA LINHA JÁ EXISTE
+                var chaveLinha = dataStr + '|||' + fazenda + '|||' + tal + '|||' + op + '|||' + producao;
+                if (chavesExistentes.has(chaveLinha)) {
+                    linhasDuplicadas++;
+                    continue; // pula esta linha
+                }
+                chavesExistentes.add(chaveLinha); // evita duplicar dentro da própria planilha
+                linhasNovas++;
+                count++;
+                
+                var insumos = [];
+                if (cols.insumos && cols.quantidades) {
+                    for (var i = 0; i < Math.min(cols.insumos.length, cols.quantidades.length); i++) {
+                        var insNome = gv(cols.insumos[i], '');
+                        var insQtd = gn(cols.quantidades[i]);
+                        if (insNome && insQtd > 0) {
+                            insumos.push({ nome: insNome, qtd: insQtd });
+                            if (!insumosAcum[insNome]) insumosAcum[insNome] = 0;
+                            insumosAcum[insNome] += insQtd;
+                        }
+                    }
+                }
+                var idOp = extrairIdOperacao(op);
+                var nomeOperacao = op;
+                var obsLimpa = limparObservacao(obs);
+                todosRegistros.push({
+                    id: idRegistro || idOp,
+                    idOp: idOp,
+                    operacao: nomeOperacao,
+                    operacaoOriginal: op,
+                    fazenda: fazenda,
+                    municipio: municipio,
+                    talhao: tal,
+                    areaRealizada: producao,
+                    areaCadastro: areaCadastro,
+                    equipe: equipe,
+                    observacao: obs,
+                    observacaoLimpa: obsLimpa,
+                    data: dataRaw,
+                    dataStr: dataStr,
+                    insumos: insumos,
+                    insumosStr: insumos.map(i => extrairInsumoLimpo(i.nome) + ' ' + safe(i.qtd)).join(', ')
+                });
+                if (!opsDia[nomeOperacao]) {
+                    opsDia[nomeOperacao] = {
+                        nome: nomeOperacao,
+                        nomeOriginal: op,
+                        totalHa: 0,
+                        registros: [],
+                        insumos: {},
+                        observacoes: []
+                    };
+                }
+                opsDia[nomeOperacao].totalHa += producao;
+                opsDia[nomeOperacao].registros.push({
+                    id: idRegistro || idOp,
+                    data: dataRaw,
+                    dataStr: dataStr,
+                    ha: producao,
+                    equipe: equipe,
+                    obs: obs,
+                    obsLimpa: obsLimpa,
+                    areaCadastro: areaCadastro,
+                    fazenda: fazenda,
+                    municipio: municipio,
+                    talhao: tal
+                });
+                if (obsLimpa && !opsDia[nomeOperacao].observacoes.includes(obsLimpa)) {
+                    opsDia[nomeOperacao].observacoes.push(obsLimpa);
+                }
+                opsDia[nomeOperacao].insumos = insumosAcum;
+                resultados.push({
+                    talhao: tal,
+                    operacao: op,
+                    data: dataRaw,
+                    fazenda: fazenda,
+                    municipio: municipio,
+                    producao: producao,
+                    equipe: equipe,
+                    obs: obs,
+                    insumos: insumos,
+                    areaCad: areaCadastro,
+                    id: idRegistro || idOp
+                });
+            }
+            
+            if (count === 0) {
+                if (linhasDuplicadas > 0) {
+                    if (loadingEl) loadingEl.classList.remove('show');
+                    showToast('ℹ️ Todas as ' + linhasDuplicadas + ' linhas já existiam. Nada novo importado.', 'info');
+                    return;
+                }
+                throw new Error('Nenhuma linha de dados encontrada.');
+            }
+            
+            for (var opKey in opsDia) {
+                if (state.operacoesDia[opKey]) {
+                    state.operacoesDia[opKey].totalHa += opsDia[opKey].totalHa;
+                    state.operacoesDia[opKey].registros = state.operacoesDia[opKey].registros.concat(opsDia[opKey].registros);
+                } else {
+                    state.operacoesDia[opKey] = opsDia[opKey];
+                }
+            }
+            
+            for (var insKey in insumosAcum) {
+                if (state.insumosDia[insKey]) { state.insumosDia[insKey] += insumosAcum[insKey]; } 
+                else { state.insumosDia[insKey] = insumosAcum[insKey]; }
+            }
+            
+            state.dadosProducao = state.dadosProducao.concat(resultados);
+            state.todosRegistros = state.todosRegistros.concat(todosRegistros);
+            
+            // 🔑 PROCESSAR SAÍDAS (agora com verificação de duplicata)
+            processarSaidasInsumos(resultados);
+            
+            var dia = getDiaNumero();
+            var dataHoje = getHoje();
+            
+            if (typeof db === 'undefined' || !db) { throw new Error('Firebase não está disponível. Verifique a conexão.'); }
+            
+            db.collection('producao_dia').where('dia', '==', dia).get()
+                .then(function(snapshot) {
+                    var promises = [];
+                    var salvos = 0;
+                    var erros = 0;
+                    var jaExiste = snapshot.size > 0;
+                    
+                    for (var opKey in opsDia) {
+                        var op = opsDia[opKey];
+                        var ref;
+                        
+                        if (jaExiste) {
+                            var docExistente = null;
+                            snapshot.forEach(function(doc) {
+                                if (doc.data().operacao === opKey) { docExistente = doc; }
+                            });
+                            
+                            if (docExistente) {
+                                ref = db.collection('producao_dia').doc(docExistente.id);
+                                var promise = ref.update({
+                                    totalHa: state.operacoesDia[opKey].totalHa,
+                                    registros: state.operacoesDia[opKey].registros,
+                                    insumos: state.insumosDia,
+                                    updatedAt: new Date()
+                                })
+                                .then(function() { salvos++; })
+                                .catch(function(error) { erros++; console.error('❌', error.message); });
+                                promises.push(promise);
+                            } else {
+                                ref = db.collection('producao_dia').doc();
+                                var promise = ref.set({
+                                    dia: dia, data: dataHoje, operacao: opKey, operacaoOriginal: op.nomeOriginal,
+                                    totalHa: state.operacoesDia[opKey].totalHa,
+                                    registros: state.operacoesDia[opKey].registros,
+                                    insumos: state.insumosDia,
+                                    todosRegistros: todosRegistros,
+                                    createdAt: new Date()
+                                })
+                                .then(function() { salvos++; })
+                                .catch(function(error) { erros++; });
+                                promises.push(promise);
+                            }
+                        } else {
+                            ref = db.collection('producao_dia').doc();
+                            var promise = ref.set({
+                                dia: dia, data: dataHoje, operacao: opKey, operacaoOriginal: op.nomeOriginal,
+                                totalHa: state.operacoesDia[opKey].totalHa,
+                                registros: state.operacoesDia[opKey].registros,
+                                insumos: state.insumosDia,
+                                todosRegistros: todosRegistros,
+                                createdAt: new Date()
+                            })
+                            .then(function() { salvos++; })
+                            .catch(function(error) { erros++; });
+                            promises.push(promise);
+                        }
+                    }
+                    
+                    return Promise.all(promises);
+                })
+                .then(function() {
+                    if (loadingEl) loadingEl.classList.remove('show');
+                    var infoEl = document.getElementById('infoArquivo');
+                    if (infoEl) infoEl.textContent = '✅ ' + file.name + ' importado! (' + count + ' novas linhas)';
+                    
+                    var msg = '✅ ' + count + ' novas linhas importadas!';
+                    if (linhasDuplicadas > 0) msg += ' 🚫 ' + linhasDuplicadas + ' linhas duplicadas ignoradas.';
+                    showToast(msg, linhasDuplicadas > 0 ? 'warning' : 'success');
+                })
+                .catch(function(error) {
+                    console.error('❌ Erro:', error);
+                    if (loadingEl) loadingEl.classList.remove('show');
+                    showToast('❌ Erro: ' + error.message, 'error');
+                });
+            
+        } catch (error) {
+            console.error('❌ Erro ao processar:', error);
+            if (loadingEl) loadingEl.classList.remove('show');
+            showToast('❌ Erro: ' + error.message, 'error');
         }
-    }
-    if (hRow >= 0) break;
+    };
+    reader.onerror = function(error) {
+        console.error('❌ Erro ao ler arquivo:', error);
+        var loadingEl = document.getElementById('loading');
+        if (loadingEl) loadingEl.classList.remove('show');
+        showToast('❌ Erro ao ler o arquivo.', 'error');
+    };
+    reader.readAsArrayBuffer(file);
 }
-
 // ✅ DIAGNÓSTICO: mostra todos os cabeçalhos no console
 console.log('═══════════════════════════════════════');
 console.log('📋 CABEÇALHOS ENCONTRADOS NA PLANILHA');
@@ -1302,32 +1573,57 @@ if (hRow < 0) { throw new Error('Não encontrei coluna "Talhão" no cabeçalho. 
 }
 
 // ============================================================
-// PROCESSAR SAÍDAS DE INSUMOS - CORRIGIDO (COM _sync FALSE)
+// PROCESSAR SAÍDAS DE INSUMOS - CORRIGIDO (SEM DUPLICAÇÃO)
 // ============================================================
 function processarSaidasInsumos(resultados) {
     if (!resultados || resultados.length === 0) return;
     var saidas = [];
+    var duplicadas = 0;
+    
     resultados.forEach(function(row) {
         if (row.insumos && row.insumos.length > 0) {
             var municipio = normalizarMunicipio(row.municipio || row.fazenda || 'NÃO INFORMADO');
             row.insumos.forEach(function(ins) {
                 var insumo = normalizarInsumo(ins.nome);
                 if (insumo && insumo !== 'INSUMO NÃO IDENTIFICADO' && ins.qtd > 0) {
+                    var dataStr = row.data ? fmtData(row.data) : getHoje();
+                    var operacao = row.operacao || 'OPERAÇÃO';
+                    var talhao = row.talhao || '';
+                    
+                    // 🔑 CHAVE ÚNICA para detectar duplicata
+                    // Combina: Data + Insumo + Município + Operação + Talhão + Quantidade
+                    var chaveUnica = dataStr + '|||' + insumo + '|||' + municipio + '|||' + 
+                                     operacao + '|||' + talhao + '|||' + ins.qtd;
+                    
+                    // Verifica se já existe uma saída igual no estoque
+                    var jaExiste = state.movimentacoes.some(function(m) {
+                        if (m.tipo !== 'saida') return false;
+                        if (!m._chaveUnica) return false;
+                        return m._chaveUnica === chaveUnica;
+                    });
+                    
+                    if (jaExiste) {
+                        duplicadas++;
+                        return; // pula esta saída
+                    }
+                    
                     saidas.push({
-                        data: row.data ? fmtData(row.data) : getHoje(),
+                        data: dataStr,
                         insumo: insumo,
                         municipio: municipio,
                         quantidade: ins.qtd,
-                        operacao: row.operacao,
-                        talhao: row.talhao,
+                        operacao: operacao,
+                        talhao: talhao,
                         tipo: 'saida',
                         nf: 'PRODUÇÃO',
-                        origem: 'Consumo Produção - ' + (row.operacao || 'OPERAÇÃO')
+                        origem: 'Consumo Produção - ' + operacao,
+                        _chaveUnica: chaveUnica  // 🔑 guarda a chave
                     });
                 }
             });
         }
     });
+    
     if (saidas.length > 0) {
         saidas.forEach(function(s) {
             state.movimentacoes.push({
@@ -1340,16 +1636,18 @@ function processarSaidasInsumos(resultados) {
                 nf: 'PRODUÇÃO',
                 origem: s.origem,
                 createdAt: new Date().toISOString(),
-                _sync: false
+                _sync: false,
+                _chaveUnica: s._chaveUnica  // 🔑 guarda a chave
             });
         });
         salvarMovimentacoes();
         recalcularEstoque();
         renderizarEstoque();
-        showToast('📤 ' + saidas.length + ' saídas de insumos registradas a partir da planilha.', 'info');
+        showToast('📤 ' + saidas.length + ' saídas registradas. ' + (duplicadas > 0 ? '(' + duplicadas + ' duplicadas ignoradas)' : ''), 'info');
+    } else if (duplicadas > 0) {
+        showToast('ℹ️ ' + duplicadas + ' saídas já existiam — nada novo foi adicionado.', 'info');
     }
 }
-
 // ============================================================
 // FUNÇÕES DE ESTOQUE
 // ============================================================
